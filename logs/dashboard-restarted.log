@@ -1,0 +1,114 @@
+[02:37:08 UTC] [32mINFO[39m: [36mServer listening at http://0.0.0.0:8080[39m
+[02:37:08 UTC] [32mINFO[39m: [36m🚀 Mithrandir Unified API started on http://0.0.0.0:8080[39m
+[02:37:08 UTC] [32mINFO[39m: [36m📋 Available endpoints:[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  === Failsafe API (Legacy Port 8888 functionality) ===[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /ssh-status - System status[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /status - Legacy alias[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  POST /restart-ssh - Restart SSH service[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  POST /start-vnc - Start VNC server[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  === Monitoring API (Original Port 8080 functionality) ===[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /metrics - Prometheus metrics[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /monitoring/status - Monitoring status[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /monitoring/health - Health check[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /health - Health check alias[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  === System API ===[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /info - API information[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  GET  /docs - Swagger documentation[39m
+[02:37:08 UTC] [32mINFO[39m: 
+[02:37:08 UTC] [32mINFO[39m: [36m🎉 Unified API combining:[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  - Failsafe operations (SSH, VNC management)[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  - System monitoring (Prometheus metrics)[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  - Health checks and status reporting[39m
+[02:37:08 UTC] [32mINFO[39m: [36m  - Professional security and documentation[39m
+DEBUG: Retrieved 62 jobs from BullMQ
+DEBUG: Job 0 - Stump The Guru Optin Unlock The Sales Game-25.wav
+DEBUG: Job 0 elapsed time: 24081 6h 41m 21s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 24081 6h 41m 21s
+DEBUG: Job 1 - Stump The Guru Optin Unlock The Sales Game-25.wav
+DEBUG: Job 1 elapsed time: 24081 6h 41m 21s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 24081 6h 41m 21s
+DEBUG: Job 2 - Stump The Guru Optin Unlock The Sales Game-21.wav
+DEBUG: Job 2 elapsed time: 24081 6h 41m 21s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 24081 6h 41m 21s
+DEBUG: Final projects count: 56
+DEBUG: First project name: 02 - Healing Prayer for Trauma.m4a
+DEBUG: First file name: 02 - Healing Prayer for Trauma.m4a
+DEBUG: First file elapsed time: 485 8m 5s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[02:37:22 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-1"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 64706
+    }
+[02:37:23 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-1"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 112.93401396274567

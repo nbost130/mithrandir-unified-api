@@ -1,0 +1,8 @@
+[22:59:17 UTC] [31mERROR[39m: [36mFailed to start server[39m
+    error: {
+      "code": "EADDRINUSE",
+      "errno": -98,
+      "syscall": "listen",
+      "address": "0.0.0.0",
+      "port": 8080
+    }

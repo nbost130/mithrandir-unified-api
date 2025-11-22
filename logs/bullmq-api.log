@@ -1,0 +1,119 @@
+[23:43:41 UTC] [32mINFO[39m: [36mServer listening at http://0.0.0.0:8080[39m
+[23:43:41 UTC] [32mINFO[39m: [36m🚀 Mithrandir Unified API started on http://0.0.0.0:8080[39m
+[23:43:41 UTC] [32mINFO[39m: [36m📋 Available endpoints:[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  === Failsafe API (Legacy Port 8888 functionality) ===[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /ssh-status - System status[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /status - Legacy alias[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  POST /restart-ssh - Restart SSH service[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  POST /start-vnc - Start VNC server[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  === Monitoring API (Original Port 8080 functionality) ===[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /metrics - Prometheus metrics[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /monitoring/status - Monitoring status[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /monitoring/health - Health check[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /health - Health check alias[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  === System API ===[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /info - API information[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  GET  /docs - Swagger documentation[39m
+[23:43:41 UTC] [32mINFO[39m: 
+[23:43:41 UTC] [32mINFO[39m: [36m🎉 Unified API combining:[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  - Failsafe operations (SSH, VNC management)[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  - System monitoring (Prometheus metrics)[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  - Health checks and status reporting[39m
+[23:43:41 UTC] [32mINFO[39m: [36m  - Professional security and documentation[39m
+[23:43:51 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-1"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/health",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.77.230.53",
+      "remotePort": 48122
+    }
+[23:43:51 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-2"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/monitoring/health",
+      "hostname": "localhost:80",
+      "remoteAddress": "127.0.0.1"
+    }
+[23:43:51 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-2"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 88.98212897777557
+[23:43:51 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-1"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 101.39486408233643
+DEBUG: getTranscriptionDashboard error: require is not defined
+DEBUG: Final projects count: 0
+DEBUG: getTranscriptionDashboard error: require is not defined
+DEBUG: Final projects count: 0
+[23:43:57 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-3"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60379
+    }
+[23:43:57 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-3"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 2.3720329999923706
+[23:43:57 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-4"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60380
+    }
+[23:43:57 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-4"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 0.9625149965286255
+DEBUG: getTranscriptionDashboard error: require is not defined
+DEBUG: Final projects count: 0
+[23:44:02 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-5"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.77.230.53",
+      "remotePort": 54108
+    }
+[23:44:02 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-5"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 0.8672869205474854
+DEBUG: getTranscriptionDashboard error: require is not defined
+DEBUG: Final projects count: 0
+[23:44:16 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-6"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60385
+    }
+[23:44:16 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-6"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 0.9312800168991089

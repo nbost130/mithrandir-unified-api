@@ -1,0 +1,354 @@
+[23:01:00 UTC] [32mINFO[39m: [36mServer listening at http://0.0.0.0:8080[39m
+[23:01:00 UTC] [32mINFO[39m: [36m🚀 Mithrandir Unified API started on http://0.0.0.0:8080[39m
+[23:01:00 UTC] [32mINFO[39m: [36m📋 Available endpoints:[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  === Failsafe API (Legacy Port 8888 functionality) ===[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /ssh-status - System status[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /status - Legacy alias[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  POST /restart-ssh - Restart SSH service[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  POST /start-vnc - Start VNC server[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  === Monitoring API (Original Port 8080 functionality) ===[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /metrics - Prometheus metrics[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /monitoring/status - Monitoring status[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /monitoring/health - Health check[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /health - Health check alias[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  === System API ===[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /info - API information[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  GET  /docs - Swagger documentation[39m
+[23:01:00 UTC] [32mINFO[39m: 
+[23:01:00 UTC] [32mINFO[39m: [36m🎉 Unified API combining:[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  - Failsafe operations (SSH, VNC management)[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  - System monitoring (Prometheus metrics)[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  - Health checks and status reporting[39m
+[23:01:00 UTC] [32mINFO[39m: [36m  - Professional security and documentation[39m
+DEBUG: stdout length: 628123 characters
+DEBUG: trimmed length: 628122 characters
+DEBUG: Parsed successfully. Recent jobs: 769
+DEBUG: First job has elapsed time: true
+DEBUG: First job elapsed data: {
+  elapsedSeconds: 11109,
+  elapsedFormatted: '3h 5m 9s',
+  processingSeconds: null,
+  processingFormatted: null
+}
+DEBUG: Job 0 - The True Nature of God (2025)-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 0 elapsed time: 11109 3h 5m 9s
+DEBUG: Job 0 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 11109 3h 5m 9s
+DEBUG: Job 1 - Stump The Guru Optin Unlock The Sales Game-21.wav
+DEBUG: Job 1 elapsed time: 11109 3h 5m 9s
+DEBUG: Job 1 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 11109 3h 5m 9s
+DEBUG: Job 2 - The True Nature of God [2025]-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 2 elapsed time: 11109 3h 5m 9s
+DEBUG: Job 2 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 11109 3h 5m 9s
+DEBUG: Final projects count: 709
+DEBUG: First project name: 04
+DEBUG: First file name: 04 - Doin the Stuff - Healing for Today - Part 3.m4a
+DEBUG: First file elapsed time: 11110 3h 5m 10s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:01:11 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-1"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.77.230.53",
+      "remotePort": 53084
+    }
+[23:01:11 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-1"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 140.72501397132874
+DEBUG: stdout length: 628128 characters
+DEBUG: trimmed length: 628127 characters
+DEBUG: Parsed successfully. Recent jobs: 769
+DEBUG: First job has elapsed time: true
+DEBUG: First job elapsed data: {
+  elapsedSeconds: 11118,
+  elapsedFormatted: '3h 5m 18s',
+  processingSeconds: null,
+  processingFormatted: null
+}
+DEBUG: Job 0 - The True Nature of God (2025)-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 0 elapsed time: 11118 3h 5m 18s
+DEBUG: Job 0 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 11118 3h 5m 18s
+DEBUG: Job 1 - Stump The Guru Optin Unlock The Sales Game-21.wav
+DEBUG: Job 1 elapsed time: 11118 3h 5m 18s
+DEBUG: Job 1 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 11118 3h 5m 18s
+DEBUG: Job 2 - The True Nature of God [2025]-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 2 elapsed time: 11118 3h 5m 18s
+DEBUG: Job 2 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 11118 3h 5m 18s
+DEBUG: Final projects count: 709
+DEBUG: First project name: 04
+DEBUG: First file name: 04 - Doin the Stuff - Healing for Today - Part 3.m4a
+DEBUG: First file elapsed time: 11119 3h 5m 19s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:01:19 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-2"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 59228
+    }
+[23:01:19 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-2"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 242.07436108589172
+DEBUG: stdout length: 628125 characters
+DEBUG: trimmed length: 628124 characters
+DEBUG: Parsed successfully. Recent jobs: 769
+DEBUG: First job has elapsed time: true
+DEBUG: First job elapsed data: {
+  elapsedSeconds: 11125,
+  elapsedFormatted: '3h 5m 25s',
+  processingSeconds: null,
+  processingFormatted: null
+}
+DEBUG: Job 0 - The True Nature of God (2025)-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 0 elapsed time: 11125 3h 5m 25s
+DEBUG: Job 0 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 11125 3h 5m 25s
+DEBUG: Job 1 - Stump The Guru Optin Unlock The Sales Game-21.wav
+DEBUG: Job 1 elapsed time: 11125 3h 5m 25s
+DEBUG: Job 1 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 11125 3h 5m 25s
+DEBUG: Job 2 - The True Nature of God [2025]-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 2 elapsed time: 11125 3h 5m 25s
+DEBUG: Job 2 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 11125 3h 5m 25s
+DEBUG: Final projects count: 709
+DEBUG: First project name: 04
+DEBUG: First file name: 04 - Doin the Stuff - Healing for Today - Part 3.m4a
+DEBUG: First file elapsed time: 11126 3h 5m 26s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:01:26 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-3"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 59230
+    }
+[23:01:27 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-3"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 452.6456149816513
+[23:01:56 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-4"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 59240
+    }
+DEBUG: stdout length: 627820 characters
+DEBUG: trimmed length: 627819 characters
+DEBUG: Parsed successfully. Recent jobs: 769
+DEBUG: First job has elapsed time: true
+DEBUG: First job elapsed data: {
+  elapsedSeconds: 11155,
+  elapsedFormatted: '3h 5m 55s',
+  processingSeconds: null,
+  processingFormatted: null
+}
+DEBUG: Job 0 - The True Nature of God (2025)-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 0 elapsed time: 11155 3h 5m 55s
+DEBUG: Job 0 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 11155 3h 5m 55s
+DEBUG: Job 1 - Stump The Guru Optin Unlock The Sales Game-21.wav
+DEBUG: Job 1 elapsed time: 11155 3h 5m 55s
+DEBUG: Job 1 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 11155 3h 5m 55s
+DEBUG: Job 2 - The True Nature of God [2025]-Is the God You Know the God of the Bible.mp3
+DEBUG: Job 2 elapsed time: 11155 3h 5m 55s
+DEBUG: Job 2 keys: [
+  'id',               'fileName',
+  'filePath',         'fileSize',
+  'status',           'attempts',
+  'maxAttempts',      'createdAt',
+  'startedAt',        'completedAt',
+  'error',            'outputPath',
+  'elapsedSeconds',   'processingSeconds',
+  'elapsedFormatted', 'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 11155 3h 5m 55s
+DEBUG: Final projects count: 709
+DEBUG: First project name: 04
+DEBUG: First file name: 04 - Doin the Stuff - Healing for Today - Part 3.m4a
+DEBUG: First file elapsed time: 11156 3h 5m 56s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:01:57 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-4"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 454.8459029197693

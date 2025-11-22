@@ -1,0 +1,39 @@
+{
+  "name": "mithrandir-unified-api",
+  "version": "2.1.0",
+  "description": "Enhanced Unified TypeScript API for Mithrandir system management with transcription project management",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch index.ts",
+    "build": "tsc",
+    "start": "node index.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.4.0",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/rate-limit": "^9.1.0",
+    "@fastify/static": "^6.12.0",
+    "@fastify/swagger": "^8.12.0",
+    "@fastify/swagger-ui": "^2.1.0",
+    "bullmq": "^5.64.1",
+    "fastify": "^4.24.3",
+    "ioredis": "^5.8.2",
+    "pino-pretty": "^13.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0"
+  },
+  "keywords": [
+    "mithrandir",
+    "api",
+    "transcription",
+    "monitoring",
+    "homelab"
+  ],
+  "author": "Mithrandir System",
+  "license": "MIT"
+}

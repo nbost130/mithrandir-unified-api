@@ -1,0 +1,3519 @@
+[23:44:42 UTC] [32mINFO[39m: [36mServer listening at http://0.0.0.0:8080[39m
+[23:44:42 UTC] [32mINFO[39m: [36m🚀 Mithrandir Unified API started on http://0.0.0.0:8080[39m
+[23:44:42 UTC] [32mINFO[39m: [36m📋 Available endpoints:[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  === Failsafe API (Legacy Port 8888 functionality) ===[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /ssh-status - System status[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /status - Legacy alias[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  POST /restart-ssh - Restart SSH service[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  POST /start-vnc - Start VNC server[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  === Monitoring API (Original Port 8080 functionality) ===[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /metrics - Prometheus metrics[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /monitoring/status - Monitoring status[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /monitoring/health - Health check[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /health - Health check alias[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  === System API ===[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /info - API information[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  GET  /docs - Swagger documentation[39m
+[23:44:42 UTC] [32mINFO[39m: 
+[23:44:42 UTC] [32mINFO[39m: [36m🎉 Unified API combining:[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  - Failsafe operations (SSH, VNC management)[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  - System monitoring (Prometheus metrics)[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  - Health checks and status reporting[39m
+[23:44:42 UTC] [32mINFO[39m: [36m  - Professional security and documentation[39m
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13732 3h 48m 52s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13732 3h 48m 52s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13732 3h 48m 52s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13732 3h 48m 52s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13732 3h 48m 52s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13732 3h 48m 52s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18031 5h 0m 31s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:44:53 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-1"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.77.230.53",
+      "remotePort": 55922
+    }
+[23:44:53 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-1"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 220.99691700935364
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13742 3h 49m 2s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13742 3h 49m 2s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13742 3h 49m 2s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13742 3h 49m 2s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13742 3h 49m 2s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13742 3h 49m 2s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18041 5h 0m 41s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:45:03 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-2"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60433
+    }
+[23:45:03 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-2"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 8.092136025428772
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13747 3h 49m 7s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13747 3h 49m 7s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13747 3h 49m 7s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13747 3h 49m 7s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13747 3h 49m 7s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13747 3h 49m 7s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18046 5h 0m 46s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:45:08 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-3"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60434
+    }
+[23:45:08 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-3"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.400129079818726
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13755 3h 49m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13755 3h 49m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13755 3h 49m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13755 3h 49m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13755 3h 49m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13755 3h 49m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18054 5h 0m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:45:16 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-4"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60455
+    }
+[23:45:16 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-4"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.415400981903076
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13762 3h 49m 22s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13762 3h 49m 22s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13762 3h 49m 22s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13762 3h 49m 22s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13762 3h 49m 22s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13762 3h 49m 22s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18061 5h 1m 1s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:45:23 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-5"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60457
+    }
+[23:45:23 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-5"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 11.336455941200256
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13768 3h 49m 28s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13768 3h 49m 28s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13768 3h 49m 28s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13768 3h 49m 28s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13768 3h 49m 28s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13768 3h 49m 28s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18067 5h 1m 7s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:45:28 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-6"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60470
+    }
+[23:45:28 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-6"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.45612096786499
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13772 3h 49m 32s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13772 3h 49m 32s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13772 3h 49m 32s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13772 3h 49m 32s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13772 3h 49m 32s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13772 3h 49m 32s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18071 5h 1m 11s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:45:33 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-7"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60481
+    }
+[23:45:33 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-7"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 5.960167050361633
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13815 3h 50m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13815 3h 50m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13815 3h 50m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13815 3h 50m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13815 3h 50m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13815 3h 50m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18114 5h 1m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:46:16 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-8"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60455
+    }
+[23:46:16 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-8"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 12.586234092712402
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13875 3h 51m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13875 3h 51m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13875 3h 51m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13875 3h 51m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13875 3h 51m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13875 3h 51m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18174 5h 2m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:47:16 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-9"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60455
+    }
+[23:47:16 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-9"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 10.660804033279419
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13935 3h 52m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13935 3h 52m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13935 3h 52m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13935 3h 52m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13935 3h 52m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13935 3h 52m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18234 5h 3m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:48:16 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-a"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:48:16 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-a"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.107959032058716
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 13995 3h 53m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 13995 3h 53m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 13995 3h 53m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 13995 3h 53m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 13995 3h 53m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 13995 3h 53m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18294 5h 4m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:49:16 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-b"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:49:16 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-b"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 6.824495911598206
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14055 3h 54m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14055 3h 54m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14055 3h 54m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14055 3h 54m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14055 3h 54m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14055 3h 54m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18354 5h 5m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:50:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-c"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:50:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-c"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.5490570068359375
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14114 3h 55m 14s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14114 3h 55m 14s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14115 3h 55m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18413 5h 6m 53s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:51:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-d"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60749
+    }
+[23:51:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-d"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.875797986984253
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14115 3h 55m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14115 3h 55m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18414 5h 6m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:51:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-e"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:51:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-e"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 6.578034996986389
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14120 3h 55m 20s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18419 5h 6m 59s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:51:21 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-f"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60752
+    }
+[23:51:21 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-f"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 5.678369998931885
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14120 3h 55m 20s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14120 3h 55m 20s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18419 5h 6m 59s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:51:21 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-g"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60753
+    }
+[23:51:21 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-g"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 9.67273199558258
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14125 3h 55m 25s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14125 3h 55m 25s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14125 3h 55m 25s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14125 3h 55m 25s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14125 3h 55m 25s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14125 3h 55m 25s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18424 5h 7m 4s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:51:26 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-h"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60754
+    }
+[23:51:26 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-h"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.782106995582581
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14130 3h 55m 30s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14130 3h 55m 30s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14131 3h 55m 31s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14131 3h 55m 31s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14131 3h 55m 31s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14131 3h 55m 31s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18429 5h 7m 9s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:51:31 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-i"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60757
+    }
+[23:51:31 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-i"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 17.930733919143677
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14175 3h 56m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14175 3h 56m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14175 3h 56m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14175 3h 56m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14175 3h 56m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14175 3h 56m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18474 5h 7m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:52:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-j"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:52:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-j"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 21.102642059326172
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14235 3h 57m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14235 3h 57m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14235 3h 57m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14235 3h 57m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14235 3h 57m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14235 3h 57m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18534 5h 8m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:53:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-k"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:53:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-k"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 6.635875940322876
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14295 3h 58m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14295 3h 58m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14295 3h 58m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14295 3h 58m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14295 3h 58m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14295 3h 58m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18594 5h 9m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:54:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-l"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:54:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-l"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 6.11101508140564
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14355 3h 59m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14355 3h 59m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14355 3h 59m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14355 3h 59m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14355 3h 59m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14355 3h 59m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18654 5h 10m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:55:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-m"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:55:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-m"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.064913034439087
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14415 4h 0m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14415 4h 0m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14415 4h 0m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14415 4h 0m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14415 4h 0m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14415 4h 0m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18714 5h 11m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:56:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-n"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:56:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-n"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 6.225489020347595
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14475 4h 1m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14475 4h 1m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14475 4h 1m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14475 4h 1m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14475 4h 1m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14475 4h 1m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18774 5h 12m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:57:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-o"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:57:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-o"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 8.558588981628418
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14535 4h 2m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14535 4h 2m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14535 4h 2m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14535 4h 2m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14535 4h 2m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14535 4h 2m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18834 5h 13m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:58:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-p"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:58:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-p"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 9.075284004211426
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14595 4h 3m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14595 4h 3m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14595 4h 3m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14595 4h 3m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14595 4h 3m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14595 4h 3m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18894 5h 14m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[23:59:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-q"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60590
+    }
+[23:59:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-q"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 12.562576055526733
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 14655 4h 4m 15s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 14655 4h 4m 15s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 14655 4h 4m 15s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 14655 4h 4m 15s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 14655 4h 4m 15s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 14655 4h 4m 15s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 18954 5h 15m 54s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:00:15 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-r"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60904
+    }
+[00:00:15 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-r"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 5.4954729080200195
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15289 4h 14m 49s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15289 4h 14m 49s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15289 4h 14m 49s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15289 4h 14m 49s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15289 4h 14m 49s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15289 4h 14m 49s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19588 5h 26m 28s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:10:49 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-s"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:10:49 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-s"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 5.088818073272705
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15343 4h 15m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15343 4h 15m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15343 4h 15m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15343 4h 15m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15343 4h 15m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15343 4h 15m 43s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19642 5h 27m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:11:44 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-t"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:11:44 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-t"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 11.713901042938232
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15403 4h 16m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15403 4h 16m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15403 4h 16m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15403 4h 16m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15403 4h 16m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15403 4h 16m 43s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19702 5h 28m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:12:44 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-u"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:12:44 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-u"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 5.612408995628357
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15463 4h 17m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15463 4h 17m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15463 4h 17m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15463 4h 17m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15463 4h 17m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15463 4h 17m 43s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19762 5h 29m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:13:44 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-v"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:13:44 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-v"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.062932014465332
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15523 4h 18m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15523 4h 18m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15523 4h 18m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15523 4h 18m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15523 4h 18m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15523 4h 18m 43s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19822 5h 30m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:14:43 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-w"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:14:43 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-w"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 9.569839000701904
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15583 4h 19m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15583 4h 19m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15583 4h 19m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15583 4h 19m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15583 4h 19m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15583 4h 19m 43s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19882 5h 31m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:15:43 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-x"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:15:43 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-x"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 14.094696044921875
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15584 4h 19m 44s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15584 4h 19m 44s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15584 4h 19m 44s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15584 4h 19m 44s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15584 4h 19m 44s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15584 4h 19m 44s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19882 5h 31m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:15:44 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-y"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.77.230.53",
+      "remotePort": 56084
+    }
+[00:15:44 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-y"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.33909797668457
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15643 4h 20m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15643 4h 20m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15643 4h 20m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15643 4h 20m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15643 4h 20m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15643 4h 20m 43s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 19942 5h 32m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:16:43 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-z"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:16:43 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-z"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 9.804101943969727
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - May 14, 2025.m4a
+DEBUG: Job 0 elapsed time: 15703 4h 21m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15703 4h 21m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Conceiving The Word - Healing NOW with Barry Bennett - August 14, 2024.m4a
+DEBUG: Job 1 elapsed time: 15703 4h 21m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15703 4h 21m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Believing From the Heart - Healing NOW with Cecil Paxton - October 9, 2024.m4a
+DEBUG: Job 2 elapsed time: 15703 4h 21m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15703 4h 21m 43s
+DEBUG: Final projects count: 23
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 20002 5h 33m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:17:43 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-10"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:17:43 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-10"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.44546902179718
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing School with Barry Bennett - June 2, 2016.m4a
+DEBUG: Job 0 elapsed time: 15763 4h 22m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15763 4h 22m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - January 31, 2024.m4a
+DEBUG: Job 1 elapsed time: 15763 4h 22m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15763 4h 22m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - January 31, 2024.m4a
+DEBUG: Job 2 elapsed time: 15763 4h 22m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15763 4h 22m 43s
+DEBUG: Final projects count: 22
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 20062 5h 34m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:18:43 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-11"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:18:43 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-11"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 7.982329964637756
+DEBUG: Retrieved 29 jobs from BullMQ
+DEBUG: Job 0 - Healing NOW - Livestreams-Healing School with Barry Bennett - June 2, 2016.m4a
+DEBUG: Job 0 elapsed time: 15823 4h 23m 43s
+DEBUG: Job 0 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 0 elapsed time: 15823 4h 23m 43s
+DEBUG: Job 1 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - January 31, 2024.m4a
+DEBUG: Job 1 elapsed time: 15823 4h 23m 43s
+DEBUG: Job 1 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 1 elapsed time: 15823 4h 23m 43s
+DEBUG: Job 2 - Healing NOW - Livestreams-Healing Is God's Idea - Healing NOW with Jim Baker - January 31, 2024.m4a
+DEBUG: Job 2 elapsed time: 15823 4h 23m 43s
+DEBUG: Job 2 keys: [
+  'id',
+  'fileName',
+  'filePath',
+  'fileSize',
+  'status',
+  'createdAt',
+  'startedAt',
+  'completedAt',
+  'error',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+DEBUG: Mapped job 2 elapsed time: 15823 4h 23m 43s
+DEBUG: Final projects count: 22
+DEBUG: First project name: concurrent-test-1.mp3
+DEBUG: First file name: concurrent-test-1.mp3
+DEBUG: First file elapsed time: 20122 5h 35m 22s
+DEBUG: First file keys: [
+  'id',
+  'fileName',
+  'status',
+  'createdAt',
+  'completedAt',
+  'startedAt',
+  'error',
+  'fileSize',
+  'outputPath',
+  'elapsedSeconds',
+  'elapsedFormatted',
+  'processingSeconds',
+  'processingFormatted'
+]
+[00:19:43 UTC] [32mINFO[39m: [36mincoming request[39m
+    [35mreqId[39m: "req-12"
+    [35mreq[39m: {
+      "method": "GET",
+      "url": "/transcription/projects",
+      "hostname": "100.77.230.53:8080",
+      "remoteAddress": "100.79.124.88",
+      "remotePort": 60985
+    }
+[00:19:43 UTC] [32mINFO[39m: [36mrequest completed[39m
+    [35mreqId[39m: "req-12"
+    [35mres[39m: {
+      "statusCode": 200
+    }
+    [35mresponseTime[39m: 11.0589120388031
+[00:19:51 UTC] [32mINFO[39m: [36mReceived SIGTERM, shutting down gracefully[39m
