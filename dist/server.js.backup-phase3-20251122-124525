@@ -1,0 +1,1421 @@
+import Fastify from 'fastify';
+import rateLimit from '@fastify/rate-limit';
+import cors from '@fastify/cors';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { UnifiedSystemService } from './services.js';
+nimport axios from 'axios';
+
+// HTTP client for service communication
+const coreServiceClient = axios.create({
+  baseURL: 'http://localhost:9002',
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Service availability check
+let coreServiceAvailable = false;
+setInterval(async () => {
+  try {
+    await coreServiceClient.get('/api/health');
+    coreServiceAvailable = true;
+  } catch (error) {
+    coreServiceAvailable = false;
+  }
+}, 30000); // Check every 30 seconds
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const fastify = Fastify({
+    logger: process.env.NODE_ENV === 'production'
+        ? { level: 'info' }
+        : {
+            level: 'info',
+            transport: {
+                target: 'pino-pretty',
+                options: {
+                    colorize: true,
+                    translateTime: 'HH:MM:ss Z',
+                    ignore: 'pid,hostname'
+                }
+            }
+        }
+});
+// Serve static files from current directory (where HTML files are located)
+await fastify.register(fastifyStatic, {
+    root: __dirname,
+    prefix: '/public/',
+    decorateReply: false
+});
+// Swagger documentation
+await fastify.register(swagger, {
+    openapi: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Mithrandir Unified API',
+            description: 'Unified TypeScript API for Mithrandir system management, failsafe operations, and monitoring',
+            version: '2.0.0'
+        },
+        servers: [
+            {
+                url: 'http://100.77.230.53:8080',
+                description: 'Production server'
+            }
+        ]
+    }
+});
+await fastify.register(swaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: {
+        docExpansion: 'full',
+        deepLinking: false
+    }
+});
+// Minimal security headers for HTTP development (skip for transcription page)
+fastify.addHook('onSend', async (request, reply, payload) => {
+    if (request.url !== '/public/transcription-details.html') {
+        reply.header('X-Content-Type-Options', 'nosniff');
+        reply.header('X-Frame-Options', 'SAMEORIGIN');
+        reply.header('X-XSS-Protection', '0');
+    }
+    return payload;
+});
+// CORS middleware
+await fastify.register(cors, {
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+});
+// Rate limiting
+await fastify.register(rateLimit, {
+    max: 100,
+    timeWindow: '15 minutes',
+    errorResponseBuilder: (request, context) => ({
+        status: 'error',
+        message: 'Too many requests',
+        code: 'RATE_LIMIT_EXCEEDED',
+        timestamp: new Date().toISOString(),
+        retryAfter: context.ttl
+    })
+});
+const systemService = UnifiedSystemService.getInstance();
+// =============================================================================
+// FAILSAFE API ENDPOINTS (Port 8888 functionality)
+// =============================================================================
+// SSH Status endpoint (legacy failsafe API)
+fastify.get('/ssh-status', {
+    schema: {
+        description: 'Get SSH and system status (routes to mithrandir-core when available)',
+        tags: ['Failsafe'],
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    ssh_active: { type: 'boolean' },
+                    vnc_running: { type: 'boolean' },
+                    api_name: { type: 'string' },
+                    version: { type: 'string' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        // Try mithrandir-core service first
+        if (coreServiceAvailable) {
+            try {
+                const response = await coreServiceClient.get('/api/ssh-status');
+                fastify.log.info('Routed ssh-status to mithrandir-core service');
+                return reply.code(200).send(response.data);
+            } catch (coreError) {
+                fastify.log.warn('mithrandir-core unavailable, falling back to local implementation');
+                coreServiceAvailable = false;
+            }
+        }
+        
+        // Fallback to original implementation
+        const status = await systemService.getSystemStatus();
+        reply.code(200).send(status);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: ,
+            code: 'SYSTEM_STATUS_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/ssh-status'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// Legacy alias for ssh-status
+fastify.get('/status', async (request, reply) => {
+    return fastify.inject({
+        method: 'GET',
+        url: '/ssh-status'
+    }).then(response => {
+        reply.code(response.statusCode).send(JSON.parse(response.payload));
+    });
+});
+// SSH Restart endpoint (legacy failsafe API)
+fastify.post('/restart-ssh', {
+    schema: {
+        description: 'Restart SSH service (emergency failsafe)',
+        tags: ['Failsafe'],
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    restart_output: { type: 'string' },
+                    timestamp: { type: 'string' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        fastify.log.info('SSH restart requested');
+        const result = await systemService.restartSSH();
+        const statusCode = result.status === 'success' ? 200 : 500;
+        reply.code(statusCode).send(result);
+        fastify.log.info(`SSH restart completed: ${result.status}`);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to restart SSH: ${error}`,
+            code: 'SSH_RESTART_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/restart-ssh'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// VNC Start endpoint (legacy failsafe API)
+fastify.post('/start-vnc', {
+    schema: {
+        description: 'Start VNC server (remote desktop access)',
+        tags: ['Failsafe'],
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    message: { type: 'string' },
+                    vnc_running: { type: 'boolean' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        fastify.log.info('VNC start requested');
+        const result = await systemService.startVNC();
+        const statusCode = result.status === 'success' ? 200 : 500;
+        reply.code(statusCode).send(result);
+        fastify.log.info(`VNC start completed: ${result.status}`);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to start VNC: ${error}`,
+            code: 'VNC_START_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/start-vnc'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// =============================================================================
+// MONITORING API ENDPOINTS (Port 8080 functionality)
+// =============================================================================
+// Prometheus metrics endpoint (original unified API)
+fastify.get('/metrics', {
+    schema: {
+        description: 'Prometheus metrics endpoint',
+        tags: ['Monitoring'],
+        response: {
+            200: {
+                type: 'string',
+                description: 'Prometheus metrics in text format'
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        const metrics = await systemService.getPrometheusMetrics();
+        reply.type('text/plain; charset=utf-8').send(metrics);
+    }
+    catch (error) {
+        reply.code(500).send('# Error generating metrics\n');
+    }
+});
+// Monitoring status endpoint (original unified API)
+fastify.get('/monitoring/status', {
+    schema: {
+        description: 'System monitoring status',
+        tags: ['Monitoring'],
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    timestamp: { type: 'string' },
+                    health_percentage: { type: 'number' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        const status = await systemService.getMonitoringStatus();
+        reply.code(200).send(status);
+    }
+    catch (error) {
+        reply.code(500).send({
+            status: 'down',
+            timestamp: new Date().toISOString(),
+            health_percentage: 0,
+            services: { ssh: false, vnc: false, docker: false, system: false }
+        });
+    }
+});
+// Health check endpoint (enhanced from original)
+fastify.get('/monitoring/health', {
+    schema: {
+        description: 'Comprehensive health check',
+        tags: ['Monitoring'],
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    overall_health: { type: 'string' },
+                    health_percentage: { type: 'number' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        const health = await systemService.getHealthCheck();
+        const statusCode = health.status === 'healthy' ? 200 : 503;
+        reply.code(statusCode).send(health);
+    }
+    catch (error) {
+        reply.code(503).send({
+            status: 'unhealthy',
+            uptime: process.uptime(),
+            version: '2.0.0',
+            timestamp: new Date().toISOString(),
+            monitoring_available: false,
+            overall_health: 'unhealthy',
+            health_percentage: 0,
+            checks: { ssh: false, vnc: false, system: false, docker: false }
+        });
+    }
+});
+// Enhanced health endpoint (Kubernetes-style)
+fastify.get('/health', async (request, reply) => {
+    return fastify.inject({
+        method: 'GET',
+        url: '/monitoring/health'
+    }).then(response => {
+        reply.code(response.statusCode).send(JSON.parse(response.payload));
+    });
+});
+// =============================================================================
+// TRANSCRIPTION PROJECT MANAGEMENT ENDPOINTS
+// =============================================================================
+// Get transcription projects grouped by folder
+fastify.get('/transcription/projects', {
+    schema: {
+        description: 'Get transcription jobs grouped by project/folder',
+        tags: ['Transcription'],
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    projects: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                name: { type: 'string' },
+                                totalFiles: { type: 'number' },
+                                completed: { type: 'number' },
+                                processing: { type: 'number' },
+                                pending: { type: 'number' },
+                                failed: { type: 'number' },
+                                files: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            id: { type: 'string' },
+                                            fileName: { type: 'string' },
+                                            status: { type: 'string' },
+                                            createdAt: { type: 'string' },
+                                            completedAt: { type: 'string' },
+                                            startedAt: { type: 'string' },
+                                            error: { type: 'string' },
+                                            fileSize: { type: 'number' },
+                                            outputPath: { type: 'string' },
+                                            elapsedSeconds: { type: 'number' },
+                                            elapsedFormatted: { type: 'string' },
+                                            processingSeconds: { type: 'number' },
+                                            processingFormatted: { type: 'string' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    timestamp: { type: 'string' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        const projects = await systemService.getTranscriptionProjects();
+        reply.code(200).send(projects);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to get transcription projects: ${error}`,
+            code: 'TRANSCRIPTION_PROJECTS_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/transcription/projects'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// Retry failed transcription job
+fastify.post('/transcription/retry/:jobId', {
+    schema: {
+        description: 'Retry a failed transcription job',
+        tags: ['Transcription'],
+        params: {
+            type: 'object',
+            properties: {
+                jobId: { type: 'string' }
+            },
+            required: ['jobId']
+        },
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    message: { type: 'string' },
+                    jobId: { type: 'string' },
+                    timestamp: { type: 'string' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        const { jobId } = request.params;
+        fastify.log.info(`Retry requested for job: ${jobId}`);
+        const result = await systemService.retryTranscriptionJob(jobId);
+        const statusCode = result.status === 'success' ? 200 : 500;
+        reply.code(statusCode).send(result);
+        fastify.log.info(`Job retry completed: ${result.status} for ${jobId}`);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to retry transcription job: ${error}`,
+            code: 'TRANSCRIPTION_RETRY_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/transcription/retry'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// Get detailed job information
+fastify.get('/transcription/job/:jobId', {
+    schema: {
+        description: 'Get detailed information about a specific transcription job',
+        tags: ['Transcription'],
+        params: {
+            type: 'object',
+            properties: {
+                jobId: { type: 'string' }
+            },
+            required: ['jobId']
+        }
+    }
+}, async (request, reply) => {
+    try {
+        const { jobId } = request.params;
+        const jobDetails = await systemService.getTranscriptionJobDetails(jobId);
+        reply.code(200).send(jobDetails);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to get job details: ${error}`,
+            code: 'JOB_DETAILS_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/transcription/job'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// Legacy transcription dashboard endpoint (for existing dashboard compatibility)
+fastify.get('/transcription/dashboard', {
+    schema: {
+        description: 'Get transcription dashboard data (legacy endpoint)',
+        tags: ['Transcription']
+    }
+}, async (request, reply) => {
+    try {
+        const dashboardData = await systemService.getTranscriptionDashboardLegacy();
+        reply.code(200).send(dashboardData);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to get transcription dashboard: ${error}`,
+            code: 'TRANSCRIPTION_DASHBOARD_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/transcription/dashboard'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// Legacy system status endpoint (for existing dashboard compatibility)
+fastify.get('/system/status', {
+    schema: {
+        description: 'Get system status (legacy endpoint)',
+        tags: ['System']
+    }
+}, async (request, reply) => {
+    try {
+        const systemStatus = await systemService.getSystemStatusLegacy();
+        reply.code(200).send(systemStatus);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to get system status: ${error}`,
+            code: 'SYSTEM_STATUS_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/system/status'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// Legacy monitoring metrics endpoint (for existing dashboard compatibility)
+fastify.get('/monitoring/metrics', {
+    schema: {
+        description: 'Get monitoring metrics (legacy endpoint)',
+        tags: ['Monitoring']
+    }
+}, async (request, reply) => {
+    try {
+        const metrics = await systemService.getMonitoringMetricsLegacy();
+        reply.code(200).send(metrics);
+    }
+    catch (error) {
+        const errorResponse = {
+            status: 'error',
+            message: `Failed to get monitoring metrics: ${error}`,
+            code: 'MONITORING_METRICS_ERROR',
+            timestamp: new Date().toISOString(),
+            endpoint: '/monitoring/metrics'
+        };
+        reply.code(500).send(errorResponse);
+    }
+});
+// API Info endpoint
+fastify.get('/info', {
+    schema: {
+        description: 'API information and documentation',
+        tags: ['System'],
+        response: {
+            200: {
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    version: { type: 'string' },
+                    description: { type: 'string' }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    const info = {
+        name: 'Mithrandir Unified API',
+        version: '2.0.0',
+        description: 'Unified TypeScript API combining failsafe operations and system monitoring',
+        framework: 'Fastify',
+        node_version: process.version,
+        uptime: process.uptime(),
+        endpoints: [
+            'GET /ssh-status - System status (failsafe)',
+            'POST /restart-ssh - Restart SSH service (failsafe)',
+            'POST /start-vnc - Start VNC server (failsafe)',
+            'GET /metrics - Prometheus metrics (monitoring)',
+            'GET /monitoring/status - Monitoring status',
+            'GET /monitoring/health - Health check',
+            'GET /health - Health check alias',
+            'GET /info - API information',
+            'GET /docs - Swagger documentation'
+        ],
+        features: [
+            'SSH failsafe operations',
+            'VNC remote desktop management',
+            'Prometheus metrics',
+            'Health monitoring',
+            'Rate limiting',
+            'Security headers',
+            'CORS support',
+            'Swagger documentation',
+            'TypeScript type safety'
+        ],
+        timestamp: new Date().toISOString()
+    };
+    reply.send(info);
+});
+// Serve main API dashboard
+fastify.get('/public/api-dashboard.html', async (request, reply) => {
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mithrandir API Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s ease; }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { margin-bottom: 15px; color: #fff; }
+        .card p { color: rgba(255,255,255,0.8); margin-bottom: 20px; }
+        .btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px 20px; border-radius: 8px; text-decoration: none; display: inline-block; transition: all 0.3s ease; }
+        .btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Mithrandir API Dashboard</h1>
+            <p>Your homelab management center</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>🎙️ Transcription Projects</h3>
+                <p>Manage your audio transcription projects with real-time status tracking and one-click retry functionality.</p>
+                <a href="/transcription-dashboard" class="btn">View Transcription Projects</a>
+            </div>
+
+            <div class="card">
+                <h3>📊 System Status</h3>
+                <p>Monitor system health, resource usage, and service status across your homelab infrastructure.</p>
+                <a href="/docs" class="btn">View API Documentation</a>
+            </div>
+
+            <div class="card">
+                <h3>🔧 Service Management</h3>
+                <p>Control and monitor various services running on your Mithrandir system.</p>
+                <a href="/docs" class="btn">Explore Services</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+    reply.type('text/html').send(html);
+});
+// Serve transcription dashboard with improved contrast
+fastify.get('/transcription-dashboard', async (request, reply) => {
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcription Project Dashboard</title>
+    <style>
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+        /* Header */
+        .header { text-align: center; margin-bottom: 32px; }
+        .header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 8px; }
+        .header p { font-size: 1.1rem; color: rgba(255,255,255,0.8); }
+
+        /* Navigation Controls */
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .nav-left { display: flex; align-items: center; gap: 16px; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+
+        /* Enhanced Buttons */
+        .btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-primary {
+            background: rgba(59, 130, 246, 0.8);
+            border-color: rgba(59, 130, 246, 0.9);
+        }
+        .btn-primary:hover {
+            background: rgba(59, 130, 246, 0.9);
+            border-color: rgba(59, 130, 246, 1);
+        }
+
+        /* Search and Filter Bar */
+        .controls-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 10px 16px;
+            color: white;
+            font-size: 14px;
+            min-width: 300px;
+            transition: all 0.2s ease;
+        }
+        .search-input::placeholder { color: rgba(255,255,255,0.6); }
+        .search-input:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .summary-stats h3 {
+            margin-bottom: 16px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+        }
+        .summary-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Files Table Container */
+        .files-table-container {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Project Header */
+        .project-header {
+            padding: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .project-header:hover { background: rgba(255,255,255,0.05); }
+        .project-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .project-icon {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+        .expand-icon {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 16px;
+            opacity: 0.7;
+            padding: 4px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+        }
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Enhanced Status Stats */
+        .project-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .stat {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .stat:hover { transform: scale(1.05); }
+        .stat-completed {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        .stat-processing {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .stat-pending {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .stat-failed {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Files Table */
+        .files-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .files-table th {
+            background: rgba(255,255,255,0.1);
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.9);
+            border-bottom: 2px solid rgba(255,255,255,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .files-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            vertical-align: middle;
+            font-size: 13px;
+        }
+        .files-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .files-table tr:nth-child(even) {
+            background: rgba(255,255,255,0.02);
+        }
+        .files-table tr:nth-child(even):hover {
+            background: rgba(255,255,255,0.07);
+        }
+
+        /* File Status Icons */
+        .status-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        .status-completed { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .status-processing { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .status-pending { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-failed { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        /* File Info */
+        .file-name {
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 4px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .project-name {
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            font-size: 12px;
+            padding: 4px 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            display: inline-block;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .file-meta {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Action Buttons */
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .btn-retry {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .btn-retry:hover {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+
+        /* Messages */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            font-weight: 500;
+        }
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            font-weight: 500;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.7);
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            .nav-controls { flex-direction: column; align-items: stretch; }
+            .controls-bar { flex-direction: column; }
+            .search-input { min-width: auto; width: 100%; }
+            .project-stats { justify-content: center; }
+            .files-table { font-size: 12px; }
+            .files-table th, .files-table td { padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Transcription Project Dashboard</h1>
+            <p>Manage your homelab transcription projects</p>
+        </div>
+
+        <div class="nav-controls">
+            <div class="nav-left">
+                <a href="/public/api-dashboard.html" class="btn">
+                    <span>←</span> Back to Dashboard
+                </a>
+            </div>
+            <div class="nav-right">
+                <button class="btn" onclick="refreshProjects()">
+                    <span>🔄</span> Refresh
+                </button>
+                <button class="btn btn-primary" onclick="toggleAutoRefresh()" id="autoRefreshBtn">
+                    <span>⏱️</span> Auto-Refresh: ON
+                </button>
+            </div>
+        </div>
+
+        <div class="controls-bar">
+            <input type="text" class="search-input" placeholder="Search projects and files..." id="searchInput" onkeyup="filterProjects()">
+            <select class="btn" id="statusFilter" onchange="filterProjects()">
+                <option value="">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="processing">Processing</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+            </select>
+            <button class="btn" onclick="sortProjects()" id="sortBtn">
+                <span>↕️</span> Sort A-Z
+            </button>
+        </div>
+
+        <div id="projectsContainer">
+            <div class="loading">
+                <div style="font-size: 24px; margin-bottom: 16px;">🎙️</div>
+                Loading transcription projects...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefresh = true;
+        let refreshInterval;
+        let allProjects = [];
+        let sortAscending = true;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProjects();
+            startAutoRefresh();
+
+            // Add keyboard shortcut for search
+            document.getElementById('searchInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    this.value = '';
+                    filterProjects();
+                }
+            });
+        });
+
+        async function loadProjects() {
+            try {
+                const response = await fetch('/transcription/projects');
+                const data = await response.json();
+
+                if (data.projects) {
+                    renderProjects(data.projects);
+                } else {
+                    showError('Failed to load projects: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('Failed to load projects: ' + error.message);
+            }
+        }
+
+        function renderProjects(projects) {
+            var container = document.getElementById('projectsContainer');
+            allProjects = projects; // Store for filtering/sorting
+
+            if (projects.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 60px; color: rgba(255,255,255,0.7);">' +
+                    '<div style="font-size: 48px; margin-bottom: 16px;">📂</div>' +
+                    '<h3 style="margin-bottom: 8px;">No transcription projects found</h3>' +
+                    '<p>Your transcription projects will appear here once available.</p>' +
+                '</div>';
+                return;
+            }
+
+            // Create summary stats
+            var totalFiles = 0;
+            var totalCompleted = 0;
+            var totalProcessing = 0;
+            var totalPending = 0;
+            var totalFailed = 0;
+
+            for (var i = 0; i < projects.length; i++) {
+                totalFiles += projects[i].totalFiles;
+                totalCompleted += projects[i].completed;
+                totalProcessing += projects[i].processing;
+                totalPending += projects[i].pending;
+                totalFailed += projects[i].failed;
+            }
+
+            // Create summary header
+            var html = '<div class="summary-stats">';
+            html += '<h3>📊 Summary: ' + totalFiles + ' Total Files</h3>';
+            html += '<div class="summary-badges">';
+            if (totalCompleted > 0) {
+                html += '<span class="stat stat-completed"><span>✅</span>' + totalCompleted + ' completed</span>';
+            }
+            if (totalProcessing > 0) {
+                html += '<span class="stat stat-processing"><span>🔄</span>' + totalProcessing + ' processing</span>';
+            }
+            if (totalPending > 0) {
+                html += '<span class="stat stat-pending"><span>⏳</span>' + totalPending + ' pending</span>';
+            }
+            if (totalFailed > 0) {
+                html += '<span class="stat stat-failed"><span>❌</span>' + totalFailed + ' failed</span>';
+            }
+            html += '</div>';
+            html += '</div>';
+
+            // Create single comprehensive table
+            html += renderAllFilesTable(projects);
+
+            container.innerHTML = html;
+        }
+
+        function renderAllFilesTable(projects) {
+            var allFiles = [];
+
+            // Flatten all files from all projects
+            for (var i = 0; i < projects.length; i++) {
+                var project = projects[i];
+                for (var j = 0; j < project.files.length; j++) {
+                    var file = project.files[j];
+                    file.projectName = project.name; // Add project name to file
+                    allFiles.push(file);
+                }
+            }
+
+            if (allFiles.length === 0) {
+                return '<div style="padding: 40px; text-align: center; color: rgba(255,255,255,0.6);">No files found</div>';
+            }
+
+            var html = '<div class="files-table-container">';
+            html += '<table class="files-table" id="allFilesTable">';
+            html += '<thead>';
+            html += '<tr>';
+            html += '<th style="width: 100px;">Status</th>';
+            html += '<th style="width: 200px;">Project</th>';
+            html += '<th>File Name</th>';
+            html += '<th style="width: 80px;">Size</th>';
+            html += '<th style="width: 120px;">Created</th>';
+            html += '<th style="width: 120px;">Completed</th>';
+            html += '<th style="width: 100px;">⏱️ Elapsed</th>';
+            html += '<th style="width: 100px;">🔄 Processing</th>';
+            html += '<th style="width: 100px;">Actions</th>';
+            html += '</tr>';
+            html += '</thead>';
+            html += '<tbody>';
+
+            for (var k = 0; k < allFiles.length; k++) {
+                html += renderFileRowWithProject(allFiles[k]);
+            }
+
+            html += '</tbody>';
+            html += '</table>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function renderFileRowWithProject(file) {
+            var statusIcons = { completed: '✅', processing: '🔄', pending: '⏳', failed: '❌' };
+            var formatDate = function(dateStr) { return dateStr ? new Date(dateStr).toLocaleDateString() : '—'; };
+            var formatFileSize = function(bytes) { return bytes ? (bytes / (1024 * 1024)).toFixed(1) + ' MB' : '—'; };
+            var fileNameSafe = file.fileName.replace(/['"]/g, '');
+            var projectNameSafe = file.projectName.replace(/['"]/g, '');
+            var errorSafe = file.error ? file.error.replace(/['"]/g, '') : '';
+
+            var html = '<tr data-status="' + file.status + '" data-filename="' + file.fileName.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '') + '" data-project="' + file.projectName.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '') + '">';
+
+            // Status column
+            html += '<td>';
+            html += '<div class="status-cell">';
+            html += '<span class="status-icon">' + statusIcons[file.status] + '</span>';
+            html += '<span class="status-badge status-' + file.status + '">' + file.status + '</span>';
+            html += '</div>';
+            html += '</td>';
+
+            // Project column
+            html += '<td>';
+            html += '<div class="project-name">' + projectNameSafe + '</div>';
+            html += '</td>';
+
+            // File name column
+            html += '<td>';
+            html += '<div class="file-name">' + fileNameSafe + '</div>';
+            if (file.error) {
+                html += '<div class="file-meta" style="color: #f87171; font-size: 11px; margin-top: 4px;">Error: ' + errorSafe + '</div>';
+            }
+            html += '</td>';
+
+            // Size column
+            html += '<td>';
+            html += '<span class="file-meta">' + formatFileSize(file.fileSize) + '</span>';
+            html += '</td>';
+
+            // Created column
+            html += '<td>';
+            html += '<span class="file-meta">' + formatDate(file.createdAt) + '</span>';
+            html += '</td>';
+
+            // Completed column
+            html += '<td>';
+            html += '<span class="file-meta">' + formatDate(file.completedAt) + '</span>';
+            html += '</td>';
+
+            // Elapsed time column
+            html += '<td>';
+            html += '<span class="file-meta">' + (file.elapsedFormatted || '—') + '</span>';
+            html += '</td>';
+
+            // Processing time column
+            html += '<td>';
+            html += '<span class="file-meta">' + (file.processingFormatted || '—') + '</span>';
+            html += '</td>';
+
+            // Actions column
+            html += '<td>';
+            html += '<div class="file-actions">';
+            if (file.status === 'failed') {
+                html += '<button class="btn btn-small btn-retry" onclick="retryJob(&quot;' + file.id + '&quot;)" title="Retry transcription">';
+                html += '<span>🔄</span>';
+                html += '</button>';
+            }
+            if (file.status === 'completed' && file.outputPath) {
+                html += '<button class="btn btn-small" onclick="downloadTranscript(&quot;' + file.id + '&quot;)" title="Download transcript">';
+                html += '<span>📄</span>';
+                html += '</button>';
+            }
+            html += '</div>';
+            html += '</td>';
+
+            html += '</tr>';
+            return html;
+        }
+
+
+
+
+
+        function filterProjects() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var statusFilter = document.getElementById('statusFilter').value;
+            var fileRows = document.querySelectorAll('#allFilesTable tbody tr');
+            var visibleCount = 0;
+
+            fileRows.forEach(function(row) {
+                var fileName = row.dataset.filename || '';
+                var projectName = row.dataset.project || '';
+                var fileStatus = row.dataset.status || '';
+
+                var matchesSearch = !searchTerm ||
+                    fileName.includes(searchTerm) ||
+                    projectName.includes(searchTerm);
+                var matchesStatus = !statusFilter || fileStatus === statusFilter;
+
+                if (matchesSearch && matchesStatus) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update summary if needed
+            updateFilterSummary(visibleCount, fileRows.length);
+        }
+
+        function updateFilterSummary(visible, total) {
+            var summaryStats = document.querySelector('.summary-stats h3');
+            if (summaryStats) {
+                if (visible === total) {
+                    summaryStats.textContent = '📊 Summary: ' + total + ' Total Files';
+                } else {
+                    summaryStats.textContent = '📊 Filtered: ' + visible + ' of ' + total + ' Files';
+                }
+            }
+        }
+
+        function sortProjects() {
+            const container = document.getElementById('projectsContainer');
+            const sortBtn = document.getElementById('sortBtn');
+
+            // Sort the allProjects array
+            allProjects.sort((a, b) => {
+                const comparison = a.name.localeCompare(b.name);
+                return sortAscending ? comparison : -comparison;
+            });
+
+            sortAscending = !sortAscending;
+            sortBtn.innerHTML = '<span>↕️</span> Sort ' + (sortAscending ? 'Z-A' : 'A-Z');
+
+            renderProjects(allProjects);
+
+            // Reapply current filters
+            setTimeout(() => {
+                filterProjects();
+            }, 100);
+        }
+
+        async function retryJob(jobId) {
+            try {
+                const response = await fetch('/transcription/retry/' + jobId, { method: 'POST' });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    loadProjects();
+                    showSuccess('Job queued for retry successfully!');
+                } else {
+                    showError('Failed to retry job: ' + result.message);
+                }
+            } catch (error) {
+                showError('Failed to retry job: ' + error.message);
+            }
+        }
+
+        function refreshProjects() { loadProjects(); }
+
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            document.getElementById('autoRefreshBtn').textContent = '⏱️ Auto-Refresh: ' + (autoRefresh ? 'ON' : 'OFF');
+            autoRefresh ? startAutoRefresh() : stopAutoRefresh();
+        }
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(loadProjects, 30000);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null; }
+        }
+
+        function showError(message) {
+            const container = document.getElementById('projectsContainer');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; gap: 8px;">' +
+                '<span>❌</span>' +
+                '<span>' + message + '</span>' +
+            '</div>';
+            container.insertBefore(errorDiv, container.firstChild);
+
+            setTimeout(function() {
+                if (errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('projectsContainer');
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; gap: 8px;">' +
+                '<span>✅</span>' +
+                '<span>' + message + '</span>' +
+            '</div>';
+            container.insertBefore(successDiv, container.firstChild);
+
+            setTimeout(function() {
+                if (successDiv.parentNode) {
+                    successDiv.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>`;
+    reply.type('text/html').send(html);
+});
+// 404 handler
+fastify.setNotFoundHandler((request, reply) => {
+    const errorResponse = {
+        status: 'error',
+        message: 'Endpoint not found',
+        code: 'NOT_FOUND',
+        timestamp: new Date().toISOString(),
+        endpoint: request.url
+    };
+    reply.code(404).send(errorResponse);
+});
+// Global error handler
+fastify.setErrorHandler((error, request, reply) => {
+    fastify.log.error(error);
+    const errorResponse = {
+        status: 'error',
+        message: error.message || 'Internal server error',
+        code: 'INTERNAL_ERROR',
+        timestamp: new Date().toISOString(),
+        endpoint: request.url
+    };
+    reply.code(500).send(errorResponse);
+});
+// Graceful shutdown
+const gracefulShutdown = async (signal) => {
+    fastify.log.info(`Received ${signal}, shutting down gracefully`);
+    try {
+        await fastify.close();
+        process.exit(0);
+    }
+    catch (error) {
+        fastify.log.error({ error }, 'Error during shutdown');
+        process.exit(1);
+    }
+};
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+export { fastify };

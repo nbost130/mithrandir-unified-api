@@ -7,6 +7,36 @@ import fastifyStatic from '@fastify/static';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { UnifiedSystemService } from './services.js';
+import axios from 'axios';
+import { 
+  routeToCoreService, 
+  routeToTranscriptionService, 
+  isCoreServiceAvailable, 
+  isTranscriptionServiceAvailable, 
+  createErrorResponse, 
+  getServicesInfo 
+} from "./routing.js";
+
+// HTTP client for service communication
+const coreServiceClient = axios.create({
+  baseURL: 'http://localhost:9002',
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Service availability check
+let coreServiceAvailable = false;
+setInterval(async () => {
+  try {
+    await coreServiceClient.get('/api/health');
+    coreServiceAvailable = true;
+  } catch (error) {
+    coreServiceAvailable = false;
+  }
+}, 30000); // Check every 30 seconds
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const fastify = Fastify({
@@ -87,7 +117,7 @@ const systemService = UnifiedSystemService.getInstance();
 // SSH Status endpoint (legacy failsafe API)
 fastify.get('/ssh-status', {
     schema: {
-        description: 'Get SSH and system status (legacy failsafe endpoint)',
+        description: 'Get SSH and system status (routes to mithrandir-core when available)',
         tags: ['Failsafe'],
         response: {
             200: {
@@ -103,13 +133,26 @@ fastify.get('/ssh-status', {
     }
 }, async (request, reply) => {
     try {
+        // Try mithrandir-core service first
+        if (coreServiceAvailable) {
+            try {
+                const response = await coreServiceClient.get('/api/ssh-status');
+                fastify.log.info('Routed ssh-status to mithrandir-core service');
+                return reply.code(200).send(response.data);
+            } catch (coreError) {
+                fastify.log.warn('mithrandir-core unavailable, falling back to local implementation');
+                coreServiceAvailable = false;
+            }
+        }
+        
+        // Fallback to original implementation
         const status = await systemService.getSystemStatus();
         reply.code(200).send(status);
     }
     catch (error) {
         const errorResponse = {
             status: 'error',
-            message: `Failed to get system status: ${error}`,
+            message: error.message || "Failed to get system status",
             code: 'SYSTEM_STATUS_ERROR',
             timestamp: new Date().toISOString(),
             endpoint: '/ssh-status'
@@ -294,6 +337,7 @@ fastify.get('/health', async (request, reply) => {
         reply.code(response.statusCode).send(JSON.parse(response.payload));
     });
 });
+
 // =============================================================================
 // TRANSCRIPTION PROJECT MANAGEMENT ENDPOINTS
 // =============================================================================
@@ -1345,6 +1389,33 @@ fastify.get('/transcription-dashboard', async (request, reply) => {
 </body>
 </html>`;
     reply.type('text/html').send(html);
+});
+
+// Services routing status endpoint
+fastify.get("/services/status", {
+    schema: {
+        description: "Get status of all microservices and routing information",
+        tags: ["Services"],
+        response: {
+            200: {
+                type: "object",
+                properties: {
+                    routing_enabled: { type: "boolean" },
+                    services: { type: "object" },
+                    health_check_interval: { type: "string" },
+                    timestamp: { type: "string" }
+                }
+            }
+        }
+    }
+}, async (request, reply) => {
+    try {
+        const servicesInfo = await getServicesInfo();
+        reply.code(200).send(servicesInfo);
+    } catch (error) {
+        const errorResponse = createErrorResponse("/services/status", error, "Failed to get services status");
+        reply.code(500).send(errorResponse);
+    }
 });
 // 404 handler
 fastify.setNotFoundHandler((request, reply) => {
