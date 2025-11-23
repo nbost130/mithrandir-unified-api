@@ -341,6 +341,38 @@ fastify.get('/health', async (request, reply) => {
 // =============================================================================
 // TRANSCRIPTION PROJECT MANAGEMENT ENDPOINTS
 // =============================================================================
+// ===== TRANSCRIPTION SERVICE ROUTING =====
+// Generic transcription routing - proxy all /transcription/* to transcription-palantir
+fastify.all("/transcription/jobs", async (request, reply) => {
+  try {
+    const result = await routeToTranscriptionService("/jobs", request.method, request.body, fastify);
+    reply.send(result);
+  } catch (error) {
+    const errorResponse = createErrorResponse("/transcription/jobs", error);
+    reply.code(error.response?.status || 500).send(errorResponse);
+  }
+});
+
+fastify.all("/transcription/jobs/:id", async (request, reply) => {
+  try {
+    const result = await routeToTranscriptionService(`/jobs/${request.params.id}`, request.method, request.body, fastify);
+    reply.send(result);
+  } catch (error) {
+    const errorResponse = createErrorResponse(`/transcription/jobs/${request.params.id}`, error);
+    reply.code(error.response?.status || 500).send(errorResponse);
+  }
+});
+
+fastify.all("/transcription/jobs/:id/retry", async (request, reply) => {
+  try {
+    const result = await routeToTranscriptionService(`/jobs/${request.params.id}/retry`, request.method, request.body, fastify);
+    reply.send(result);
+  } catch (error) {
+    const errorResponse = createErrorResponse(`/transcription/jobs/${request.params.id}/retry`, error);
+    reply.code(error.response?.status || 500).send(errorResponse);
+  }
+});
+
 // Get transcription projects grouped by folder
 fastify.get('/transcription/projects', {
     schema: {
