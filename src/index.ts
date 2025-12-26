@@ -15,7 +15,7 @@ async function start() {
     fastify.log.info('  POST /start-vnc - Start VNC');
     fastify.log.info('  GET  /info - API information');
   } catch (error) {
-    fastify.log.error('Failed to start server:', error);
+    fastify.log.error({ error }, 'Failed to start server');
     process.exit(1);
   }
 }
