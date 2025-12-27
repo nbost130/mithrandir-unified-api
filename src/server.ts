@@ -327,6 +327,8 @@ fastify.get('/info', async (request, reply) => {
       'GET /transcription/jobs - List transcription jobs',
       'POST /transcription/jobs - Create transcription job',
       'GET /transcription/jobs/:id - Get job details',
+      'PUT /transcription/jobs/:id - Update job (full)',
+      'PATCH /transcription/jobs/:id - Update job (partial, e.g., priority)',
       'DELETE /transcription/jobs/:id - Delete job',
       'POST /transcription/jobs/:id/retry - Retry failed job',
       'GET /info - API information'
@@ -432,6 +434,32 @@ fastify.put<{
     reply.code(response.status).send(response.data);
   } catch (error: any) {
     fastify.log.error({ error }, 'Failed to proxy update job request');
+    const statusCode = error.response?.status || 500;
+    const errorResponse: APIError = {
+      status: 'error',
+      message: error.response?.data?.message || `Failed to update job: ${error.message}`,
+      code: 'TRANSCRIPTION_PROXY_ERROR',
+      timestamp: new Date().toISOString(),
+      endpoint: `/transcription/jobs/${request.params.id}`
+    };
+    reply.code(statusCode).send(errorResponse);
+  }
+});
+
+// Update transcription job (partial update)
+fastify.patch<{
+  Params: { id: string },
+  Body: any,
+  Reply: JobResponse
+}>('/transcription/jobs/:id', async (request, reply) => {
+  try {
+    const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}`;
+    fastify.log.info(`Proxying PATCH request to: ${url}`);
+
+    const response = await axios.patch<JobResponse>(url, request.body);
+    reply.code(response.status).send(response.data);
+  } catch (error: any) {
+    fastify.log.error({ error }, 'Failed to proxy patch job request');
     const statusCode = error.response?.status || 500;
     const errorResponse: APIError = {
       status: 'error',
