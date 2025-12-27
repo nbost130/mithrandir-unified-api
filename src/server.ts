@@ -47,7 +47,7 @@ await fastify.register(helmet, {
 // CORS middleware
 await fastify.register(cors, {
   origin: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 });
 
 // Rate limiting removed - not needed for internal Tailscale service
