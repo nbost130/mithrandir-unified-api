@@ -1,0 +1,133 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy:
+    name: Deploy to Mithrandir
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔗 Connect to Tailscale
+      uses: tailscale/github-action@v2
+      with:
+        oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+        tags: tag:ci
+
+    - name: 🔐 Setup SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.MITHRANDIR_SSH_KEY }}
+
+    - name: 📝 Add SSH known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H 100.77.230.53 >> ~/.ssh/known_hosts
+
+    - name: 🚀 Deploy to production
+      run: |
+        ssh nbost@100.77.230.53 << 'ENDSSH'
+          set -e
+
+          echo "📂 Navigating to project directory..."
+          cd /home/nbost/mithrandir-unified-api
+
+          echo "🔍 Checking for divergent branches..."
+          git fetch origin
+
+          echo "🔄 Syncing with GitHub (using reset to handle divergence)..."
+          git reset --hard origin/master
+
+          echo "📦 Installing dependencies..."
+          /home/nbost/.bun/bin/bun install
+
+          echo "🔨 Building project..."
+          /home/nbost/.bun/bin/bun run build
+
+          echo "🧹 Cleaning up orphaned processes..."
+          # Kill any orphaned processes that might be blocking port 8080
+          pkill -f 'mithrandir-unified-api/dist/index.js' || true
+          sleep 2
+
+          echo "🔄 Restarting service..."
+          sudo systemctl restart mithrandir-unified-api
+
+          echo "⏳ Waiting for service to start..."
+          sleep 5
+
+          echo "🔍 Verifying service is running..."
+          # Check systemd service is actually active
+          if ! sudo systemctl is-active --quiet mithrandir-unified-api; then
+            echo "❌ Service failed to start"
+            sudo systemctl status mithrandir-unified-api --no-pager -l
+            exit 1
+          fi
+
+          echo "✅ Verifying deployment health..."
+          # Check health endpoint responds
+          curl -f http://localhost:8080/health || exit 1
+
+          echo "🕐 Verifying fresh deployment..."
+          # Verify uptime is recent (less than 60 seconds = fresh restart)
+          UPTIME=$(curl -s http://localhost:8080/health | jq -r '.uptime')
+          if (( $(echo "$UPTIME > 60" | bc -l) )); then
+            echo "⚠️  WARNING: Service appears stale (uptime: ${UPTIME}s)"
+            echo "This might indicate the restart failed and old instance is still running"
+            exit 1
+          fi
+          echo "✅ Service is fresh (uptime: ${UPTIME}s)"
+
+          echo "🎉 Deployment successful!"
+        ENDSSH
+
+    - name: 🔍 Verify deployment
+      run: |
+        # Wait a bit more for full startup
+        sleep 3
+
+        # Check health endpoint
+        HEALTH=$(curl -s http://100.77.230.53:8080/health | jq -r '.status')
+        if [ "$HEALTH" != "healthy" ]; then
+          echo "❌ Health check failed: $HEALTH"
+          exit 1
+        fi
+
+        echo "✅ Deployment verified - service is healthy"
+
+    - name: 📊 Deployment summary
+      if: always()
+      run: |
+        echo "### 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment:** Production (Mithrandir)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Endpoints:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Health: http://100.77.230.53:8080/health" >> $GITHUB_STEP_SUMMARY
+        echo "- API Info: http://100.77.230.53:8080/info" >> $GITHUB_STEP_SUMMARY
+        echo "- Transcription Proxy: http://100.77.230.53:8080/transcription/*" >> $GITHUB_STEP_SUMMARY
+        echo "- Dashboard API: http://100.77.230.53:8080/api/dashboard/*" >> $GITHUB_STEP_SUMMARY

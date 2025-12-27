@@ -1,0 +1,43 @@
+name: 🔮 Mithrandir Unified API CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: 📥 Install dependencies
+      run: bun install
+
+    - name: 🔨 Build TypeScript
+      run: bun run build
+
+    - name: ✅ Verify build artifacts
+      run: |
+        ls -la dist/
+        test -f dist/index.js || (echo "❌ Build failed: dist/index.js not found" && exit 1)
+        test -f dist/server.js || (echo "❌ Build failed: dist/server.js not found" && exit 1)
+        echo "✅ Build artifacts verified"
+
+    - name: 📊 CI Summary
+      if: always()
+      run: |
+        echo "### 🔮 CI Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
