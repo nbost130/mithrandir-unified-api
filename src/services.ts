@@ -1,17 +1,25 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import type { SystemStatus, RestartResult, VNCResult } from './types.js';
+import { FastifyBaseLogger } from 'fastify';
 
 const execAsync = promisify(exec);
 
 export class SystemService {
   private static instance: SystemService;
-  
+  private logger: FastifyBaseLogger | null = null;
+
   public static getInstance(): SystemService {
     if (!SystemService.instance) {
       SystemService.instance = new SystemService();
     }
     return SystemService.instance;
+  }
+
+  public setLogger(logger: FastifyBaseLogger): void {
+    if (!this.logger) {
+      this.logger = logger.child({ service: 'SystemService' });
+    }
   }
 
   async getSystemStatus(): Promise<SystemStatus> {
@@ -40,6 +48,7 @@ export class SystemService {
         }
       };
     } catch (error) {
+      this.logger?.error({ error }, 'Failed to get system status');
       throw new Error(`Failed to get system status: ${error}`);
     }
   }
@@ -67,7 +76,7 @@ export class SystemService {
         duration_ms: duration
       };
     } catch (error) {
-      console.error('SSH restart failed:', error); // Log full error for debugging
+      this.logger?.error({ error }, 'SSH restart failed');
       return {
         status: 'error',
         restart_output: 'Failed to restart SSH service',
@@ -98,6 +107,7 @@ export class SystemService {
         port: 5909
       };
     } catch (error) {
+      this.logger?.error({ error }, 'Failed to start VNC');
       return {
         status: 'error',
         message: `Failed to start VNC: ${error}`,
@@ -115,7 +125,7 @@ export class SystemService {
       const { stdout } = await execAsync('sudo systemctl is-active ssh');
       return stdout.trim() === 'active';
     } catch (error) {
-      console.error('SSH status check failed:', error); // Log error for debugging
+      this.logger?.error({ error }, 'SSH status check failed');
       return false;
     }
   }
@@ -128,7 +138,9 @@ export class SystemService {
         running: !!pid,
         pid: pid || null
       };
-    } catch {
+    } catch (error) {
+      // This command fails if the process is not found, which is an expected state.
+      // We do not log an error here to avoid noise, as it's not an unexpected failure.
       return { running: false, pid: null };
     }
   }
@@ -137,7 +149,8 @@ export class SystemService {
     try {
       const { stdout } = await execAsync('uptime');
       return stdout.trim();
-    } catch {
+    } catch (error) {
+      this.logger?.error({ error }, 'Failed to get uptime');
       return 'Unknown';
     }
   }

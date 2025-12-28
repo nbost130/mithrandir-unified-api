@@ -1,21 +1,30 @@
 import Fastify from 'fastify';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
+import { randomUUID } from 'crypto';
 import { SystemService } from './services.js';
 import { getConfig } from './config/validation.js';
 import { createApiClient } from './lib/apiClient.js';
+// Configure logger based on environment
+const isProduction = process.env.NODE_ENV === 'production';
 const fastify = Fastify({
-    logger: {
-        level: 'info',
-        transport: {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'HH:MM:ss Z',
-                ignore: 'pid,hostname'
+    logger: isProduction
+        ? {
+            // Production: structured JSON logs
+            level: process.env.LOG_LEVEL || 'info',
+        }
+        : {
+            // Development: pretty-printed logs
+            level: process.env.LOG_LEVEL || 'info',
+            transport: {
+                target: 'pino-pretty',
+                options: {
+                    colorize: true,
+                    translateTime: 'HH:MM:ss Z',
+                    ignore: 'pid,hostname'
+                }
             }
         }
-    }
 });
 // Security middleware
 await fastify.register(helmet, {
@@ -33,8 +42,34 @@ await fastify.register(cors, {
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 });
+// Request ID generation - add unique ID to each request
+fastify.decorateRequest('id', '');
+fastify.addHook('onRequest', async (request, reply) => {
+    request.id = randomUUID();
+});
+// Request lifecycle logging - track performance and requests
+const SLOW_REQUEST_THRESHOLD = 1000; // ms
+fastify.addHook('onRequest', async (request, reply) => {
+    request.log.info({
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+    }, 'Incoming request');
+});
+fastify.addHook('onResponse', async (request, reply) => {
+    const duration = reply.elapsedTime;
+    const logLevel = duration > SLOW_REQUEST_THRESHOLD ? 'warn' : 'info';
+    request.log[logLevel]({
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+        statusCode: reply.statusCode,
+        duration: `${duration.toFixed(2)}ms`,
+    }, duration > SLOW_REQUEST_THRESHOLD ? 'Slow request detected' : 'Request completed');
+});
 // Rate limiting removed - not needed for internal Tailscale service
 const systemService = SystemService.getInstance();
+systemService.setLogger(fastify.log);
 // Configuration and Resilient API Client Setup
 const config = getConfig();
 const apiClient = createApiClient(config, fastify.log);
@@ -43,7 +78,8 @@ const apiClient = createApiClient(config, fastify.log);
  * Intelligently determines status code and message based on error type.
  */
 function handleProxyError(error, reply, endpoint) {
-    fastify.log.error({ err: error }, `[ProxyError] at ${endpoint}`);
+    const requestId = reply.request.id;
+    fastify.log.error({ err: error, requestId }, `[ProxyError] at ${endpoint}`);
     let statusCode = 500;
     let message = 'An unexpected error occurred.';
     let code = 'PROXY_ERROR';
@@ -63,7 +99,8 @@ function handleProxyError(error, reply, endpoint) {
         message,
         code,
         timestamp: new Date().toISOString(),
-        endpoint
+        endpoint,
+        requestId
     };
     reply.code(statusCode).send(errorResponse);
 }
@@ -386,7 +423,8 @@ fastify.setNotFoundHandler((request, reply) => {
         message: 'Endpoint not found',
         code: 'NOT_FOUND',
         timestamp: new Date().toISOString(),
-        endpoint: request.url
+        endpoint: request.url,
+        requestId: request.id
     };
     reply.code(404).send(errorResponse);
 });
