@@ -22,6 +22,12 @@ export interface AppConfig {
   HOST: string;
   NODE_ENV: 'development' | 'production' | 'test';
   LOG_LEVEL: string;
+
+  // Resilience patterns for the external API client
+  CLIENT_TIMEOUT_MS: number;
+  CLIENT_RETRY_COUNT: number;
+  CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD: number;
+  CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS: number;
 }
 
 /**
@@ -75,6 +81,24 @@ export function validateAndLoadConfig(): AppConfig {
     errors.push('   Expected format: http://hostname:port/path or https://hostname:port/path');
   }
 
+  // Validate and parse numeric resilience settings
+  const numericVars = {
+    CLIENT_TIMEOUT_MS: process.env.CLIENT_TIMEOUT_MS || '5000',
+    CLIENT_RETRY_COUNT: process.env.CLIENT_RETRY_COUNT || '3',
+    CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD: process.env.CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD || '5',
+    CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS: process.env.CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS || '30000',
+  };
+
+  const parsedNumeric: {[key: string]: number} = {};
+  for (const [key, value] of Object.entries(numericVars)) {
+    const num = parseInt(value, 10);
+    if (isNaN(num)) {
+      errors.push(`❌ ${key} is not a valid number: ${value}`);
+    } else {
+      parsedNumeric[key] = num;
+    }
+  }
+
   // If there are any errors, exit
   if (errors.length > 0) {
     console.error('\n╔════════════════════════════════════════════════════════════════╗');
@@ -95,6 +119,11 @@ export function validateAndLoadConfig(): AppConfig {
     HOST: process.env.HOST || '0.0.0.0',
     NODE_ENV: (process.env.NODE_ENV as AppConfig['NODE_ENV']) || 'development',
     LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+    // Resilience settings
+    CLIENT_TIMEOUT_MS: parsedNumeric.CLIENT_TIMEOUT_MS,
+    CLIENT_RETRY_COUNT: parsedNumeric.CLIENT_RETRY_COUNT,
+    CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD: parsedNumeric.CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD,
+    CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS: parsedNumeric.CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS,
   });
 
   console.log('✅ Environment configuration loaded and validated successfully.');
@@ -102,6 +131,12 @@ export function validateAndLoadConfig(): AppConfig {
   console.log(`   - PORT: ${loadedConfig.PORT}`);
   console.log(`   - HOST: ${loadedConfig.HOST}`);
   console.log(`   - NODE_ENV: ${loadedConfig.NODE_ENV}`);
+  console.log('   ---');
+  console.log('   Resilience Settings:');
+  console.log(`   - Client Timeout: ${loadedConfig.CLIENT_TIMEOUT_MS}ms`);
+  console.log(`   - Client Retries: ${loadedConfig.CLIENT_RETRY_COUNT}`);
+  console.log(`   - Circuit Breaker Threshold: ${loadedConfig.CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD} failures`);
+  console.log(`   - Circuit Breaker Reset: ${loadedConfig.CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS}ms`);
 
   return loadedConfig;
 }

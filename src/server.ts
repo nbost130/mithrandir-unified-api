@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
-import axios from 'axios';
+import { AxiosError } from 'axios';
 import { SystemService } from './services.js';
 import type {
   SystemStatus,
@@ -17,6 +17,8 @@ import type {
   JobResponse,
   ApiResponse
 } from './types.js';
+import { getConfig } from './config/validation.js';
+import { createApiClient } from './lib/apiClient.js';
 
 const fastify = Fastify({
   logger: {
@@ -54,9 +56,41 @@ await fastify.register(cors, {
 
 const systemService = SystemService.getInstance();
 
-// Configuration - validated on startup in index.ts
-import { getConfig } from './config/validation.js';
-const { TRANSCRIPTION_API_URL } = getConfig();
+// Configuration and Resilient API Client Setup
+const config = getConfig();
+const apiClient = createApiClient(config, fastify.log);
+
+/**
+ * Generic error handler for proxied requests.
+ * Intelligently determines status code and message based on error type.
+ */
+function handleProxyError(error: any, reply: any, endpoint: string) {
+  fastify.log.error({ err: error }, `[ProxyError] at ${endpoint}`);
+
+  let statusCode = 500;
+  let message = 'An unexpected error occurred.';
+  let code = 'PROXY_ERROR';
+
+  if (error.isAxiosError) {
+    const axiosError = error as AxiosError<APIError>;
+    statusCode = axiosError.response?.status || 502; // 502 Bad Gateway if no response
+    message = axiosError.response?.data?.message || axiosError.message;
+  } else if (error.code === 'EOPENBREAKER') {
+    // Circuit breaker is open
+    statusCode = 503; // Service Unavailable
+    message = 'The service is temporarily unavailable. Please try again later.';
+    code = 'CIRCUIT_BREAKER_OPEN';
+  }
+
+  const errorResponse: APIError = {
+    status: 'error',
+    message,
+    code,
+    timestamp: new Date().toISOString(),
+    endpoint
+  };
+  reply.code(statusCode).send(errorResponse);
+}
 
 // Health check endpoint
 fastify.get<{ Reply: HealthCheck }>('/health', async (request, reply) => {
@@ -174,7 +208,7 @@ fastify.post<{ Reply: VNCResult | APIError }>('/start-vnc', async (request, repl
 fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/stats', async (request, reply) => {
   try {
     // Fetch job stats from Palantir (max limit is 100)
-    const response = await axios.get<JobsResponse>(`${TRANSCRIPTION_API_URL}/jobs?limit=100`);
+    const response = await apiClient.get<JobsResponse>('/jobs?limit=100');
     const jobs = response.data.data || [];
 
     const stats: DashboardStats = {
@@ -193,15 +227,7 @@ fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/s
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    fastify.log.error({ error }, 'Failed to fetch dashboard stats');
-    const errorResponse: APIError = {
-      status: 'error',
-      message: `Failed to fetch dashboard stats: ${error}`,
-      code: 'DASHBOARD_STATS_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: '/api/dashboard/stats'
-    };
-    reply.code(500).send(errorResponse);
+    handleProxyError(error, reply, '/api/dashboard/stats');
   }
 });
 
@@ -214,7 +240,7 @@ fastify.get<{
     const limit = parseInt(request.query.limit || '10', 10);
 
     // Fetch recent jobs from Palantir
-    const response = await axios.get<JobsResponse>(`${TRANSCRIPTION_API_URL}/jobs?limit=${limit * 2}`);
+    const response = await apiClient.get<JobsResponse>(`/jobs?limit=${limit * 2}`);
     const jobs = response.data.data || [];
 
     // Convert jobs to activity items
@@ -237,15 +263,7 @@ fastify.get<{
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    fastify.log.error({ error }, 'Failed to fetch dashboard activity');
-    const errorResponse: APIError = {
-      status: 'error',
-      message: `Failed to fetch dashboard activity: ${error}`,
-      code: 'DASHBOARD_ACTIVITY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: '/api/dashboard/activity'
-    };
-    reply.code(500).send(errorResponse);
+    handleProxyError(error, reply, '/api/dashboard/activity');
   }
 });
 
@@ -258,7 +276,7 @@ fastify.get<{
     const days = parseInt(request.query.days || '7', 10);
 
     // Fetch all jobs from Palantir (max limit is 100)
-    const response = await axios.get<JobsResponse>(`${TRANSCRIPTION_API_URL}/jobs?limit=100`);
+    const response = await apiClient.get<JobsResponse>('/jobs?limit=100');
     const jobs = response.data.data || [];
 
     // Group jobs by date
@@ -295,15 +313,7 @@ fastify.get<{
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    fastify.log.error({ error }, 'Failed to fetch dashboard trends');
-    const errorResponse: APIError = {
-      status: 'error',
-      message: `Failed to fetch dashboard trends: ${error}`,
-      code: 'DASHBOARD_TRENDS_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: '/api/dashboard/trends'
-    };
-    reply.code(500).send(errorResponse);
+    handleProxyError(error, reply, '/api/dashboard/trends');
   }
 });
 
@@ -348,26 +358,10 @@ fastify.get<{
   Reply: JobsResponse
 }>('/transcription/jobs', async (request, reply) => {
   try {
-    const params = new URLSearchParams();
-    if (request.query.status) params.append('status', request.query.status);
-    if (request.query.limit) params.append('limit', request.query.limit);
-
-    const url = `${TRANSCRIPTION_API_URL}/jobs${params.toString() ? '?' + params.toString() : ''}`;
-    fastify.log.info(`Proxying GET request to: ${url}`);
-
-    const response = await axios.get<JobsResponse>(url);
+    const response = await apiClient.get<JobsResponse>('/jobs', { params: request.query });
     reply.code(response.status).send(response.data);
-  } catch (error: any) {
-    fastify.log.error({ error }, 'Failed to proxy transcription jobs request');
-    const statusCode = error.response?.status || 500;
-    const errorResponse: APIError = {
-      status: 'error',
-      message: error.response?.data?.message || `Failed to fetch transcription jobs: ${error.message}`,
-      code: 'TRANSCRIPTION_PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: '/transcription/jobs'
-    };
-    reply.code(statusCode).send(errorResponse);
+  } catch (error) {
+    handleProxyError(error, reply, '/transcription/jobs');
   }
 });
 
@@ -377,22 +371,12 @@ fastify.post<{
   Reply: JobResponse
 }>('/transcription/jobs', async (request, reply) => {
   try {
-    const url = `${TRANSCRIPTION_API_URL}/jobs`;
-    fastify.log.info(`Proxying POST request to: ${url}`);
-
-    const response = await axios.post<JobResponse>(url, request.body, { headers: { 'Content-Type': request.headers['content-type'] || 'application/json' } });
+    const response = await apiClient.post<JobResponse>('/jobs', request.body, {
+      headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+    });
     reply.code(response.status).send(response.data);
-  } catch (error: any) {
-    fastify.log.error({ error }, 'Failed to proxy create job request');
-    const statusCode = error.response?.status || 500;
-    const errorResponse: APIError = {
-      status: 'error',
-      message: error.response?.data?.message || `Failed to create transcription job: ${error.message}`,
-      code: 'TRANSCRIPTION_PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: '/transcription/jobs'
-    };
-    reply.code(statusCode).send(errorResponse);
+  } catch (error) {
+    handleProxyError(error, reply, '/transcription/jobs');
   }
 });
 
@@ -402,22 +386,10 @@ fastify.get<{
   Reply: JobResponse
 }>('/transcription/jobs/:id', async (request, reply) => {
   try {
-    const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}`;
-    fastify.log.info(`Proxying GET request to: ${url}`);
-
-    const response = await axios.get<JobResponse>(url);
+    const response = await apiClient.get<JobResponse>(`/jobs/${request.params.id}`);
     reply.code(response.status).send(response.data);
-  } catch (error: any) {
-    fastify.log.error({ error }, 'Failed to proxy get job request');
-    const statusCode = error.response?.status || 500;
-    const errorResponse: APIError = {
-      status: 'error',
-      message: error.response?.data?.message || `Failed to fetch job: ${error.message}`,
-      code: 'TRANSCRIPTION_PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: `/transcription/jobs/${request.params.id}`
-    };
-    reply.code(statusCode).send(errorResponse);
+  } catch (error) {
+    handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
   }
 });
 
@@ -428,22 +400,12 @@ fastify.put<{
   Reply: JobResponse
 }>('/transcription/jobs/:id', async (request, reply) => {
   try {
-    const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}`;
-    fastify.log.info(`Proxying PUT request to: ${url}`);
-
-    const response = await axios.put<JobResponse>(url, request.body, { headers: { 'Content-Type': request.headers['content-type'] || 'application/json' } });
+    const response = await apiClient.put<JobResponse>(`/jobs/${request.params.id}`, request.body, {
+      headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+    });
     reply.code(response.status).send(response.data);
-  } catch (error: any) {
-    fastify.log.error({ error }, 'Failed to proxy update job request');
-    const statusCode = error.response?.status || 500;
-    const errorResponse: APIError = {
-      status: 'error',
-      message: error.response?.data?.message || `Failed to update job: ${error.message}`,
-      code: 'TRANSCRIPTION_PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: `/transcription/jobs/${request.params.id}`
-    };
-    reply.code(statusCode).send(errorResponse);
+  } catch (error) {
+    handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
   }
 });
 
@@ -454,22 +416,12 @@ fastify.patch<{
   Reply: JobResponse
 }>('/transcription/jobs/:id', async (request, reply) => {
   try {
-    const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}`;
-    fastify.log.info(`Proxying PATCH request to: ${url}`);
-
-    const response = await axios.patch<JobResponse>(url, request.body, { headers: { 'Content-Type': request.headers['content-type'] || 'application/json' } });
+    const response = await apiClient.patch<JobResponse>(`/jobs/${request.params.id}`, request.body, {
+      headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+    });
     reply.code(response.status).send(response.data);
-  } catch (error: any) {
-    fastify.log.error({ error }, 'Failed to proxy patch job request');
-    const statusCode = error.response?.status || 500;
-    const errorResponse: APIError = {
-      status: 'error',
-      message: error.response?.data?.message || `Failed to update job: ${error.message}`,
-      code: 'TRANSCRIPTION_PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: `/transcription/jobs/${request.params.id}`
-    };
-    reply.code(statusCode).send(errorResponse);
+  } catch (error) {
+    handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
   }
 });
 
@@ -479,22 +431,10 @@ fastify.delete<{
   Reply: JobResponse
 }>('/transcription/jobs/:id', async (request, reply) => {
   try {
-    const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}`;
-    fastify.log.info(`Proxying DELETE request to: ${url}`);
-
-    const response = await axios.delete<JobResponse>(url);
+    const response = await apiClient.delete<JobResponse>(`/jobs/${request.params.id}`);
     reply.code(response.status).send(response.data);
-  } catch (error: any) {
-    fastify.log.error({ error }, 'Failed to proxy delete job request');
-    const statusCode = error.response?.status || 500;
-    const errorResponse: APIError = {
-      status: 'error',
-      message: error.response?.data?.message || `Failed to delete job: ${error.message}`,
-      code: 'TRANSCRIPTION_PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: `/transcription/jobs/${request.params.id}`
-    };
-    reply.code(statusCode).send(errorResponse);
+  } catch (error) {
+    handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
   }
 });
 
@@ -504,26 +444,12 @@ fastify.post<{
   Reply: JobResponse
 }>('/transcription/jobs/:id/retry', async (request, reply) => {
   try {
-    const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}/retry`;
-    fastify.log.info(`Proxying POST request to: ${url}`);
-
-    const response = await axios.post<JobResponse>(url, request.body, {
-      headers: {
-        'Content-Type': request.headers['content-type'] || 'application/json'
-      }
+    const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, request.body, {
+      headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
     });
     reply.code(response.status).send(response.data);
-  } catch (error: any) {
-    fastify.log.error({ error }, 'Failed to proxy retry job request');
-    const statusCode = error.response?.status || 500;
-    const errorResponse: APIError = {
-      status: 'error',
-      message: error.response?.data?.message || `Failed to retry job: ${error.message}`,
-      code: 'TRANSCRIPTION_PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-      endpoint: `/transcription/jobs/${request.params.id}/retry`
-    };
-    reply.code(statusCode).send(errorResponse);
+  } catch (error) {
+    handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
   }
 });
 
