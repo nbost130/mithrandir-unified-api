@@ -379,7 +379,7 @@ fastify.post<{
     const url = `${TRANSCRIPTION_API_URL}/jobs`;
     fastify.log.info(`Proxying POST request to: ${url}`);
 
-    const response = await axios.post<JobResponse>(url, request.body);
+    const response = await axios.post<JobResponse>(url, request.body, { headers: { 'Content-Type': request.headers['content-type'] || 'application/json' } });
     reply.code(response.status).send(response.data);
   } catch (error: any) {
     fastify.log.error({ error }, 'Failed to proxy create job request');
@@ -430,7 +430,7 @@ fastify.put<{
     const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}`;
     fastify.log.info(`Proxying PUT request to: ${url}`);
 
-    const response = await axios.put<JobResponse>(url, request.body);
+    const response = await axios.put<JobResponse>(url, request.body, { headers: { 'Content-Type': request.headers['content-type'] || 'application/json' } });
     reply.code(response.status).send(response.data);
   } catch (error: any) {
     fastify.log.error({ error }, 'Failed to proxy update job request');
@@ -456,7 +456,7 @@ fastify.patch<{
     const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}`;
     fastify.log.info(`Proxying PATCH request to: ${url}`);
 
-    const response = await axios.patch<JobResponse>(url, request.body);
+    const response = await axios.patch<JobResponse>(url, request.body, { headers: { 'Content-Type': request.headers['content-type'] || 'application/json' } });
     reply.code(response.status).send(response.data);
   } catch (error: any) {
     fastify.log.error({ error }, 'Failed to proxy patch job request');
@@ -506,7 +506,11 @@ fastify.post<{
     const url = `${TRANSCRIPTION_API_URL}/jobs/${request.params.id}/retry`;
     fastify.log.info(`Proxying POST request to: ${url}`);
 
-    const response = await axios.post<JobResponse>(url);
+    const response = await axios.post<JobResponse>(url, request.body, {
+      headers: {
+        'Content-Type': request.headers['content-type'] || 'application/json'
+      }
+    });
     reply.code(response.status).send(response.data);
   } catch (error: any) {
     fastify.log.error({ error }, 'Failed to proxy retry job request');
