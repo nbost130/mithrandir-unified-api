@@ -1,7 +1,15 @@
+// Load environment variables BEFORE any other imports
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Validate configuration before starting server
+import { getConfig } from './config/validation.js';
+const config = getConfig(); // This will validate and exit if config is invalid
+
 import { fastify } from './server.js';
 
-const PORT = parseInt(process.env.PORT || '8889', 10);
-const HOST = process.env.HOST || '0.0.0.0';
+const PORT = config.PORT;
+const HOST = config.HOST;
 
 async function start() {
   try {

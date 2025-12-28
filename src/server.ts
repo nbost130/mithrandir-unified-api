@@ -54,8 +54,9 @@ await fastify.register(cors, {
 
 const systemService = SystemService.getInstance();
 
-// Configuration
-const TRANSCRIPTION_API_URL = process.env.TRANSCRIPTION_API_URL || 'http://localhost:9003/api/v1';
+// Configuration - validated on startup in index.ts
+import { getConfig } from './config/validation.js';
+const { TRANSCRIPTION_API_URL } = getConfig();
 
 // Health check endpoint
 fastify.get<{ Reply: HealthCheck }>('/health', async (request, reply) => {

@@ -46,24 +46,31 @@ export class SystemService {
 
   async restartSSH(): Promise<RestartResult> {
     const startTime = Date.now();
-    
+
     try {
+      // ⚠️ DEPRECATED: Using 'sudo' is a significant security risk and requires passwordless sudo setup.
+      // TODO: Refactor to a more secure method. Options:
+      //   1. Create a dedicated, restricted user with systemd service permissions
+      //   2. Use systemd socket activation or D-Bus for service management
+      //   3. Expose a secure, authenticated internal API for service management
+      // For now, retaining for backward compatibility.
       const { stderr: restartError } = await execAsync('sudo systemctl restart ssh');
       const { stdout: serviceStatus } = await execAsync('sudo systemctl status ssh --no-pager');
-      
+
       const duration = Date.now() - startTime;
-      
+
       return {
         status: restartError ? 'error' : 'success',
-        restart_output: restartError || 'SSH restarted successfully',
+        restart_output: restartError || 'SSH restarted successfully. [WARNING: sudo dependency is a security risk]',
         service_status: serviceStatus,
         timestamp: new Date().toISOString(),
         duration_ms: duration
       };
     } catch (error) {
+      console.error('SSH restart failed:', error); // Log full error for debugging
       return {
         status: 'error',
-        restart_output: `Failed to restart SSH: ${error}`,
+        restart_output: 'Failed to restart SSH service',
         service_status: '',
         timestamp: new Date().toISOString(),
         duration_ms: Date.now() - startTime
@@ -103,9 +110,12 @@ export class SystemService {
 
   private async checkSSHStatus(): Promise<boolean> {
     try {
+      // ⚠️ DEPRECATED: Using 'sudo' for status checks is unnecessary and a security risk.
+      // TODO: Use 'systemctl --user' or non-privileged methods for status checks.
       const { stdout } = await execAsync('sudo systemctl is-active ssh');
       return stdout.trim() === 'active';
-    } catch {
+    } catch (error) {
+      console.error('SSH status check failed:', error); // Log error for debugging
       return false;
     }
   }
