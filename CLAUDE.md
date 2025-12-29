@@ -4,10 +4,9 @@ This file contains project-specific instructions for AI assistants working on th
 
 ## Project Overview
 
-Mithrandir Unified API is a TypeScript-based unified API that combines:
-- **Failsafe Operations** - SSH and VNC management
-- **System Monitoring** - Prometheus metrics and health checks
-- **Transcription Service Routing** - HTTP client routing for microservices
+Mithrandir Unified API is a TypeScript-based unified API that provides:
+- **Dashboard Analytics** - System statistics and monitoring for the admin interface
+- **Transcription Service Routing** - HTTP client proxy for the Palantir transcription service
 
 **Tech Stack:**
 - **TypeScript** - Type-safe development
@@ -35,9 +34,12 @@ Mithrandir Unified API is a TypeScript-based unified API that combines:
 ```
 mithrandir-unified-api/
 ├── src/                    # TypeScript source files
+│   ├── config/            # Configuration modules
+│   │   └── validation.ts  # Environment variable validation
+│   ├── lib/               # Shared libraries
+│   │   └── apiClient.ts   # Resilient API client with circuit breaker
 │   ├── index.ts           # Entry point
-│   ├── server.ts          # Fastify server setup
-│   ├── services.ts        # Service implementations
+│   ├── server.ts          # Fastify server setup and routes
 │   └── types.ts           # TypeScript type definitions
 ├── dist/                   # Compiled JavaScript (gitignored)
 ├── logs/                   # Application logs (gitignored)
@@ -51,6 +53,15 @@ mithrandir-unified-api/
 
 ## Migration History
 
+**December 28, 2025:**
+- **Removed all failsafe functionality** (SSH/VNC management endpoints)
+- Deleted `src/services.ts` entirely (SystemService class with sudo usage)
+- Removed VNC_PASSWORD requirement from environment configuration
+- Simplified health check to basic uptime and system status
+- Focused API scope: Dashboard analytics + transcription service routing only
+- **Security improvement**: Eliminated sudo dependency and VNC attack surface
+- **Architecture simplification**: API now relies entirely on Tailscale network-level security
+
 **December 26, 2025:**
 - Consolidated TypeScript source from `mithrandir-api-ts` into `mithrandir-unified-api`
 - Added proper `.gitignore` and source control for TypeScript files
@@ -63,9 +74,9 @@ mithrandir-unified-api/
 - Archive location: `~/Archive/mithrandir-migration-20251226.tar.gz`
 
 **November 22, 2025:**
-- Migrated from Python failsafe API to TypeScript
-- Combined failsafe operations with monitoring API
+- Migrated from Python to TypeScript
 - Added transcription service routing endpoints
+- Initial unified API implementation
 
 ## Development Guidelines
 
@@ -94,20 +105,22 @@ mithrandir-unified-api/
 ## API Endpoints
 
 ### Health & Status
-- `GET /health` - Health check
-- `GET /info` - API information
-- `GET /docs` - Swagger documentation (if enabled)
+- `GET /health` - Health check with system uptime
+- `GET /info` - API information and available endpoints
 
-### Failsafe Operations
-- `GET /ssh-status` - System status
-- `GET /status` - Legacy alias
-- `POST /restart-ssh` - Restart SSH service
-- `POST /start-vnc` - Start VNC server
+### Dashboard Analytics
+- `GET /api/dashboard/stats` - Dashboard statistics (job counts, system uptime)
+- `GET /api/dashboard/activity` - Recent activity feed (job updates)
+- `GET /api/dashboard/trends` - Historical trend data for jobs
 
-### Monitoring
-- `GET /metrics` - Prometheus metrics
-- `GET /monitoring/status` - Monitoring status
-- `GET /monitoring/health` - Health check
+### Transcription Service Proxy (Palantir)
+- `GET /transcription/jobs` - List transcription jobs (with optional filters)
+- `POST /transcription/jobs` - Create new transcription job
+- `GET /transcription/jobs/:id` - Get specific job details
+- `PUT /transcription/jobs/:id` - Update job (full replacement)
+- `PATCH /transcription/jobs/:id` - Update job (partial, e.g., priority)
+- `DELETE /transcription/jobs/:id` - Delete job
+- `POST /transcription/jobs/:id/retry` - Retry failed job
 
 ## Common Tasks
 

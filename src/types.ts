@@ -37,6 +37,7 @@ export interface APIError {
   code?: string;
   timestamp: string;
   endpoint?: string;
+  requestId?: string;
 }
 
 export interface HealthCheck {

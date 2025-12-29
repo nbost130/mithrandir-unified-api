@@ -1,20 +1,30 @@
 import Fastify from 'fastify';
 import helmet from '@fastify/helmet';
-import rateLimit from '@fastify/rate-limit';
 import cors from '@fastify/cors';
+import { randomUUID } from 'crypto';
 import { SystemService } from './services.js';
+import { getConfig } from './config/validation.js';
+import { createApiClient } from './lib/apiClient.js';
+// Configure logger based on environment
+const isProduction = process.env.NODE_ENV === 'production';
 const fastify = Fastify({
-    logger: {
-        level: 'info',
-        transport: {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'HH:MM:ss Z',
-                ignore: 'pid,hostname'
+    logger: isProduction
+        ? {
+            // Production: structured JSON logs
+            level: process.env.LOG_LEVEL || 'info',
+        }
+        : {
+            // Development: pretty-printed logs
+            level: process.env.LOG_LEVEL || 'info',
+            transport: {
+                target: 'pino-pretty',
+                options: {
+                    colorize: true,
+                    translateTime: 'HH:MM:ss Z',
+                    ignore: 'pid,hostname'
+                }
             }
         }
-    }
 });
 // Security middleware
 await fastify.register(helmet, {
@@ -30,21 +40,70 @@ await fastify.register(helmet, {
 // CORS middleware
 await fastify.register(cors, {
     origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 });
-// Rate limiting
-await fastify.register(rateLimit, {
-    max: 100,
-    timeWindow: '15 minutes',
-    errorResponseBuilder: (request, context) => ({
-        status: 'error',
-        message: 'Too many requests',
-        code: 'RATE_LIMIT_EXCEEDED',
-        timestamp: new Date().toISOString(),
-        retryAfter: context.ttl
-    })
+// Request ID generation - add unique ID to each request
+fastify.decorateRequest('id', '');
+fastify.addHook('onRequest', async (request, reply) => {
+    request.id = randomUUID();
 });
+// Request lifecycle logging - track performance and requests
+const SLOW_REQUEST_THRESHOLD = 1000; // ms
+fastify.addHook('onRequest', async (request, reply) => {
+    request.log.info({
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+    }, 'Incoming request');
+});
+fastify.addHook('onResponse', async (request, reply) => {
+    const duration = reply.elapsedTime;
+    const logLevel = duration > SLOW_REQUEST_THRESHOLD ? 'warn' : 'info';
+    request.log[logLevel]({
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+        statusCode: reply.statusCode,
+        duration: `${duration.toFixed(2)}ms`,
+    }, duration > SLOW_REQUEST_THRESHOLD ? 'Slow request detected' : 'Request completed');
+});
+// Rate limiting removed - not needed for internal Tailscale service
 const systemService = SystemService.getInstance();
+systemService.setLogger(fastify.log);
+// Configuration and Resilient API Client Setup
+const config = getConfig();
+const apiClient = createApiClient(config, fastify.log);
+/**
+ * Generic error handler for proxied requests.
+ * Intelligently determines status code and message based on error type.
+ */
+function handleProxyError(error, reply, endpoint) {
+    const requestId = reply.request.id;
+    fastify.log.error({ err: error, requestId }, `[ProxyError] at ${endpoint}`);
+    let statusCode = 500;
+    let message = 'An unexpected error occurred.';
+    let code = 'PROXY_ERROR';
+    if (error.isAxiosError) {
+        const axiosError = error;
+        statusCode = axiosError.response?.status || 502; // 502 Bad Gateway if no response
+        message = axiosError.response?.data?.message || axiosError.message;
+    }
+    else if (error.code === 'EOPENBREAKER') {
+        // Circuit breaker is open
+        statusCode = 503; // Service Unavailable
+        message = 'The service is temporarily unavailable. Please try again later.';
+        code = 'CIRCUIT_BREAKER_OPEN';
+    }
+    const errorResponse = {
+        status: 'error',
+        message,
+        code,
+        timestamp: new Date().toISOString(),
+        endpoint,
+        requestId
+    };
+    reply.code(statusCode).send(errorResponse);
+}
 // Health check endpoint
 fastify.get('/health', async (request, reply) => {
     const startTime = Date.now();
@@ -144,12 +203,114 @@ fastify.post('/start-vnc', async (request, reply) => {
         reply.code(500).send(errorResponse);
     }
 });
+// ============================================================================
+// DASHBOARD ROUTES
+// ============================================================================
+// Dashboard Stats endpoint
+fastify.get('/api/dashboard/stats', async (request, reply) => {
+    try {
+        // Fetch job stats from Palantir (max limit is 100)
+        const response = await apiClient.get('/jobs?limit=100');
+        const jobs = response.data.data || [];
+        const stats = {
+            totalJobs: jobs.length,
+            pendingJobs: jobs.filter(j => j.status === 'pending').length,
+            processingJobs: jobs.filter(j => j.status === 'processing').length,
+            completedJobs: jobs.filter(j => j.status === 'completed').length,
+            failedJobs: jobs.filter(j => j.status === 'failed').length,
+            systemUptime: process.uptime().toString(),
+            lastUpdated: new Date().toISOString()
+        };
+        reply.code(200).send({
+            status: 'success',
+            data: stats,
+            timestamp: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        handleProxyError(error, reply, '/api/dashboard/stats');
+    }
+});
+// Dashboard Activity endpoint
+fastify.get('/api/dashboard/activity', async (request, reply) => {
+    try {
+        const limit = parseInt(request.query.limit || '10', 10);
+        // Fetch recent jobs from Palantir
+        const response = await apiClient.get(`/jobs?limit=${limit * 2}`);
+        const jobs = response.data.data || [];
+        // Convert jobs to activity items
+        const activities = jobs
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .slice(0, limit)
+            .map(job => ({
+            id: job.id,
+            type: job.status === 'completed' ? 'job_completed' :
+                job.status === 'failed' ? 'job_failed' :
+                    'job_created',
+            message: `Job "${job.name}" ${job.status}`,
+            timestamp: job.updatedAt,
+            metadata: { jobId: job.id, status: job.status }
+        }));
+        reply.code(200).send({
+            status: 'success',
+            data: activities,
+            timestamp: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        handleProxyError(error, reply, '/api/dashboard/activity');
+    }
+});
+// Dashboard Trends endpoint
+fastify.get('/api/dashboard/trends', async (request, reply) => {
+    try {
+        const days = parseInt(request.query.days || '7', 10);
+        // Fetch all jobs from Palantir (max limit is 100)
+        const response = await apiClient.get('/jobs?limit=100');
+        const jobs = response.data.data || [];
+        // Group jobs by date
+        const trendMap = new Map();
+        const now = new Date();
+        // Initialize trend data for the last N days
+        for (let i = 0; i < days; i++) {
+            const date = new Date(now);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            trendMap.set(dateStr, { completed: 0, failed: 0, pending: 0 });
+        }
+        // Count jobs by date and status
+        jobs.forEach(job => {
+            const dateStr = job.updatedAt.split('T')[0];
+            const trend = trendMap.get(dateStr);
+            if (trend) {
+                if (job.status === 'completed')
+                    trend.completed++;
+                else if (job.status === 'failed')
+                    trend.failed++;
+                else if (job.status === 'pending')
+                    trend.pending++;
+            }
+        });
+        // Convert to array and sort by date
+        const trends = Array.from(trendMap.entries())
+            .map(([date, counts]) => ({ date, ...counts }))
+            .sort((a, b) => a.date.localeCompare(b.date));
+        reply.code(200).send({
+            status: 'success',
+            data: trends,
+            timestamp: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        handleProxyError(error, reply, '/api/dashboard/trends');
+    }
+});
 // API Info endpoint
 fastify.get('/info', async (request, reply) => {
     reply.send({
-        name: 'Mithrandir Failsafe API',
-        version: '2.0.0',
-        description: 'TypeScript-based failsafe API for Mithrandir server management',
+        name: 'Mithrandir Unified API',
+        version: '2.1.0',
+        description: 'TypeScript-based unified API gateway for Mithrandir services',
         framework: 'Fastify',
         node_version: process.version,
         uptime: process.uptime(),
@@ -159,10 +320,101 @@ fastify.get('/info', async (request, reply) => {
             'GET /status - Legacy alias for ssh-status',
             'POST /restart-ssh - Restart SSH service',
             'POST /start-vnc - Start VNC server',
+            'GET /api/dashboard/stats - Dashboard statistics',
+            'GET /api/dashboard/activity - Recent activity',
+            'GET /api/dashboard/trends - Trend data',
+            'GET /transcription/jobs - List transcription jobs',
+            'POST /transcription/jobs - Create transcription job',
+            'GET /transcription/jobs/:id - Get job details',
+            'PUT /transcription/jobs/:id - Update job (full)',
+            'PATCH /transcription/jobs/:id - Update job (partial, e.g., priority)',
+            'DELETE /transcription/jobs/:id - Delete job',
+            'POST /transcription/jobs/:id/retry - Retry failed job',
             'GET /info - API information'
         ],
         timestamp: new Date().toISOString()
     });
+});
+// ============================================================================
+// TRANSCRIPTION PROXY ROUTES
+// ============================================================================
+// List transcription jobs
+fastify.get('/transcription/jobs', async (request, reply) => {
+    try {
+        const response = await apiClient.get('/jobs', { params: request.query });
+        reply.code(response.status).send(response.data);
+    }
+    catch (error) {
+        handleProxyError(error, reply, '/transcription/jobs');
+    }
+});
+// Create transcription job
+fastify.post('/transcription/jobs', async (request, reply) => {
+    try {
+        const response = await apiClient.post('/jobs', request.body, {
+            headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        });
+        reply.code(response.status).send(response.data);
+    }
+    catch (error) {
+        handleProxyError(error, reply, '/transcription/jobs');
+    }
+});
+// Get specific transcription job
+fastify.get('/transcription/jobs/:id', async (request, reply) => {
+    try {
+        const response = await apiClient.get(`/jobs/${request.params.id}`);
+        reply.code(response.status).send(response.data);
+    }
+    catch (error) {
+        handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+    }
+});
+// Update transcription job
+fastify.put('/transcription/jobs/:id', async (request, reply) => {
+    try {
+        const response = await apiClient.put(`/jobs/${request.params.id}`, request.body, {
+            headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        });
+        reply.code(response.status).send(response.data);
+    }
+    catch (error) {
+        handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+    }
+});
+// Update transcription job (partial update)
+fastify.patch('/transcription/jobs/:id', async (request, reply) => {
+    try {
+        const response = await apiClient.patch(`/jobs/${request.params.id}`, request.body, {
+            headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        });
+        reply.code(response.status).send(response.data);
+    }
+    catch (error) {
+        handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+    }
+});
+// Delete transcription job
+fastify.delete('/transcription/jobs/:id', async (request, reply) => {
+    try {
+        const response = await apiClient.delete(`/jobs/${request.params.id}`);
+        reply.code(response.status).send(response.data);
+    }
+    catch (error) {
+        handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+    }
+});
+// Retry failed transcription job
+fastify.post('/transcription/jobs/:id/retry', async (request, reply) => {
+    try {
+        const response = await apiClient.post(`/jobs/${request.params.id}/retry`, request.body, {
+            headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        });
+        reply.code(response.status).send(response.data);
+    }
+    catch (error) {
+        handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
+    }
 });
 // 404 handler
 fastify.setNotFoundHandler((request, reply) => {
@@ -171,7 +423,8 @@ fastify.setNotFoundHandler((request, reply) => {
         message: 'Endpoint not found',
         code: 'NOT_FOUND',
         timestamp: new Date().toISOString(),
-        endpoint: request.url
+        endpoint: request.url,
+        requestId: request.id
     };
     reply.code(404).send(errorResponse);
 });

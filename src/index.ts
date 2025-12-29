@@ -1,18 +1,25 @@
-import { fastify } from './server.js';
+// Load environment variables BEFORE any other imports
+import dotenv from 'dotenv';
+dotenv.config();
 
-const PORT = parseInt(process.env.PORT || '8889', 10);
-const HOST = process.env.HOST || '0.0.0.0';
+// Validate configuration before starting server
+import { getConfig } from './config/validation.js';
+const config = getConfig(); // This will validate and exit if config is invalid
+
+import { createServer } from './server.js';
+
+const PORT = config.PORT;
+const HOST = config.HOST;
 
 async function start() {
   try {
+    const fastify = await createServer();
     await fastify.listen({ port: PORT, host: HOST });
     fastify.log.info(`🚀 Mithrandir Unified API Gateway started on http://${HOST}:${PORT}`);
     fastify.log.info('📋 Available endpoints:');
-    fastify.log.info('  System Management:');
+    fastify.log.info('  Health & Info:');
     fastify.log.info('    GET  /health - Health check');
-    fastify.log.info('    GET  /ssh-status - System status');
-    fastify.log.info('    POST /restart-ssh - Restart SSH');
-    fastify.log.info('    POST /start-vnc - Start VNC');
+    fastify.log.info('    GET  /info - API information');
     fastify.log.info('  Dashboard:');
     fastify.log.info('    GET  /api/dashboard/stats - Dashboard statistics');
     fastify.log.info('    GET  /api/dashboard/activity - Recent activity');
@@ -21,12 +28,12 @@ async function start() {
     fastify.log.info('    GET  /transcription/jobs - List jobs');
     fastify.log.info('    POST /transcription/jobs - Create job');
     fastify.log.info('    GET  /transcription/jobs/:id - Get job');
+    fastify.log.info('    PUT  /transcription/jobs/:id - Update job');
+    fastify.log.info('    PATCH /transcription/jobs/:id - Partial update');
     fastify.log.info('    DELETE /transcription/jobs/:id - Delete job');
     fastify.log.info('    POST /transcription/jobs/:id/retry - Retry job');
-    fastify.log.info('  Other:');
-    fastify.log.info('    GET  /info - API information');
   } catch (error) {
-    fastify.log.error({ error }, 'Failed to start server');
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 }

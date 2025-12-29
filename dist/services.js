@@ -1,13 +1,20 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { getConfig } from './config/validation.js';
 const execAsync = promisify(exec);
 export class SystemService {
     static instance;
+    logger = null;
     static getInstance() {
         if (!SystemService.instance) {
             SystemService.instance = new SystemService();
         }
         return SystemService.instance;
+    }
+    setLogger(logger) {
+        if (!this.logger) {
+            this.logger = logger.child({ service: 'SystemService' });
+        }
     }
     async getSystemStatus() {
         try {
@@ -34,27 +41,35 @@ export class SystemService {
             };
         }
         catch (error) {
+            this.logger?.error({ error }, 'Failed to get system status');
             throw new Error(`Failed to get system status: ${error}`);
         }
     }
     async restartSSH() {
         const startTime = Date.now();
         try {
+            // ⚠️ DEPRECATED: Using 'sudo' is a significant security risk and requires passwordless sudo setup.
+            // TODO: Refactor to a more secure method. Options:
+            //   1. Create a dedicated, restricted user with systemd service permissions
+            //   2. Use systemd socket activation or D-Bus for service management
+            //   3. Expose a secure, authenticated internal API for service management
+            // For now, retaining for backward compatibility.
             const { stderr: restartError } = await execAsync('sudo systemctl restart ssh');
             const { stdout: serviceStatus } = await execAsync('sudo systemctl status ssh --no-pager');
             const duration = Date.now() - startTime;
             return {
                 status: restartError ? 'error' : 'success',
-                restart_output: restartError || 'SSH restarted successfully',
+                restart_output: restartError || 'SSH restarted successfully. [WARNING: sudo dependency is a security risk]',
                 service_status: serviceStatus,
                 timestamp: new Date().toISOString(),
                 duration_ms: duration
             };
         }
         catch (error) {
+            this.logger?.error({ error }, 'SSH restart failed');
             return {
                 status: 'error',
-                restart_output: `Failed to restart SSH: ${error}`,
+                restart_output: 'Failed to restart SSH service',
                 service_status: '',
                 timestamp: new Date().toISOString(),
                 duration_ms: Date.now() - startTime
@@ -63,9 +78,10 @@ export class SystemService {
     }
     async startVNC() {
         try {
+            const config = getConfig();
             await execAsync('pkill -f x11vnc').catch(() => { });
             await new Promise(resolve => setTimeout(resolve, 1000));
-            const vncCommand = 'x11vnc -display :0 -auth guess -shared -forever -rfbport 5909 -passwd mithrandir -noxdamage';
+            const vncCommand = `x11vnc -display :0 -auth guess -shared -forever -rfbport 5909 -passwd ${config.VNC_PASSWORD} -noxdamage`;
             exec(vncCommand);
             await new Promise(resolve => setTimeout(resolve, 3000));
             const vncStatus = await this.checkVNCStatus();
@@ -79,6 +95,7 @@ export class SystemService {
             };
         }
         catch (error) {
+            this.logger?.error({ error }, 'Failed to start VNC');
             return {
                 status: 'error',
                 message: `Failed to start VNC: ${error}`,
@@ -90,10 +107,13 @@ export class SystemService {
     }
     async checkSSHStatus() {
         try {
+            // ⚠️ DEPRECATED: Using 'sudo' for status checks is unnecessary and a security risk.
+            // TODO: Use 'systemctl --user' or non-privileged methods for status checks.
             const { stdout } = await execAsync('sudo systemctl is-active ssh');
             return stdout.trim() === 'active';
         }
-        catch {
+        catch (error) {
+            this.logger?.error({ error }, 'SSH status check failed');
             return false;
         }
     }
@@ -106,7 +126,9 @@ export class SystemService {
                 pid: pid || null
             };
         }
-        catch {
+        catch (error) {
+            // This command fails if the process is not found, which is an expected state.
+            // We do not log an error here to avoid noise, as it's not an unexpected failure.
             return { running: false, pid: null };
         }
     }
@@ -115,7 +137,8 @@ export class SystemService {
             const { stdout } = await execAsync('uptime');
             return stdout.trim();
         }
-        catch {
+        catch (error) {
+            this.logger?.error({ error }, 'Failed to get uptime');
             return 'Unknown';
         }
     }
