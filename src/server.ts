@@ -3,8 +3,10 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import type { AxiosError } from 'axios';
 import Fastify from 'fastify';
+import { z } from 'zod';
 import { getConfig } from './config/validation.js';
 import { createApiClient } from './lib/apiClient.js';
+import { DaysQuerySchema, JobResponseSchema, JobsResponseSchema, ListJobsQuerySchema } from './lib/schemas.js';
 import type {
   ActivityItem,
   APIError,
@@ -30,21 +32,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-          // Production: structured JSON logs
-          level: process.env.LOG_LEVEL || 'info',
-        }
+        // Production: structured JSON logs
+        level: process.env.LOG_LEVEL || 'info',
+      }
       : {
-          // Development: pretty-printed logs
-          level: process.env.LOG_LEVEL || 'info',
-          transport: {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'HH:MM:ss Z',
-              ignore: 'pid,hostname',
-            },
+        // Development: pretty-printed logs
+        level: process.env.LOG_LEVEL || 'info',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
           },
         },
+      },
   });
 
   // Security middleware
