@@ -1,1 +1,8 @@
+#!/bin/sh
+# Run TypeScript compilation check
+echo "🔨 Checking TypeScript compilation..."
+npm run build
+
+# Run tests
+echo "✅ Running tests..."
 npm test -- run
