@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import type { SystemStatus, RestartResult, VNCResult } from './types.js';
 import { FastifyBaseLogger } from 'fastify';
+import { getConfig } from './config/validation.js';
 
 const execAsync = promisify(exec);
 
@@ -89,10 +90,11 @@ export class SystemService {
 
   async startVNC(): Promise<VNCResult> {
     try {
+      const config = getConfig();
       await execAsync('pkill -f x11vnc').catch(() => {});
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const vncCommand = 'x11vnc -display :0 -auth guess -shared -forever -rfbport 5909 -passwd mithrandir -noxdamage';
+
+      const vncCommand = `x11vnc -display :0 -auth guess -shared -forever -rfbport 5909 -passwd ${config.VNC_PASSWORD} -noxdamage`;
       exec(vncCommand);
       
       await new Promise(resolve => setTimeout(resolve, 3000));
