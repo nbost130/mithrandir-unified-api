@@ -1,8 +1,8 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { type AxiosError, type AxiosInstance } from 'axios';
 import axiosRetry from 'axios-retry';
+import type { FastifyBaseLogger } from 'fastify';
 import CircuitBreaker from 'opossum';
-import { FastifyBaseLogger } from 'fastify';
-import { AppConfig } from '../config/validation.js';
+import type { AppConfig } from '../config/validation.js';
 
 /**
  * Checks if an error is a transient failure that warrants a retry.
@@ -62,10 +62,16 @@ export function createApiClient(config: AppConfig, logger: FastifyBaseLogger): A
   );
 
   // 3. Add Logging for Circuit Breaker Events
-  breaker.on('open', () => logger.error('[ApiClient-CircuitBreaker] Circuit is now OPEN. All requests will fail fast.'));
-  breaker.on('halfOpen', () => logger.warn('[ApiClient-CircuitBreaker] Circuit is now HALF-OPEN. The next request will test the service.'));
+  breaker.on('open', () =>
+    logger.error('[ApiClient-CircuitBreaker] Circuit is now OPEN. All requests will fail fast.')
+  );
+  breaker.on('halfOpen', () =>
+    logger.warn('[ApiClient-CircuitBreaker] Circuit is now HALF-OPEN. The next request will test the service.')
+  );
   breaker.on('close', () => logger.info('[ApiClient-CircuitBreaker] Circuit is now CLOSED. Service is healthy.'));
-  breaker.on('failure', (result, err) => logger.error({ err, result }, '[ApiClient-CircuitBreaker] Request failed, recorded by circuit breaker.'));
+  breaker.on('failure', (result, err) =>
+    logger.error({ err, result }, '[ApiClient-CircuitBreaker] Request failed, recorded by circuit breaker.')
+  );
 
   // 4. Override axios methods to use the circuit breaker
   // We create a Proxy to transparently wrap all axios methods with the breaker.
@@ -91,7 +97,7 @@ export function createApiClient(config: AppConfig, logger: FastifyBaseLogger): A
             requestConfig = {
               url: args[0],
               method: propKey,
-              ...args[1] // Merge additional config (params, headers, etc.)
+              ...args[1], // Merge additional config (params, headers, etc.)
             };
           } else {
             // axios.post(url, data?, config?)
@@ -101,7 +107,7 @@ export function createApiClient(config: AppConfig, logger: FastifyBaseLogger): A
               url: args[0],
               method: propKey,
               data: args[1],
-              ...args[2] // Merge additional config (params, headers, etc.)
+              ...args[2], // Merge additional config (params, headers, etc.)
             };
           }
 

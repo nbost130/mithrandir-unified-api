@@ -48,6 +48,72 @@ function isValidUrl(urlString: string): boolean {
 }
 
 /**
+ * Validates required environment variables are present.
+ */
+function validateRequiredVars(errors: string[]): void {
+  const requiredVars = ['TRANSCRIPTION_API_URL'] as const;
+  const missingVars = requiredVars.filter((varName) => !process.env[varName]);
+
+  if (missingVars.length > 0) {
+    errors.push('❌ Missing required environment variables:');
+    for (const varName of missingVars) {
+      errors.push(`   - ${varName}`);
+    }
+  }
+}
+
+/**
+ * Validates URL format for TRANSCRIPTION_API_URL.
+ */
+function validateApiUrl(errors: string[]): void {
+  const transcriptionUrl = process.env.TRANSCRIPTION_API_URL;
+  if (transcriptionUrl && !isValidUrl(transcriptionUrl)) {
+    errors.push(`❌ TRANSCRIPTION_API_URL is not a valid URL: ${transcriptionUrl}`);
+    errors.push('   Expected format: http://hostname:port/path or https://hostname:port/path');
+  }
+}
+
+/**
+ * Parses and validates numeric configuration values.
+ */
+function parseNumericConfig(errors: string[]): { [key: string]: number } {
+  const numericVars = {
+    CLIENT_TIMEOUT_MS: process.env.CLIENT_TIMEOUT_MS || '5000',
+    CLIENT_RETRY_COUNT: process.env.CLIENT_RETRY_COUNT || '3',
+    CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD: process.env.CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD || '5',
+    CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS: process.env.CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS || '30000',
+  };
+
+  const parsedNumeric: { [key: string]: number } = {};
+  for (const [key, value] of Object.entries(numericVars)) {
+    const num = parseInt(value, 10);
+    if (Number.isNaN(num)) {
+      errors.push(`❌ ${key} is not a valid number: ${value}`);
+    } else {
+      parsedNumeric[key] = num;
+    }
+  }
+  return parsedNumeric;
+}
+
+/**
+ * Displays validation errors and exits the process.
+ */
+function displayErrorsAndExit(errors: string[]): never {
+  console.error('\n╔════════════════════════════════════════════════════════════════╗');
+  console.error('║ FATAL ERROR: Environment Configuration Validation Failed      ║');
+  console.error('╚════════════════════════════════════════════════════════════════╝\n');
+  for (const error of errors) {
+    console.error(error);
+  }
+  console.error('\n📝 To fix this:');
+  console.error('   1. Create a `.env` file in the project root');
+  console.error('   2. See `.env.example` for required variables');
+  console.error('   3. Set all required environment variables\n');
+  process.exit(1);
+}
+
+/**
  * Validates that all required environment variables are set and loads them.
  * If a required variable is missing or invalid, it logs descriptive errors
  * and exits the process to prevent misconfigured deployments.
@@ -63,53 +129,14 @@ export function validateAndLoadConfig(): AppConfig {
 
   const errors: string[] = [];
 
-  // Validate required variables
-  const requiredVars = ['TRANSCRIPTION_API_URL'] as const;
-  const missingVars = requiredVars.filter(varName => !process.env[varName]);
-
-  if (missingVars.length > 0) {
-    errors.push('❌ Missing required environment variables:');
-    missingVars.forEach(varName => {
-      errors.push(`   - ${varName}`);
-    });
-  }
-
-  // Validate TRANSCRIPTION_API_URL format if present
-  const transcriptionUrl = process.env.TRANSCRIPTION_API_URL;
-  if (transcriptionUrl && !isValidUrl(transcriptionUrl)) {
-    errors.push(`❌ TRANSCRIPTION_API_URL is not a valid URL: ${transcriptionUrl}`);
-    errors.push('   Expected format: http://hostname:port/path or https://hostname:port/path');
-  }
-
-  // Validate and parse numeric resilience settings
-  const numericVars = {
-    CLIENT_TIMEOUT_MS: process.env.CLIENT_TIMEOUT_MS || '5000',
-    CLIENT_RETRY_COUNT: process.env.CLIENT_RETRY_COUNT || '3',
-    CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD: process.env.CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD || '5',
-    CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS: process.env.CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS || '30000',
-  };
-
-  const parsedNumeric: {[key: string]: number} = {};
-  for (const [key, value] of Object.entries(numericVars)) {
-    const num = parseInt(value, 10);
-    if (isNaN(num)) {
-      errors.push(`❌ ${key} is not a valid number: ${value}`);
-    } else {
-      parsedNumeric[key] = num;
-    }
-  }
+  // Run all validations
+  validateRequiredVars(errors);
+  validateApiUrl(errors);
+  const parsedNumeric = parseNumericConfig(errors);
 
   // If there are any errors, exit
   if (errors.length > 0) {
-    console.error('\n╔════════════════════════════════════════════════════════════════╗');
-    console.error('║ FATAL ERROR: Environment Configuration Validation Failed      ║');
-    console.error('╚════════════════════════════════════════════════════════════════╝\n');
-    errors.forEach(error => console.error(error));
-    console.error('\n📝 To fix this:');
-    console.error('   1. Create a `.env` file in the project root');
-    console.error('   2. See `.env.example` for required variables');
-    console.error('   3. Set all required environment variables\n');
-    process.exit(1);
+    displayErrorsAndExit(errors);
   }
 
   // Load config with defaults for optional vars

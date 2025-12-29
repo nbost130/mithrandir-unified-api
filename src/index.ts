@@ -1,9 +1,11 @@
 // Load environment variables BEFORE any other imports
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 // Validate configuration before starting server
 import { getConfig } from './config/validation.js';
+
 const config = getConfig(); // This will validate and exit if config is invalid
 
 import { createServer } from './server.js';

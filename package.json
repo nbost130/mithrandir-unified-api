@@ -12,6 +12,11 @@
     "test:run": "vitest run",
     "test:bun": "bun test",
     "test:coverage": "vitest run --coverage",
+    "lint": "biome lint ./src ./test",
+    "format": "biome format --write ./src ./test",
+    "format:check": "biome format ./src ./test",
+    "check": "biome check --write ./src ./test",
+    "check:size": "node scripts/check-file-size.mjs",
     "prepare": "husky"
   },
   "dependencies": {
@@ -32,6 +37,7 @@
     "pino-pretty": "^13.1.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.10",
     "@types/node": "^20.19.27",
     "husky": "^9.1.7",
     "tsx": "^4.6.0",

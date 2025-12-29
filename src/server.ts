@@ -1,21 +1,20 @@
-import Fastify from 'fastify';
-import helmet from '@fastify/helmet';
+import { randomUUID } from 'node:crypto';
 import cors from '@fastify/cors';
-import { randomUUID } from 'crypto';
-import { AxiosError } from 'axios';
-import type {
-  APIError,
-  HealthCheck,
-  DashboardStats,
-  ActivityItem,
-  TrendDataPoint,
-  TranscriptionJob,
-  JobsResponse,
-  JobResponse,
-  ApiResponse
-} from './types.js';
+import helmet from '@fastify/helmet';
+import type { AxiosError } from 'axios';
+import Fastify from 'fastify';
 import { getConfig } from './config/validation.js';
 import { createApiClient } from './lib/apiClient.js';
+import type {
+  ActivityItem,
+  APIError,
+  ApiResponse,
+  DashboardStats,
+  HealthCheck,
+  JobResponse,
+  JobsResponse,
+  TrendDataPoint,
+} from './types.js';
 
 /**
  * Create a new Fastify server instance with all routes and middleware configured.
@@ -25,30 +24,27 @@ import { createApiClient } from './lib/apiClient.js';
  * @param options.systemService - Optional SystemService instance (for testing)
  * @param options.apiClient - Optional API client instance (for testing)
  */
-export async function createServer(options?: {
-  systemService?: any;
-  apiClient?: any;
-}) {
+export async function createServer(options?: { systemService?: any; apiClient?: any }) {
   // Configure logger based on environment
   const isProduction = process.env.NODE_ENV === 'production';
   const fastify = Fastify({
     logger: isProduction
       ? {
-        // Production: structured JSON logs
-        level: process.env.LOG_LEVEL || 'info',
-      }
-      : {
-        // Development: pretty-printed logs
-        level: process.env.LOG_LEVEL || 'info',
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname'
-          }
+          // Production: structured JSON logs
+          level: process.env.LOG_LEVEL || 'info',
         }
-      }
+      : {
+          // Development: pretty-printed logs
+          level: process.env.LOG_LEVEL || 'info',
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+            },
+          },
+        },
   });
 
   // Security middleware
@@ -58,45 +54,51 @@ export async function createServer(options?: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:']
-      }
-    }
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
   });
 
   // CORS middleware
   await fastify.register(cors, {
     origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
 
   // Request ID generation - add unique ID to each request
   fastify.decorateRequest('id', '');
-  fastify.addHook('onRequest', async (request, reply) => {
+  fastify.addHook('onRequest', async (request, _reply) => {
     request.id = randomUUID();
   });
 
   // Request lifecycle logging - track performance and requests
   const SLOW_REQUEST_THRESHOLD = 1000; // ms
 
-  fastify.addHook('onRequest', async (request, reply) => {
-    request.log.info({
-      requestId: request.id,
-      method: request.method,
-      url: request.url,
-    }, 'Incoming request');
+  fastify.addHook('onRequest', async (request, _reply) => {
+    request.log.info(
+      {
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+      },
+      'Incoming request'
+    );
   });
 
   fastify.addHook('onResponse', async (request, reply) => {
     const duration = reply.elapsedTime;
     const logLevel = duration > SLOW_REQUEST_THRESHOLD ? 'warn' : 'info';
 
-    request.log[logLevel]({
-      requestId: request.id,
-      method: request.method,
-      url: request.url,
-      statusCode: reply.statusCode,
-      duration: `${duration.toFixed(2)}ms`,
-    }, duration > SLOW_REQUEST_THRESHOLD ? 'Slow request detected' : 'Request completed');
+    request.log[logLevel](
+      {
+        requestId: request.id,
+        method: request.method,
+        url: request.url,
+        statusCode: reply.statusCode,
+        duration: `${duration.toFixed(2)}ms`,
+      },
+      duration > SLOW_REQUEST_THRESHOLD ? 'Slow request detected' : 'Request completed'
+    );
   });
 
   // Rate limiting removed - not needed for internal Tailscale service
@@ -134,13 +136,13 @@ export async function createServer(options?: {
       code,
       timestamp: new Date().toISOString(),
       endpoint,
-      requestId
+      requestId,
     };
     return reply.code(statusCode).send(errorResponse);
   }
 
   // Health check endpoint
-  fastify.get<{ Reply: HealthCheck }>('/health', async (request, reply) => {
+  fastify.get<{ Reply: HealthCheck }>('/health', async (_request, reply) => {
     const healthCheck: HealthCheck = {
       status: 'healthy',
       uptime: process.uptime(),
@@ -149,20 +151,19 @@ export async function createServer(options?: {
       checks: {
         ssh: false,
         vnc: false,
-        system: true
-      }
+        system: true,
+      },
     };
 
     return reply.code(200).send(healthCheck);
   });
-
 
   // ============================================================================
   // DASHBOARD ROUTES
   // ============================================================================
 
   // Dashboard Stats endpoint
-  fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/stats', async (request, reply) => {
+  fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/stats', async (_request, reply) => {
     try {
       // Fetch job stats from Palantir (max limit is 100)
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
@@ -176,13 +177,13 @@ export async function createServer(options?: {
         completedJobs: jobs.filter((j: any) => j.status === 'completed').length,
         failedJobs: jobs.filter((j: any) => j.status === 'failed').length,
         systemUptime: process.uptime().toString(),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
 
       return reply.code(200).send({
         status: 'success',
         data: stats,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } catch (error) {
       handleProxyError(error, reply, '/api/dashboard/stats');
@@ -191,8 +192,8 @@ export async function createServer(options?: {
 
   // Dashboard Activity endpoint
   fastify.get<{
-    Querystring: { limit?: string },
-    Reply: ApiResponse<ActivityItem[]> | APIError
+    Querystring: { limit?: string };
+    Reply: ApiResponse<ActivityItem[]> | APIError;
   }>('/api/dashboard/activity', async (request, reply) => {
     try {
       const limit = parseInt(request.query.limit || '10', 10);
@@ -208,18 +209,21 @@ export async function createServer(options?: {
         .slice(0, limit)
         .map((job: any) => ({
           id: job.id,
-          type: job.status === 'completed' ? 'job_completed' as const :
-            job.status === 'failed' ? 'job_failed' as const :
-              'job_created' as const,
+          type:
+            job.status === 'completed'
+              ? ('job_completed' as const)
+              : job.status === 'failed'
+                ? ('job_failed' as const)
+                : ('job_created' as const),
           message: `Job "${job.name}" ${job.status}`,
           timestamp: job.updatedAt,
-          metadata: { jobId: job.id, status: job.status }
+          metadata: { jobId: job.id, status: job.status },
         }));
 
       return reply.code(200).send({
         status: 'success',
         data: activities,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } catch (error) {
       handleProxyError(error, reply, '/api/dashboard/activity');
@@ -228,8 +232,8 @@ export async function createServer(options?: {
 
   // Dashboard Trends endpoint
   fastify.get<{
-    Querystring: { days?: string },
-    Reply: ApiResponse<TrendDataPoint[]> | APIError
+    Querystring: { days?: string };
+    Reply: ApiResponse<TrendDataPoint[]> | APIError;
   }>('/api/dashboard/trends', async (request, reply) => {
     try {
       const days = parseInt(request.query.days || '7', 10);
@@ -270,7 +274,7 @@ export async function createServer(options?: {
       return reply.code(200).send({
         status: 'success',
         data: trends,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } catch (error) {
       handleProxyError(error, reply, '/api/dashboard/trends');
@@ -279,7 +283,7 @@ export async function createServer(options?: {
 
   // API Info endpoint
   // API Info endpoint
-  fastify.get('/info', async (request, reply) => {
+  fastify.get('/info', async (_request, reply) => {
     return reply.send({
       name: 'Mithrandir Unified API',
       version: '2.1.0',
@@ -299,9 +303,9 @@ export async function createServer(options?: {
         'PUT /transcription/jobs/:id - Update job (full)',
         'PATCH /transcription/jobs/:id - Update job (partial, e.g., priority)',
         'DELETE /transcription/jobs/:id - Delete job',
-        'POST /transcription/jobs/:id/retry - Retry failed job'
+        'POST /transcription/jobs/:id/retry - Retry failed job',
       ],
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   });
 
@@ -311,8 +315,8 @@ export async function createServer(options?: {
 
   // List transcription jobs
   fastify.get<{
-    Querystring: { status?: string; limit?: string },
-    Reply: JobsResponse
+    Querystring: { status?: string; limit?: string };
+    Reply: JobsResponse;
   }>('/transcription/jobs', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
@@ -325,13 +329,13 @@ export async function createServer(options?: {
 
   // Create transcription job
   fastify.post<{
-    Body: any,
-    Reply: JobResponse
+    Body: any;
+    Reply: JobResponse;
   }>('/transcription/jobs', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.post<JobResponse>('/jobs', request.body, {
-        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' },
       });
       return reply.code(response.status).send(response.data);
     } catch (error) {
@@ -341,8 +345,8 @@ export async function createServer(options?: {
 
   // Get specific transcription job
   fastify.get<{
-    Params: { id: string },
-    Reply: JobResponse
+    Params: { id: string };
+    Reply: JobResponse;
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
@@ -355,14 +359,14 @@ export async function createServer(options?: {
 
   // Update transcription job
   fastify.put<{
-    Params: { id: string },
-    Body: any,
-    Reply: JobResponse
+    Params: { id: string };
+    Body: any;
+    Reply: JobResponse;
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.put<JobResponse>(`/jobs/${request.params.id}`, request.body, {
-        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' },
       });
       return reply.code(response.status).send(response.data);
     } catch (error) {
@@ -372,14 +376,14 @@ export async function createServer(options?: {
 
   // Update transcription job (partial update)
   fastify.patch<{
-    Params: { id: string },
-    Body: any,
-    Reply: JobResponse
+    Params: { id: string };
+    Body: any;
+    Reply: JobResponse;
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.patch<JobResponse>(`/jobs/${request.params.id}`, request.body, {
-        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' },
       });
       return reply.code(response.status).send(response.data);
     } catch (error) {
@@ -389,8 +393,8 @@ export async function createServer(options?: {
 
   // Delete transcription job
   fastify.delete<{
-    Params: { id: string },
-    Reply: JobResponse
+    Params: { id: string };
+    Reply: JobResponse;
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
@@ -403,13 +407,13 @@ export async function createServer(options?: {
 
   // Retry failed transcription job
   fastify.post<{
-    Params: { id: string },
-    Reply: JobResponse
+    Params: { id: string };
+    Reply: JobResponse;
   }>('/transcription/jobs/:id/retry', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, request.body, {
-        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
+        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' },
       });
       return reply.code(response.status).send(response.data);
     } catch (error) {
@@ -425,7 +429,7 @@ export async function createServer(options?: {
       code: 'NOT_FOUND',
       timestamp: new Date().toISOString(),
       endpoint: request.url,
-      requestId: request.id
+      requestId: request.id,
     };
     return reply.code(404).send(errorResponse);
   });
@@ -439,7 +443,7 @@ export async function createServer(options?: {
       message: error.message || 'Internal server error',
       code: 'INTERNAL_ERROR',
       timestamp: new Date().toISOString(),
-      endpoint: request.url
+      endpoint: request.url,
     };
 
     return reply.code(500).send(errorResponse);
@@ -462,4 +466,3 @@ export async function createServer(options?: {
 
   return fastify;
 }
-
