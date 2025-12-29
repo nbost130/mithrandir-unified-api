@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SystemService } from '../src/services';
 import type { FastifyInstance } from 'fastify';
 
 // Mock SystemService
@@ -43,16 +42,14 @@ vi.mock('../src/lib/apiClient', () => ({
 // Import createServer AFTER mocks
 import { createServer } from '../src/server';
 
-// TEMPORARILY SKIPPED: Vitest/Fastify interaction issue
-// App works in production, test framework compatibility problem
-describe.skip('Transcription Proxy Routes', () => {
+// Tests re-enabled after fixing response handling patterns
+// Using Node.js runtime (npm test) instead of Bun to avoid light-my-request compatibility issue
+describe('Transcription Proxy Routes', () => {
     let fastify: FastifyInstance;
 
     beforeEach(async () => {
         vi.clearAllMocks();
-        SystemService.getInstance();
         fastify = await createServer({
-            systemService: SystemService.getInstance(),
             apiClient: mockAxios
         });
     });

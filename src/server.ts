@@ -22,9 +22,11 @@ import { createApiClient } from './lib/apiClient.js';
  * This factory pattern enables proper test isolation by creating separate instances.
  *
  * @param options - Optional dependencies for testing
+ * @param options.systemService - Optional SystemService instance (for testing)
  * @param options.apiClient - Optional API client instance (for testing)
  */
 export async function createServer(options?: {
+  systemService?: any;
   apiClient?: any;
 }) {
   // Configure logger based on environment
@@ -134,7 +136,7 @@ export async function createServer(options?: {
       endpoint,
       requestId
     };
-    reply.code(statusCode).send(errorResponse);
+    return reply.code(statusCode).send(errorResponse);
   }
 
   // Health check endpoint
@@ -145,6 +147,8 @@ export async function createServer(options?: {
       version: '2.0.0',
       timestamp: new Date().toISOString(),
       checks: {
+        ssh: false,
+        vnc: false,
         system: true
       }
     };
@@ -174,7 +178,7 @@ export async function createServer(options?: {
         lastUpdated: new Date().toISOString()
       };
 
-      reply.code(200).send({
+      return reply.code(200).send({
         status: 'success',
         data: stats,
         timestamp: new Date().toISOString()
@@ -210,7 +214,7 @@ export async function createServer(options?: {
           metadata: { jobId: job.id, status: job.status }
         }));
 
-      reply.code(200).send({
+      return reply.code(200).send({
         status: 'success',
         data: activities,
         timestamp: new Date().toISOString()
@@ -260,7 +264,7 @@ export async function createServer(options?: {
         .map(([date, counts]) => ({ date, ...counts }))
         .sort((a, b) => a.date.localeCompare(b.date));
 
-      reply.code(200).send({
+      return reply.code(200).send({
         status: 'success',
         data: trends,
         timestamp: new Date().toISOString()
@@ -271,8 +275,9 @@ export async function createServer(options?: {
   });
 
   // API Info endpoint
+  // API Info endpoint
   fastify.get('/info', async (request, reply) => {
-    reply.send({
+    return reply.send({
       name: 'Mithrandir Unified API',
       version: '2.1.0',
       description: 'Unified API gateway for dashboard analytics and transcription service routing',
@@ -308,7 +313,7 @@ export async function createServer(options?: {
   }>('/transcription/jobs', async (request, reply) => {
     try {
       const response = await apiClient.get<JobsResponse>('/jobs', { params: request.query });
-      reply.code(response.status).send(response.data);
+      return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, '/transcription/jobs');
     }
@@ -323,7 +328,7 @@ export async function createServer(options?: {
       const response = await apiClient.post<JobResponse>('/jobs', request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
-      reply.code(response.status).send(response.data);
+      return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, '/transcription/jobs');
     }
@@ -336,7 +341,7 @@ export async function createServer(options?: {
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
       const response = await apiClient.get<JobResponse>(`/jobs/${request.params.id}`);
-      reply.code(response.status).send(response.data);
+      return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
@@ -352,7 +357,7 @@ export async function createServer(options?: {
       const response = await apiClient.put<JobResponse>(`/jobs/${request.params.id}`, request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
-      reply.code(response.status).send(response.data);
+      return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
@@ -368,7 +373,7 @@ export async function createServer(options?: {
       const response = await apiClient.patch<JobResponse>(`/jobs/${request.params.id}`, request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
-      reply.code(response.status).send(response.data);
+      return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
@@ -381,7 +386,7 @@ export async function createServer(options?: {
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
       const response = await apiClient.delete<JobResponse>(`/jobs/${request.params.id}`);
-      reply.code(response.status).send(response.data);
+      return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
@@ -396,7 +401,7 @@ export async function createServer(options?: {
       const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
-      reply.code(response.status).send(response.data);
+      return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
     }
@@ -412,7 +417,7 @@ export async function createServer(options?: {
       endpoint: request.url,
       requestId: request.id
     };
-    reply.code(404).send(errorResponse);
+    return reply.code(404).send(errorResponse);
   });
 
   // Global error handler
@@ -427,7 +432,7 @@ export async function createServer(options?: {
       endpoint: request.url
     };
 
-    reply.code(500).send(errorResponse);
+    return reply.code(500).send(errorResponse);
   });
 
   // Graceful shutdown

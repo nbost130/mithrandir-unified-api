@@ -28,16 +28,14 @@ vi.mock('../src/lib/apiClient', () => ({
 // Import createServer AFTER mocks
 import { createServer } from '../src/server';
 
-// TEMPORARILY SKIPPED: Vitest/Fastify interaction issue
-// App works in production, test framework compatibility problem
-describe.skip('Dashboard Routes', () => {
+// Tests re-enabled after fixing response handling patterns
+// Using Node.js runtime (npm test) instead of Bun to avoid light-my-request compatibility issue
+describe('Dashboard Routes', () => {
     let fastify: FastifyInstance;
 
     beforeEach(async () => {
         vi.clearAllMocks();
-        SystemService.getInstance();
         fastify = await createServer({
-            systemService: SystemService.getInstance(),
             apiClient: mockAxios
         });
     });
