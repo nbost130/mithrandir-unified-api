@@ -6,13 +6,14 @@ dotenv.config();
 import { getConfig } from './config/validation.js';
 const config = getConfig(); // This will validate and exit if config is invalid
 
-import { fastify } from './server.js';
+import { createServer } from './server.js';
 
 const PORT = config.PORT;
 const HOST = config.HOST;
 
 async function start() {
   try {
+    const fastify = await createServer();
     await fastify.listen({ port: PORT, host: HOST });
     fastify.log.info(`🚀 Mithrandir Unified API Gateway started on http://${HOST}:${PORT}`);
     fastify.log.info('📋 Available endpoints:');
@@ -34,7 +35,7 @@ async function start() {
     fastify.log.info('  Other:');
     fastify.log.info('    GET  /info - API information');
   } catch (error) {
-    fastify.log.error({ error }, 'Failed to start server');
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 }

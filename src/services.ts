@@ -32,7 +32,7 @@ export class SystemService {
       ]);
 
       const memoryUsage = process.memoryUsage();
-      
+
       return {
         ssh_active: sshStatus,
         vnc_running: vncStatus.running,
@@ -91,15 +91,15 @@ export class SystemService {
   async startVNC(): Promise<VNCResult> {
     try {
       const config = getConfig();
-      await execAsync('pkill -f x11vnc').catch(() => {});
+      await execAsync('pkill -f x11vnc').catch(() => { });
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const vncCommand = `x11vnc -display :0 -auth guess -shared -forever -rfbport 5909 -passwd ${config.VNC_PASSWORD} -noxdamage`;
       exec(vncCommand);
-      
+
       await new Promise(resolve => setTimeout(resolve, 3000));
       const vncStatus = await this.checkVNCStatus();
-      
+
       return {
         status: vncStatus.running ? 'success' : 'error',
         message: vncStatus.running ? 'VNC started successfully' : 'VNC failed to start - check X11 display',
@@ -122,9 +122,8 @@ export class SystemService {
 
   private async checkSSHStatus(): Promise<boolean> {
     try {
-      // ⚠️ DEPRECATED: Using 'sudo' for status checks is unnecessary and a security risk.
-      // TODO: Use 'systemctl --user' or non-privileged methods for status checks.
-      const { stdout } = await execAsync('sudo systemctl is-active ssh');
+      // Status checks don't require sudo - systemctl is-active is available to all users
+      const { stdout } = await execAsync('systemctl is-active ssh');
       return stdout.trim() === 'active';
     } catch (error) {
       this.logger?.error({ error }, 'SSH status check failed');
