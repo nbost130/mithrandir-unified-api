@@ -75,10 +75,38 @@ export function createApiClient(config: AppConfig, logger: FastifyBaseLogger): A
       const methodsToWrap = ['request', 'get', 'delete', 'head', 'options', 'post', 'put', 'patch'];
 
       if (typeof propKey === 'string' && methodsToWrap.includes(propKey)) {
-        return (config: any) => {
+        // Return a function that captures all arguments
+        return (...args: any[]) => {
           logger.info(`[ApiClient] Firing request via circuit breaker for method: ${propKey}`);
+
+          // The opossum breaker is wrapping `axiosInstance(requestConfig)`.
+          // We must convert the various method signatures to a single `requestConfig` object.
+          let requestConfig: any;
+
+          if (propKey === 'request') {
+            // axios.request(config)
+            requestConfig = args[0];
+          } else if (['get', 'delete', 'head', 'options'].includes(propKey)) {
+            // axios.get(url, config?)
+            requestConfig = {
+              url: args[0],
+              method: propKey,
+              ...args[1] // Merge additional config (params, headers, etc.)
+            };
+          } else {
+            // axios.post(url, data?, config?)
+            // axios.put(url, data?, config?)
+            // axios.patch(url, data?, config?)
+            requestConfig = {
+              url: args[0],
+              method: propKey,
+              data: args[1],
+              ...args[2] // Merge additional config (params, headers, etc.)
+            };
+          }
+
           // The `fire` method of the breaker calls our wrapped axios instance
-          return breaker.fire(config);
+          return breaker.fire(requestConfig);
         };
       }
 
