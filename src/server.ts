@@ -165,15 +165,16 @@ export async function createServer(options?: {
   fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/stats', async (request, reply) => {
     try {
       // Fetch job stats from Palantir (max limit is 100)
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.get<JobsResponse>('/jobs?limit=100');
       const jobs = response.data.data || [];
 
       const stats: DashboardStats = {
         totalJobs: jobs.length,
-        pendingJobs: jobs.filter(j => j.status === 'pending').length,
-        processingJobs: jobs.filter(j => j.status === 'processing').length,
-        completedJobs: jobs.filter(j => j.status === 'completed').length,
-        failedJobs: jobs.filter(j => j.status === 'failed').length,
+        pendingJobs: jobs.filter((j: any) => j.status === 'pending').length,
+        processingJobs: jobs.filter((j: any) => j.status === 'processing').length,
+        completedJobs: jobs.filter((j: any) => j.status === 'completed').length,
+        failedJobs: jobs.filter((j: any) => j.status === 'failed').length,
         systemUptime: process.uptime().toString(),
         lastUpdated: new Date().toISOString()
       };
@@ -197,14 +198,15 @@ export async function createServer(options?: {
       const limit = parseInt(request.query.limit || '10', 10);
 
       // Fetch recent jobs from Palantir
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.get<JobsResponse>(`/jobs?limit=${limit * 2}`);
       const jobs = response.data.data || [];
 
       // Convert jobs to activity items
       const activities: ActivityItem[] = jobs
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        .sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
         .slice(0, limit)
-        .map(job => ({
+        .map((job: any) => ({
           id: job.id,
           type: job.status === 'completed' ? 'job_completed' as const :
             job.status === 'failed' ? 'job_failed' as const :
@@ -233,6 +235,7 @@ export async function createServer(options?: {
       const days = parseInt(request.query.days || '7', 10);
 
       // Fetch all jobs from Palantir (max limit is 100)
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.get<JobsResponse>('/jobs?limit=100');
       const jobs = response.data.data || [];
 
@@ -249,7 +252,7 @@ export async function createServer(options?: {
       }
 
       // Count jobs by date and status
-      jobs.forEach(job => {
+      jobs.forEach((job: any) => {
         const dateStr = job.updatedAt.split('T')[0];
         const trend = trendMap.get(dateStr);
         if (trend) {
@@ -312,6 +315,7 @@ export async function createServer(options?: {
     Reply: JobsResponse
   }>('/transcription/jobs', async (request, reply) => {
     try {
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.get<JobsResponse>('/jobs', { params: request.query });
       return reply.code(response.status).send(response.data);
     } catch (error) {
@@ -325,6 +329,7 @@ export async function createServer(options?: {
     Reply: JobResponse
   }>('/transcription/jobs', async (request, reply) => {
     try {
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.post<JobResponse>('/jobs', request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
@@ -340,6 +345,7 @@ export async function createServer(options?: {
     Reply: JobResponse
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.get<JobResponse>(`/jobs/${request.params.id}`);
       return reply.code(response.status).send(response.data);
     } catch (error) {
@@ -354,6 +360,7 @@ export async function createServer(options?: {
     Reply: JobResponse
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.put<JobResponse>(`/jobs/${request.params.id}`, request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
@@ -370,6 +377,7 @@ export async function createServer(options?: {
     Reply: JobResponse
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.patch<JobResponse>(`/jobs/${request.params.id}`, request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
@@ -385,6 +393,7 @@ export async function createServer(options?: {
     Reply: JobResponse
   }>('/transcription/jobs/:id', async (request, reply) => {
     try {
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.delete<JobResponse>(`/jobs/${request.params.id}`);
       return reply.code(response.status).send(response.data);
     } catch (error) {
@@ -398,6 +407,7 @@ export async function createServer(options?: {
     Reply: JobResponse
   }>('/transcription/jobs/:id/retry', async (request, reply) => {
     try {
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
       const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, request.body, {
         headers: { 'Content-Type': request.headers['content-type'] || 'application/json' }
       });
