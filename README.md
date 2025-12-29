@@ -139,11 +139,8 @@ Key environment variables (see `.env.example` for full list):
 PORT=8889
 HOST=0.0.0.0
 
-# Transcription API
+# Transcription API (proxied service)
 TRANSCRIPTION_API_URL=http://transcription-service:3000
-
-# Palantir API
-PALANTIR_API_URL=http://palantir-service:5000
 
 # Logging
 LOG_LEVEL=info
