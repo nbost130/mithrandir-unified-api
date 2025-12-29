@@ -131,16 +131,26 @@ export async function createServer(options) {
     // Dashboard Stats endpoint
     fastify.get('/api/dashboard/stats', async (_request, reply) => {
         try {
-            // Fetch job stats from Palantir (max limit is 100)
-            // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-            const response = await apiClient.get('/jobs?limit=100');
-            const jobs = response.data.data || [];
+            // Fetch ALL jobs from Palantir using pagination (fixes #11)
+            // Previous bug: hardcoded limit=100 caused silent data truncation
+            let allJobs = [];
+            let page = 1;
+            const limit = 100;
+            let hasMore = true;
+            while (hasMore) {
+                // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
+                const response = await apiClient.get(`/jobs?page=${page}&limit=${limit}`);
+                const jobs = response.data.data || [];
+                allJobs = allJobs.concat(jobs);
+                hasMore = jobs.length === limit;
+                page++;
+            }
             const stats = {
-                totalJobs: jobs.length,
-                pendingJobs: jobs.filter((j) => j.status === 'pending').length,
-                processingJobs: jobs.filter((j) => j.status === 'processing').length,
-                completedJobs: jobs.filter((j) => j.status === 'completed').length,
-                failedJobs: jobs.filter((j) => j.status === 'failed').length,
+                totalJobs: allJobs.length,
+                pendingJobs: allJobs.filter((j) => j.status === 'pending').length,
+                processingJobs: allJobs.filter((j) => j.status === 'processing').length,
+                completedJobs: allJobs.filter((j) => j.status === 'completed').length,
+                failedJobs: allJobs.filter((j) => j.status === 'failed').length,
                 systemUptime: process.uptime().toString(),
                 lastUpdated: new Date().toISOString(),
             };
@@ -191,10 +201,20 @@ export async function createServer(options) {
     fastify.get('/api/dashboard/trends', async (request, reply) => {
         try {
             const days = parseInt(request.query.days || '7', 10);
-            // Fetch all jobs from Palantir (max limit is 100)
-            // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-            const response = await apiClient.get('/jobs?limit=100');
-            const jobs = response.data.data || [];
+            // Fetch ALL jobs from Palantir using pagination (fixes #11)
+            // Previous bug: hardcoded limit=100 caused silent data truncation
+            let allJobs = [];
+            let page = 1;
+            const limit = 100;
+            let hasMore = true;
+            while (hasMore) {
+                // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
+                const response = await apiClient.get(`/jobs?page=${page}&limit=${limit}`);
+                const jobs = response.data.data || [];
+                allJobs = allJobs.concat(jobs);
+                hasMore = jobs.length === limit;
+                page++;
+            }
             // Group jobs by date
             const trendMap = new Map();
             const now = new Date();
@@ -206,7 +226,9 @@ export async function createServer(options) {
                 trendMap.set(dateStr, { completed: 0, failed: 0, pending: 0 });
             }
             // Count jobs by date and status
-            jobs.forEach((job) => {
+            allJobs.forEach((job) => {
+                if (!job.updatedAt)
+                    return; // Skip jobs without updatedAt field
                 const dateStr = job.updatedAt.split('T')[0];
                 const trend = trendMap.get(dateStr);
                 if (trend) {

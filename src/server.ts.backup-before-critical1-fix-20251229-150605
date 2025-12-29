@@ -32,21 +32,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-        // Production: structured JSON logs
-        level: process.env.LOG_LEVEL || 'info',
-      }
+          // Production: structured JSON logs
+          level: process.env.LOG_LEVEL || 'info',
+        }
       : {
-        // Development: pretty-printed logs
-        level: process.env.LOG_LEVEL || 'info',
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname',
+          // Development: pretty-printed logs
+          level: process.env.LOG_LEVEL || 'info',
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+            },
           },
         },
-      },
   });
 
   // Security middleware
@@ -167,28 +167,17 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   // Dashboard Stats endpoint
   fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/stats', async (_request, reply) => {
     try {
-      // Fetch ALL jobs from Palantir using pagination (fixes #11)
-      // Previous bug: hardcoded limit=100 caused silent data truncation
-      let allJobs: any[] = [];
-      let page = 1;
-      const limit = 100;
-      let hasMore = true;
-
-      while (hasMore) {
-        // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-        const response = await apiClient.get<JobsResponse>(`/jobs?page=${page}&limit=${limit}`);
-        const jobs = response.data.data || [];
-        allJobs = allJobs.concat(jobs);
-        hasMore = jobs.length === limit;
-        page++;
-      }
+      // Fetch job stats from Palantir (max limit is 100)
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
+      const response = await apiClient.get<JobsResponse>('/jobs?limit=100');
+      const jobs = response.data.data || [];
 
       const stats: DashboardStats = {
-        totalJobs: allJobs.length,
-        pendingJobs: allJobs.filter((j: any) => j.status === 'pending').length,
-        processingJobs: allJobs.filter((j: any) => j.status === 'processing').length,
-        completedJobs: allJobs.filter((j: any) => j.status === 'completed').length,
-        failedJobs: allJobs.filter((j: any) => j.status === 'failed').length,
+        totalJobs: jobs.length,
+        pendingJobs: jobs.filter((j: any) => j.status === 'pending').length,
+        processingJobs: jobs.filter((j: any) => j.status === 'processing').length,
+        completedJobs: jobs.filter((j: any) => j.status === 'completed').length,
+        failedJobs: jobs.filter((j: any) => j.status === 'failed').length,
         systemUptime: process.uptime().toString(),
         lastUpdated: new Date().toISOString(),
       };
@@ -251,21 +240,10 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
     try {
       const days = parseInt(request.query.days || '7', 10);
 
-      // Fetch ALL jobs from Palantir using pagination (fixes #11)
-      // Previous bug: hardcoded limit=100 caused silent data truncation
-      let allJobs: any[] = [];
-      let page = 1;
-      const limit = 100;
-      let hasMore = true;
-
-      while (hasMore) {
-        // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-        const response = await apiClient.get<JobsResponse>(`/jobs?page=${page}&limit=${limit}`);
-        const jobs = response.data.data || [];
-        allJobs = allJobs.concat(jobs);
-        hasMore = jobs.length === limit;
-        page++;
-      }
+      // Fetch all jobs from Palantir (max limit is 100)
+      // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
+      const response = await apiClient.get<JobsResponse>('/jobs?limit=100');
+      const jobs = response.data.data || [];
 
       // Group jobs by date
       const trendMap = new Map<string, { completed: number; failed: number; pending: number }>();
@@ -280,8 +258,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       }
 
       // Count jobs by date and status
-      allJobs.forEach((job: any) => {
-        if (!job.updatedAt) return; // Skip jobs without updatedAt field
+      jobs.forEach((job: any) => {
         const dateStr = job.updatedAt.split('T')[0];
         const trend = trendMap.get(dateStr);
         if (trend) {
@@ -437,7 +414,9 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   }>('/transcription/jobs/:id/retry', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-      const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, {});
+      const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, request.body, {
+        headers: { 'Content-Type': request.headers['content-type'] || 'application/json' },
+      });
       return reply.code(response.status).send(response.data);
     } catch (error) {
       handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
