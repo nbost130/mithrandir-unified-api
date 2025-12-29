@@ -16,7 +16,6 @@
 export interface AppConfig {
   // Required environment variables
   TRANSCRIPTION_API_URL: string;
-  VNC_PASSWORD: string;
 
   // Optional environment variables with defaults
   PORT: number;
@@ -65,7 +64,7 @@ export function validateAndLoadConfig(): AppConfig {
   const errors: string[] = [];
 
   // Validate required variables
-  const requiredVars = ['TRANSCRIPTION_API_URL', 'VNC_PASSWORD'] as const;
+  const requiredVars = ['TRANSCRIPTION_API_URL'] as const;
   const missingVars = requiredVars.filter(varName => !process.env[varName]);
 
   if (missingVars.length > 0) {
@@ -116,7 +115,6 @@ export function validateAndLoadConfig(): AppConfig {
   // Load config with defaults for optional vars
   loadedConfig = Object.freeze({
     TRANSCRIPTION_API_URL: process.env.TRANSCRIPTION_API_URL!,
-    VNC_PASSWORD: process.env.VNC_PASSWORD!,
     PORT: parseInt(process.env.PORT || '8889', 10),
     HOST: process.env.HOST || '0.0.0.0',
     NODE_ENV: (process.env.NODE_ENV as AppConfig['NODE_ENV']) || 'development',
@@ -130,7 +128,6 @@ export function validateAndLoadConfig(): AppConfig {
 
   console.log('✅ Environment configuration loaded and validated successfully.');
   console.log(`   - TRANSCRIPTION_API_URL: ${loadedConfig.TRANSCRIPTION_API_URL}`);
-  console.log(`   - VNC_PASSWORD: [set]`);
   console.log(`   - PORT: ${loadedConfig.PORT}`);
   console.log(`   - HOST: ${loadedConfig.HOST}`);
   console.log(`   - NODE_ENV: ${loadedConfig.NODE_ENV}`);

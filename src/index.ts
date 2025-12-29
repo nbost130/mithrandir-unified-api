@@ -17,11 +17,9 @@ async function start() {
     await fastify.listen({ port: PORT, host: HOST });
     fastify.log.info(`🚀 Mithrandir Unified API Gateway started on http://${HOST}:${PORT}`);
     fastify.log.info('📋 Available endpoints:');
-    fastify.log.info('  System Management:');
+    fastify.log.info('  Health & Info:');
     fastify.log.info('    GET  /health - Health check');
-    fastify.log.info('    GET  /ssh-status - System status');
-    fastify.log.info('    POST /restart-ssh - Restart SSH');
-    fastify.log.info('    POST /start-vnc - Start VNC');
+    fastify.log.info('    GET  /info - API information');
     fastify.log.info('  Dashboard:');
     fastify.log.info('    GET  /api/dashboard/stats - Dashboard statistics');
     fastify.log.info('    GET  /api/dashboard/activity - Recent activity');
@@ -30,10 +28,10 @@ async function start() {
     fastify.log.info('    GET  /transcription/jobs - List jobs');
     fastify.log.info('    POST /transcription/jobs - Create job');
     fastify.log.info('    GET  /transcription/jobs/:id - Get job');
+    fastify.log.info('    PUT  /transcription/jobs/:id - Update job');
+    fastify.log.info('    PATCH /transcription/jobs/:id - Partial update');
     fastify.log.info('    DELETE /transcription/jobs/:id - Delete job');
     fastify.log.info('    POST /transcription/jobs/:id/retry - Retry job');
-    fastify.log.info('  Other:');
-    fastify.log.info('    GET  /info - API information');
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);

@@ -3,11 +3,7 @@ import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import { randomUUID } from 'crypto';
 import { AxiosError } from 'axios';
-import { SystemService } from './services.js';
 import type {
-  SystemStatus,
-  RestartResult,
-  VNCResult,
   APIError,
   HealthCheck,
   DashboardStats,
@@ -24,13 +20,11 @@ import { createApiClient } from './lib/apiClient.js';
 /**
  * Create a new Fastify server instance with all routes and middleware configured.
  * This factory pattern enables proper test isolation by creating separate instances.
- * 
+ *
  * @param options - Optional dependencies for testing
- * @param options.systemService - Optional SystemService instance (for testing)
  * @param options.apiClient - Optional API client instance (for testing)
  */
 export async function createServer(options?: {
-  systemService?: any;
   apiClient?: any;
 }) {
   // Configure logger based on environment
@@ -105,12 +99,6 @@ export async function createServer(options?: {
 
   // Rate limiting removed - not needed for internal Tailscale service
 
-  // Use provided dependencies or create real ones
-  const systemService = options?.systemService || SystemService.getInstance();
-  if (systemService.setLogger) {
-    systemService.setLogger(fastify.log);
-  }
-
   // Configuration and Resilient API Client Setup
   const config = getConfig();
   const apiClient = options?.apiClient || createApiClient(config, fastify.log);
@@ -151,109 +139,19 @@ export async function createServer(options?: {
 
   // Health check endpoint
   fastify.get<{ Reply: HealthCheck }>('/health', async (request, reply) => {
-    const startTime = Date.now();
+    const healthCheck: HealthCheck = {
+      status: 'healthy',
+      uptime: process.uptime(),
+      version: '2.0.0',
+      timestamp: new Date().toISOString(),
+      checks: {
+        system: true
+      }
+    };
 
-    try {
-      const status = await systemService.getSystemStatus();
-
-      const healthCheck: HealthCheck = {
-        status: 'healthy',
-        uptime: process.uptime(),
-        version: '2.0.0',
-        timestamp: new Date().toISOString(),
-        checks: {
-          ssh: status.ssh_active,
-          vnc: status.vnc_running,
-          system: true
-        }
-      };
-
-      return reply.code(200).send(healthCheck);
-    } catch (error) {
-      const errorResponse: HealthCheck = {
-        status: 'unhealthy',
-        uptime: process.uptime(),
-        version: '2.0.0',
-        timestamp: new Date().toISOString(),
-        checks: {
-          ssh: false,
-          vnc: false,
-          system: false
-        }
-      };
-
-      return reply.code(503).send(errorResponse);
-    }
+    return reply.code(200).send(healthCheck);
   });
 
-  // SSH Status endpoint (with legacy alias support)
-  fastify.get<{ Reply: SystemStatus | APIError }>('/ssh-status', async (request, reply) => {
-    try {
-      const status = await systemService.getSystemStatus();
-      return reply.code(200).send(status);
-    } catch (error) {
-      const errorResponse: APIError = {
-        status: 'error',
-        message: `Failed to get system status: ${error}`,
-        code: 'SYSTEM_STATUS_ERROR',
-        timestamp: new Date().toISOString(),
-        endpoint: '/ssh-status'
-      };
-      return reply.code(500).send(errorResponse);
-    }
-  });
-
-  // Legacy alias for ssh-status
-  fastify.get<{ Reply: SystemStatus | APIError }>('/status', async (request, reply) => {
-    const response = await fastify.inject({
-      method: 'GET',
-      url: '/ssh-status'
-    });
-    return reply.code(response.statusCode).send(JSON.parse(response.payload));
-  });
-
-  // SSH Restart endpoint
-  fastify.post<{ Reply: RestartResult | APIError }>('/restart-ssh', async (request, reply) => {
-    try {
-      fastify.log.info('SSH restart requested');
-      const result = await systemService.restartSSH();
-
-      const statusCode = result.status === 'success' ? 200 : 500;
-      return reply.code(statusCode).send(result);
-
-      fastify.log.info(`SSH restart completed: ${result.status}`);
-    } catch (error) {
-      const errorResponse: APIError = {
-        status: 'error',
-        message: `Failed to restart SSH: ${error}`,
-        code: 'SSH_RESTART_ERROR',
-        timestamp: new Date().toISOString(),
-        endpoint: '/restart-ssh'
-      };
-      return reply.code(500).send(errorResponse);
-    }
-  });
-
-  // VNC Start endpoint
-  fastify.post<{ Reply: VNCResult | APIError }>('/start-vnc', async (request, reply) => {
-    try {
-      fastify.log.info('VNC start requested');
-      const result = await systemService.startVNC();
-
-      const statusCode = result.status === 'success' ? 200 : 500;
-      fastify.log.info(`VNC start completed: ${result.status}`);
-      return reply.code(statusCode).send(result);
-    } catch (error) {
-      const errorResponse: APIError = {
-        status: 'error',
-        message: `Failed to start VNC: ${error}`,
-        code: 'VNC_START_ERROR',
-        timestamp: new Date().toISOString(),
-        endpoint: '/start-vnc'
-      };
-      return reply.code(500).send(errorResponse);
-    }
-  });
 
   // ============================================================================
   // DASHBOARD ROUTES
@@ -377,16 +275,13 @@ export async function createServer(options?: {
     reply.send({
       name: 'Mithrandir Unified API',
       version: '2.1.0',
-      description: 'TypeScript-based unified API gateway for Mithrandir services',
+      description: 'Unified API gateway for dashboard analytics and transcription service routing',
       framework: 'Fastify',
       node_version: process.version,
       uptime: process.uptime(),
       endpoints: [
         'GET /health - Health check',
-        'GET /ssh-status - System status',
-        'GET /status - Legacy alias for ssh-status',
-        'POST /restart-ssh - Restart SSH service',
-        'POST /start-vnc - Start VNC server',
+        'GET /info - API information',
         'GET /api/dashboard/stats - Dashboard statistics',
         'GET /api/dashboard/activity - Recent activity',
         'GET /api/dashboard/trends - Trend data',
@@ -396,8 +291,7 @@ export async function createServer(options?: {
         'PUT /transcription/jobs/:id - Update job (full)',
         'PATCH /transcription/jobs/:id - Update job (partial, e.g., priority)',
         'DELETE /transcription/jobs/:id - Delete job',
-        'POST /transcription/jobs/:id/retry - Retry failed job',
-        'GET /info - API information'
+        'POST /transcription/jobs/:id/retry - Retry failed job'
       ],
       timestamp: new Date().toISOString()
     });

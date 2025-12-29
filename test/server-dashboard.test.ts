@@ -1,19 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SystemService } from '../src/services';
 import type { FastifyInstance } from 'fastify';
-
-// Mock SystemService
-vi.mock('../src/services', () => {
-    const mockGetService = {
-        getSystemStatus: vi.fn(),
-        setLogger: vi.fn(),
-    };
-    return {
-        SystemService: {
-            getInstance: () => mockGetService,
-        },
-    };
-});
 
 // Mock config validation
 vi.mock('../src/config/validation', () => ({
