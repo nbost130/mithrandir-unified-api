@@ -32,21 +32,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-        // Production: structured JSON logs
-        level: process.env.LOG_LEVEL || 'info',
-      }
+          // Production: structured JSON logs
+          level: process.env.LOG_LEVEL || 'info',
+        }
       : {
-        // Development: pretty-printed logs
-        level: process.env.LOG_LEVEL || 'info',
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname',
+          // Development: pretty-printed logs
+          level: process.env.LOG_LEVEL || 'info',
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+            },
           },
         },
-      },
   });
 
   // Security middleware
