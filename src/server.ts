@@ -163,6 +163,17 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   // ============================================================================
   // DASHBOARD ROUTES
   // ============================================================================
+  //
+  // These routes proxy to transcription-palantir's job management API to
+  // aggregate statistics and activity data for the dashboard.
+  //
+  // Backend API: http://100.77.230.53:9003/api/v1/jobs
+  // API Docs:    http://100.77.230.53:9003/docs#/jobs
+  //
+  // The apiClient baseURL already includes '/api/v1', so route paths only
+  // specify the resource (e.g., '/jobs', not '/api/v1/jobs').
+  //
+  // ============================================================================
 
   // Dashboard Stats endpoint
   fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/stats', async (_request, reply) => {
@@ -336,6 +347,18 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
 
   // ============================================================================
   // TRANSCRIPTION PROXY ROUTES
+  // ============================================================================
+  //
+  // Direct proxy to transcription-palantir API endpoints. These routes expose
+  // transcription-palantir functionality to the frontend with a consistent
+  // /transcription/* path prefix.
+  //
+  // Backend API: http://100.77.230.53:9003/api/v1/*
+  // API Docs:    http://100.77.230.53:9003/docs
+  //
+  // The apiClient baseURL already includes '/api/v1', so we only specify
+  // resource paths (e.g., '/jobs', '/jobs/:id').
+  //
   // ============================================================================
 
   // List transcription jobs

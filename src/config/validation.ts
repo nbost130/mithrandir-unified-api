@@ -165,6 +165,16 @@ export function validateAndLoadConfig(): AppConfig {
   console.log(`   - Circuit Breaker Threshold: ${loadedConfig.CLIENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD} failures`);
   console.log(`   - Circuit Breaker Reset: ${loadedConfig.CLIENT_CIRCUIT_BREAKER_RESET_TIMEOUT_MS}ms`);
 
+  // Validate API URL includes version prefix to prevent common misconfiguration
+  if (!loadedConfig.TRANSCRIPTION_API_URL.includes('/api/v')) {
+    console.log('');
+    console.log('⚠️  WARNING: TRANSCRIPTION_API_URL appears to be missing API version prefix!');
+    console.log('   Expected format: http://host:port/api/v1');
+    console.log('   Your value:      ' + loadedConfig.TRANSCRIPTION_API_URL);
+    console.log('   API Documentation: http://100.77.230.53:9003/docs');
+    console.log('');
+  }
+
   return loadedConfig;
 }
 

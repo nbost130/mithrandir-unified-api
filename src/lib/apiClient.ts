@@ -19,6 +19,19 @@ function isRetryableError(error: AxiosError): boolean {
 /**
  * Factory function to create a resilient API client.
  *
+ * ⚠️  CRITICAL: The baseURL MUST include the API version prefix (e.g., /api/v1)
+ *
+ * Correct:   http://100.77.230.53:9003/api/v1
+ * Incorrect: http://100.77.230.53:9003
+ *
+ * The transcription-palantir API routes are prefixed with /api/v1 by default
+ * (see transcription-palantir/src/config/index.ts - API_PREFIX configuration).
+ *
+ * All route calls to this client should use relative paths (e.g., '/jobs'),
+ * which will be appended to the baseURL to form the complete URL.
+ *
+ * API Documentation: http://100.77.230.53:9003/docs (Fastify Swagger UI)
+ *
  * @param config - The application configuration.
  * @param logger - The Fastify logger instance for observability.
  * @returns An Axios instance configured with retry and circuit breaker logic.
