@@ -172,7 +172,7 @@ export async function createServer(options) {
             });
         }
         catch (error) {
-            handleProxyError(error, reply, '/api/dashboard/stats');
+            return handleProxyError(error, reply, '/api/dashboard/stats');
         }
     });
     // Dashboard Activity endpoint
@@ -205,7 +205,7 @@ export async function createServer(options) {
             });
         }
         catch (error) {
-            handleProxyError(error, reply, '/api/dashboard/activity');
+            return handleProxyError(error, reply, '/api/dashboard/activity');
         }
     });
     // Dashboard Trends endpoint
@@ -262,7 +262,7 @@ export async function createServer(options) {
             });
         }
         catch (error) {
-            handleProxyError(error, reply, '/api/dashboard/trends');
+            return handleProxyError(error, reply, '/api/dashboard/trends');
         }
     });
     // API Info endpoint
@@ -315,7 +315,7 @@ export async function createServer(options) {
             return reply.code(response.status).send(response.data);
         }
         catch (error) {
-            handleProxyError(error, reply, '/transcription/jobs');
+            return handleProxyError(error, reply, '/transcription/jobs');
         }
     });
     // Create transcription job
@@ -328,7 +328,7 @@ export async function createServer(options) {
             return reply.code(response.status).send(response.data);
         }
         catch (error) {
-            handleProxyError(error, reply, '/transcription/jobs');
+            return handleProxyError(error, reply, '/transcription/jobs');
         }
     });
     // Get specific transcription job
@@ -339,7 +339,7 @@ export async function createServer(options) {
             return reply.code(response.status).send(response.data);
         }
         catch (error) {
-            handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+            return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
         }
     });
     // Update transcription job
@@ -352,7 +352,7 @@ export async function createServer(options) {
             return reply.code(response.status).send(response.data);
         }
         catch (error) {
-            handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+            return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
         }
     });
     // Update transcription job (partial update)
@@ -365,7 +365,7 @@ export async function createServer(options) {
             return reply.code(response.status).send(response.data);
         }
         catch (error) {
-            handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+            return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
         }
     });
     // Delete transcription job
@@ -376,7 +376,7 @@ export async function createServer(options) {
             return reply.code(response.status).send(response.data);
         }
         catch (error) {
-            handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+            return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
         }
     });
     // Retry failed transcription job
@@ -387,7 +387,7 @@ export async function createServer(options) {
             return reply.code(response.status).send(response.data);
         }
         catch (error) {
-            handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
+            return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
         }
     });
     // 404 handler

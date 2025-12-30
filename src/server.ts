@@ -32,21 +32,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-          // Production: structured JSON logs
-          level: process.env.LOG_LEVEL || 'info',
-        }
+        // Production: structured JSON logs
+        level: process.env.LOG_LEVEL || 'info',
+      }
       : {
-          // Development: pretty-printed logs
-          level: process.env.LOG_LEVEL || 'info',
-          transport: {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'HH:MM:ss Z',
-              ignore: 'pid,hostname',
-            },
+        // Development: pretty-printed logs
+        level: process.env.LOG_LEVEL || 'info',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
           },
         },
+      },
   });
 
   // Security middleware
@@ -210,7 +210,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      handleProxyError(error, reply, '/api/dashboard/stats');
+      return handleProxyError(error, reply, '/api/dashboard/stats');
     }
   });
 
@@ -250,7 +250,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      handleProxyError(error, reply, '/api/dashboard/activity');
+      return handleProxyError(error, reply, '/api/dashboard/activity');
     }
   });
 
@@ -313,7 +313,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      handleProxyError(error, reply, '/api/dashboard/trends');
+      return handleProxyError(error, reply, '/api/dashboard/trends');
     }
   });
 
@@ -371,7 +371,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       const response = await apiClient.get<JobsResponse>('/jobs', { params: request.query });
       return reply.code(response.status).send(response.data);
     } catch (error) {
-      handleProxyError(error, reply, '/transcription/jobs');
+      return handleProxyError(error, reply, '/transcription/jobs');
     }
   });
 
@@ -387,7 +387,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       });
       return reply.code(response.status).send(response.data);
     } catch (error) {
-      handleProxyError(error, reply, '/transcription/jobs');
+      return handleProxyError(error, reply, '/transcription/jobs');
     }
   });
 
@@ -401,7 +401,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       const response = await apiClient.get<JobResponse>(`/jobs/${request.params.id}`);
       return reply.code(response.status).send(response.data);
     } catch (error) {
-      handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+      return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
   });
 
@@ -418,7 +418,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       });
       return reply.code(response.status).send(response.data);
     } catch (error) {
-      handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+      return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
   });
 
@@ -435,7 +435,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       });
       return reply.code(response.status).send(response.data);
     } catch (error) {
-      handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+      return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
   });
 
@@ -449,7 +449,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       const response = await apiClient.delete<JobResponse>(`/jobs/${request.params.id}`);
       return reply.code(response.status).send(response.data);
     } catch (error) {
-      handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
+      return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}`);
     }
   });
 
@@ -463,7 +463,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, {});
       return reply.code(response.status).send(response.data);
     } catch (error) {
-      handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
+      return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
     }
   });
 
