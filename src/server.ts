@@ -3,10 +3,10 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import type { AxiosError } from 'axios';
 import Fastify from 'fastify';
-import { z } from 'zod';
+
 import { getConfig } from './config/validation.js';
 import { createApiClient } from './lib/apiClient.js';
-import { DaysQuerySchema, JobResponseSchema, JobsResponseSchema, ListJobsQuerySchema } from './lib/schemas.js';
+
 import type {
   ActivityItem,
   APIError,
@@ -32,21 +32,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-        // Production: structured JSON logs
-        level: process.env.LOG_LEVEL || 'info',
-      }
+          // Production: structured JSON logs
+          level: process.env.LOG_LEVEL || 'info',
+        }
       : {
-        // Development: pretty-printed logs
-        level: process.env.LOG_LEVEL || 'info',
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname',
+          // Development: pretty-printed logs
+          level: process.env.LOG_LEVEL || 'info',
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+            },
           },
         },
-      },
   });
 
   // Security middleware
@@ -228,21 +228,25 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       const jobs = response.data.data || [];
 
       // Convert jobs to activity items
+      // Convert jobs to activity items
       const activities: ActivityItem[] = jobs
-        .sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-        .slice(0, limit)
-        .map((job: any) => ({
-          id: job.id,
-          type:
-            job.status === 'completed'
-              ? ('job_completed' as const)
-              : job.status === 'failed'
-                ? ('job_failed' as const)
-                : ('job_created' as const),
-          message: `Job "${job.name}" ${job.status}`,
-          timestamp: job.updatedAt,
-          metadata: { jobId: job.id, status: job.status },
-        }));
+        .map((job: any) => {
+          const timestamp = job.completedAt || job.createdAt;
+          return {
+            id: job.jobId || job.id, // Handle both id formats
+            type:
+              job.status === 'completed'
+                ? ('job_completed' as const)
+                : job.status === 'failed'
+                  ? ('job_failed' as const)
+                  : ('job_created' as const),
+            message: `Job "${job.fileName || 'Unknown'}" ${job.status}`,
+            timestamp,
+            metadata: { jobId: job.jobId || job.id, status: job.status },
+          };
+        })
+        .sort((a: ActivityItem, b: ActivityItem) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, limit);
 
       return reply.code(200).send({
         status: 'success',
@@ -291,16 +295,16 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
       }
 
       // Count jobs by date and status
-      allJobs.forEach((job: any) => {
-        if (!job.updatedAt) return; // Skip jobs without updatedAt field
+      function updateTrendMap(job: any) {
+        if (!job.updatedAt) return;
         const dateStr = job.updatedAt.split('T')[0];
         const trend = trendMap.get(dateStr);
-        if (trend) {
-          if (job.status === 'completed') trend.completed++;
-          else if (job.status === 'failed') trend.failed++;
-          else if (job.status === 'pending') trend.pending++;
-        }
-      });
+        if (!trend) return;
+        if (job.status === 'completed') trend.completed++;
+        else if (job.status === 'failed') trend.failed++;
+        else if (job.status === 'pending') trend.pending++;
+      }
+      allJobs.forEach(updateTrendMap);
 
       // Convert to array and sort by date
       const trends: TrendDataPoint[] = Array.from(trendMap.entries())

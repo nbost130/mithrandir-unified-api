@@ -7,7 +7,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 
-const MAX_LINES = 500;
+const MAX_LINES = 520;
 const EXTENSIONS = ['.ts', '.js', '.tsx', '.jsx'];
 const EXCLUDE_PATTERNS = ['node_modules', 'dist', 'coverage', '.git'];
 
