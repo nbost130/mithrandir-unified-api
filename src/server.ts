@@ -5,6 +5,7 @@ import type { AxiosError } from 'axios';
 import Fastify from 'fastify';
 
 import { getConfig } from './config/validation.js';
+import { createDashboardDataHelpers } from './dashboard/helpers.js';
 import { createApiClient } from './lib/apiClient.js';
 
 import type {
@@ -32,21 +33,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-        // Production: structured JSON logs
-        level: process.env.LOG_LEVEL || 'info',
-      }
+          // Production: structured JSON logs
+          level: process.env.LOG_LEVEL || 'info',
+        }
       : {
-        // Development: pretty-printed logs
-        level: process.env.LOG_LEVEL || 'info',
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname',
+          // Development: pretty-printed logs
+          level: process.env.LOG_LEVEL || 'info',
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+            },
           },
         },
-      },
   });
 
   // Security middleware
@@ -108,6 +109,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   // Configuration and Resilient API Client Setup
   const config = getConfig();
   const apiClient = options?.apiClient || createApiClient(config, fastify.log);
+  const { fetchAllJobs, computeDashboardStats } = createDashboardDataHelpers(apiClient, fastify.log);
 
   /**
    * Generic error handler for proxied requests.
@@ -178,31 +180,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   // Dashboard Stats endpoint
   fastify.get<{ Reply: ApiResponse<DashboardStats> | APIError }>('/api/dashboard/stats', async (_request, reply) => {
     try {
-      // Fetch ALL jobs from Palantir using pagination (fixes #11)
-      // Previous bug: hardcoded limit=100 caused silent data truncation
-      let allJobs: any[] = [];
-      let page = 1;
-      const limit = 100;
-      let hasMore = true;
-
-      while (hasMore) {
-        // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-        const response = await apiClient.get<JobsResponse>(`/jobs?page=${page}&limit=${limit}`);
-        const jobs = response.data.data || [];
-        allJobs = allJobs.concat(jobs);
-        hasMore = jobs.length === limit;
-        page++;
-      }
-
-      const stats: DashboardStats = {
-        totalJobs: allJobs.length,
-        pendingJobs: allJobs.filter((j: any) => j.status === 'pending').length,
-        processingJobs: allJobs.filter((j: any) => j.status === 'processing').length,
-        completedJobs: allJobs.filter((j: any) => j.status === 'completed').length,
-        failedJobs: allJobs.filter((j: any) => j.status === 'failed').length,
-        systemUptime: process.uptime().toString(),
-        lastUpdated: new Date().toISOString(),
-      };
+      const stats = await computeDashboardStats();
 
       return reply.code(200).send({
         status: 'success',
@@ -266,21 +244,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
     try {
       const days = parseInt(request.query.days || '7', 10);
 
-      // Fetch ALL jobs from Palantir using pagination (fixes #11)
-      // Previous bug: hardcoded limit=100 caused silent data truncation
-      let allJobs: any[] = [];
-      let page = 1;
-      const limit = 100;
-      let hasMore = true;
-
-      while (hasMore) {
-        // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-        const response = await apiClient.get<JobsResponse>(`/jobs?page=${page}&limit=${limit}`);
-        const jobs = response.data.data || [];
-        allJobs = allJobs.concat(jobs);
-        hasMore = jobs.length === limit;
-        page++;
-      }
+      const allJobs = await fetchAllJobs();
 
       // Group jobs by date
       const trendMap = new Map<string, { completed: number; failed: number; pending: number }>();

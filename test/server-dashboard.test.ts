@@ -45,16 +45,22 @@ describe('Dashboard Routes', () => {
   });
 
   describe('GET /api/dashboard/stats', () => {
-    it('should return dashboard stats', async () => {
-      const mockJobs = [
-        { id: '1', status: 'completed' },
-        { id: '2', status: 'failed' },
-        { id: '3', status: 'processing' },
-        { id: '4', status: 'pending' },
-      ];
+    it('should return dashboard stats using queue snapshots when available', async () => {
+      const mockQueueStats = {
+        waiting: 1,
+        delayed: 0,
+        prioritized: 0,
+        active: 1,
+        completed: 1,
+        failed: 1,
+        total: 4,
+      };
 
-      mockAxios.get.mockResolvedValue({
-        data: { data: mockJobs },
+      mockAxios.get.mockImplementation((url: string) => {
+        if (url === '/queue/stats') {
+          return Promise.resolve({ data: { data: mockQueueStats } });
+        }
+        return Promise.reject(new Error(`Unexpected call: ${url}`));
       });
 
       const response = await fastify.inject({
@@ -120,8 +126,15 @@ describe('Dashboard Routes', () => {
         { id: '3', status: 'failed', updatedAt: `${today}T12:00:00Z` },
       ];
 
-      mockAxios.get.mockResolvedValue({
-        data: { data: mockJobs },
+      mockAxios.get.mockImplementation((url: string, config?: { params?: { page?: number } }) => {
+        if (url === '/jobs') {
+          const page = config?.params?.page ?? 1;
+          if (page === 1) {
+            return Promise.resolve({ data: { data: mockJobs, pagination: { totalPages: 1 } } });
+          }
+          return Promise.resolve({ data: { data: [] } });
+        }
+        return Promise.reject(new Error(`Unexpected call: ${url}`));
       });
 
       const response = await fastify.inject({
