@@ -159,9 +159,7 @@ describe('Transcription Proxy Routes', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(mockAxios.post).toHaveBeenCalledWith('/jobs/1/retry', undefined, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+      expect(mockAxios.post).toHaveBeenCalledWith('/jobs/1/retry');
     });
   });
 });
