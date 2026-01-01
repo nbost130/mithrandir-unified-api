@@ -1,7 +1,7 @@
 import type { AxiosInstance } from 'axios';
 import type { FastifyBaseLogger } from 'fastify';
 
-import type { DashboardStats, JobsResponse } from '../types.js';
+import type { DashboardStats, JobsResponse, TranscriptionJob } from '../types.js';
 
 const DASHBOARD_PAGE_LIMIT = 200;
 const DASHBOARD_MAX_PAGES = 50;
@@ -21,7 +21,16 @@ type FetchAllJobsOptions = {
   maxPages?: number;
 };
 
-function shouldContinueFetching(pageJobs: any[], pagination: any, page: number, limit: number) {
+type PaginationInfo = {
+  totalPages?: number;
+};
+
+function shouldContinueFetching(
+  pageJobs: TranscriptionJob[],
+  pagination: PaginationInfo | undefined,
+  page: number,
+  limit: number
+) {
   if (pageJobs.length === 0) {
     return false;
   }
@@ -34,13 +43,16 @@ function shouldContinueFetching(pageJobs: any[], pagination: any, page: number, 
 }
 
 export function createDashboardDataHelpers(apiClient: AxiosInstance, logger: FastifyBaseLogger) {
-  async function fetchJobsPage(page: number, limit: number) {
+  async function fetchJobsPage(page: number, limit: number): Promise<{
+    jobs: TranscriptionJob[];
+    pagination?: PaginationInfo;
+  }> {
     // TODO(#10): Fix proxy type preservation for generics once apiClient typing is improved
     const response = await apiClient.get<JobsResponse>('/jobs', { params: { page, limit } });
-    const pagination: any = (response.data as any)?.pagination;
+    const pagination: PaginationInfo | undefined = (response.data as any)?.pagination;
 
     return {
-      jobs: response.data.data || [],
+      jobs: (response.data.data as TranscriptionJob[]) || [],
       pagination,
     };
   }
@@ -48,7 +60,7 @@ export function createDashboardDataHelpers(apiClient: AxiosInstance, logger: Fas
   async function fetchAllJobs(options: FetchAllJobsOptions = {}) {
     const limit = options.limit ?? DASHBOARD_PAGE_LIMIT;
     const maxPages = options.maxPages ?? DASHBOARD_MAX_PAGES;
-    const jobs: any[] = [];
+    const jobs: TranscriptionJob[] = [];
     let hitPageLimit = true;
 
     for (let page = 1; page <= maxPages; page++) {
@@ -101,13 +113,39 @@ export function createDashboardDataHelpers(apiClient: AxiosInstance, logger: Fas
     };
   }
 
-  function buildStatsFromJobs(allJobs: any[]): DashboardStats {
+  function buildStatsFromJobs(allJobs: TranscriptionJob[]): DashboardStats {
+    const statusCounts = allJobs.reduce(
+      (acc, job) => {
+        switch (job.status) {
+          case 'pending':
+            acc.pendingJobs += 1;
+            break;
+          case 'processing':
+            acc.processingJobs += 1;
+            break;
+          case 'completed':
+            acc.completedJobs += 1;
+            break;
+          case 'failed':
+            acc.failedJobs += 1;
+            break;
+        }
+        return acc;
+      },
+      {
+        pendingJobs: 0,
+        processingJobs: 0,
+        completedJobs: 0,
+        failedJobs: 0,
+      }
+    );
+
     return {
       totalJobs: allJobs.length,
-      pendingJobs: allJobs.filter((j: any) => j.status === 'pending').length,
-      processingJobs: allJobs.filter((j: any) => j.status === 'processing').length,
-      completedJobs: allJobs.filter((j: any) => j.status === 'completed').length,
-      failedJobs: allJobs.filter((j: any) => j.status === 'failed').length,
+      pendingJobs: statusCounts.pendingJobs,
+      processingJobs: statusCounts.processingJobs,
+      completedJobs: statusCounts.completedJobs,
+      failedJobs: statusCounts.failedJobs,
       systemUptime: process.uptime().toString(),
       lastUpdated: new Date().toISOString(),
     };
