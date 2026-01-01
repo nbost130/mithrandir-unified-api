@@ -18,6 +18,7 @@
     "format:check": "biome format ./src ./test",
     "check": "biome check --write ./src ./test",
     "check:size": "node scripts/check-file-size.mjs",
+    "generate:types": "npx openapi-typescript ${TRANSCRIPTION_API_URL:-http://localhost:3001}/documentation/json -o ./src/types/palantir.d.ts",
     "prepare": "husky"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "@biomejs/biome": "^2.3.10",
     "@types/node": "^20.19.27",
     "husky": "^9.1.7",
+    "openapi-typescript": "^7.10.1",
     "tsx": "^4.6.0",
     "typescript": "^5.3.0",
     "vitest": "^4.0.16"
