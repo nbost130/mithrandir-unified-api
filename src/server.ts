@@ -32,21 +32,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-          // Production: structured JSON logs
-          level: process.env.LOG_LEVEL || 'info',
-        }
+        // Production: structured JSON logs
+        level: process.env.LOG_LEVEL || 'info',
+      }
       : {
-          // Development: pretty-printed logs
-          level: process.env.LOG_LEVEL || 'info',
-          transport: {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'HH:MM:ss Z',
-              ignore: 'pid,hostname',
-            },
+        // Development: pretty-printed logs
+        level: process.env.LOG_LEVEL || 'info',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
           },
         },
+      },
   });
 
   // Security middleware
@@ -464,10 +464,9 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   }>('/transcription/jobs/:id/retry', async (request, reply) => {
     try {
       // @ts-expect-error - TODO(#10): Fix proxy type preservation for generics
-      // Note: retry endpoint doesn't accept a body, only jobId from URL params
-      const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`, undefined, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+      // Note: retry endpoint doesn't accept a body
+      // Don't send Content-Type header - Fastify rejects Content-Type with empty body
+      const response = await apiClient.post<JobResponse>(`/jobs/${request.params.id}/retry`);
       return reply.code(response.status).send(response.data);
     } catch (error) {
       return handleProxyError(error, reply, `/transcription/jobs/${request.params.id}/retry`);
