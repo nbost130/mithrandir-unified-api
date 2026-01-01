@@ -2,7 +2,7 @@ name: 🚀 Deploy to Production
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -23,7 +23,7 @@ jobs:
   deploy:
     name: Deploy to Mithrandir
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
 
     steps:
     - name: 📥 Checkout code
@@ -58,7 +58,7 @@ jobs:
           git fetch origin
 
           echo "🔄 Syncing with GitHub (using reset to handle divergence)..."
-          git reset --hard origin/master
+          git reset --hard origin/main
 
           echo "📦 Installing dependencies..."
           /home/nbost/.bun/bin/bun install
