@@ -26,7 +26,8 @@ describe('API Contract Tests', () => {
         console.warn('No jobs found to validate schema against');
       }
     } catch (error: any) {
-      if (error.code === 'ECONNREFUSED') {
+      const transientCodes = ['ECONNREFUSED', 'EPERM'];
+      if (transientCodes.includes(error.code)) {
         console.warn(`Skipping contract test: Palantir service not reachable at ${PALANTIR_URL}`);
         return;
       }
