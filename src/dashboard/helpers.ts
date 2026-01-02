@@ -3,7 +3,9 @@ import type { FastifyBaseLogger } from 'fastify';
 
 import type { DashboardStats, JobsResponse, TranscriptionJob } from '../types.js';
 
-const DASHBOARD_PAGE_LIMIT = 200;
+// Palantir's pagination schema caps `limit` at 100 (see transcription-palantir PaginationSchema).
+const PALANTIR_MAX_PAGE_LIMIT = 100;
+const DASHBOARD_PAGE_LIMIT = PALANTIR_MAX_PAGE_LIMIT;
 const DASHBOARD_MAX_PAGES = 50;
 
 type QueueStatsSnapshot = {
@@ -47,8 +49,9 @@ export function createDashboardDataHelpers(apiClient: AxiosInstance, logger: Fas
     jobs: TranscriptionJob[];
     pagination?: PaginationInfo;
   }> {
+    const safeLimit = Math.max(1, Math.min(limit, PALANTIR_MAX_PAGE_LIMIT));
     // TODO(#10): Fix proxy type preservation for generics once apiClient typing is improved
-    const response = await apiClient.get<JobsResponse>('/jobs', { params: { page, limit } });
+    const response = await apiClient.get<JobsResponse>('/jobs', { params: { page, limit: safeLimit } });
     const pagination: PaginationInfo | undefined = (response.data as any)?.pagination;
 
     return {
@@ -58,7 +61,14 @@ export function createDashboardDataHelpers(apiClient: AxiosInstance, logger: Fas
   }
 
   async function fetchAllJobs(options: FetchAllJobsOptions = {}) {
-    const limit = options.limit ?? DASHBOARD_PAGE_LIMIT;
+    const requestedLimit = options.limit ?? DASHBOARD_PAGE_LIMIT;
+    const limit = Math.max(1, Math.min(requestedLimit, PALANTIR_MAX_PAGE_LIMIT));
+    if (requestedLimit !== limit) {
+      logger.warn(
+        { requestedLimit, limit },
+        '[Dashboard] Requested job page size exceeded Palantir cap; clamped to safe limit.'
+      );
+    }
     const maxPages = options.maxPages ?? DASHBOARD_MAX_PAGES;
     const jobs: TranscriptionJob[] = [];
     let hitPageLimit = true;
