@@ -1,7 +1,7 @@
 // src/modules/reconciliation/schemas/reconciliation.schema.ts
 
 export const discrepancyEventTable = `
-CREATE TABLE discrepancy_event (
+CREATE TABLE IF NOT EXISTS discrepancy_event (
   id TEXT PRIMARY KEY,
   timestamp TEXT NOT NULL DEFAULT (datetime('now')),
   service TEXT NOT NULL,
@@ -14,13 +14,13 @@ CREATE TABLE discrepancy_event (
 `;
 
 export const commandAuditTable = `
-CREATE TABLE command_audit (
+CREATE TABLE IF NOT EXISTS command_audit (
   id TEXT PRIMARY KEY,
   timestamp TEXT NOT NULL DEFAULT (datetime('now')),
   actor TEXT NOT NULL,
   action_type TEXT NOT NULL,
   target TEXT NOT NULL,
-  outcome TEXT NOT NULL CHECK(outcome IN ('success', 'failure', 'timeout')),
+  outcome TEXT NOT NULL CHECK(outcome IN ('success', 'failure', 'timeout', 'running')),
   before_state_json TEXT,
   after_state_json TEXT,
   command_params_json TEXT,
@@ -29,7 +29,7 @@ CREATE TABLE command_audit (
 `;
 
 export const commandAuditAppendOnlyTrigger = `
-CREATE TRIGGER command_audit_append_only
+CREATE TRIGGER IF NOT EXISTS command_audit_append_only
 BEFORE DELETE ON command_audit
 BEGIN
   SELECT RAISE(ABORT, 'Audit log entries cannot be deleted');

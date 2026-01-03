@@ -1,7 +1,20 @@
 // test/reconciliation.test.ts
 
 import type { FastifyInstance } from 'fastify';
-import { afterAll, beforeAll, expect, test } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vitest';
+
+// Mock config validation BEFORE importing server
+vi.mock('../src/config/validation', () => ({
+  getConfig: () => ({
+    port: 3000,
+    host: 'localhost',
+    transcriptionApiUrl: 'http://mock-api',
+    palantirApiUrl: 'http://mock-palantir',
+    logLevel: 'info',
+  }),
+}));
+
+import { closeDatabase, stopPolling } from '../src/modules/reconciliation/reconciliation.service';
 import { createServer } from '../src/server';
 
 let app: FastifyInstance;
@@ -12,6 +25,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  stopPolling();
+  closeDatabase();
   await app.close();
 });
 
@@ -36,4 +51,20 @@ test('GET /services/registered', async () => {
   expect(response.statusCode).toBe(200);
   const payload = JSON.parse(response.payload);
   expect(Array.isArray(payload)).toBe(true);
+});
+
+test('POST /commands/run', async () => {
+  const response = await app.inject({
+    method: 'POST',
+    url: '/commands/run',
+    payload: {
+      commandId: 'test-cmd-1',
+      command: 'test-command',
+      params: { target: 'test-target' },
+    },
+  });
+
+  expect(response.statusCode).toBe(202);
+  const payload = JSON.parse(response.payload);
+  expect(payload.status).toBe('queued');
 });

@@ -22,7 +22,7 @@ let logger: FastifyLoggerInstance;
  * @param log - The logger instance.
  */
 export function initializeReconciliation(
-  dbPath: string = './reconciliation.db',
+  dbPath: string = process.env.NODE_ENV === 'test' ? ':memory:' : './reconciliation.db',
   client: AxiosInstance,
   log: FastifyLoggerInstance
 ) {
@@ -35,8 +35,22 @@ export function initializeReconciliation(
   apiClient = client;
 
   // Start polling
-  _pollingInterval = setInterval(pollReconciliation, 5000);
-  logger.info('Reconciliation polling started.');
+  if (process.env.NODE_ENV !== 'test') {
+    _pollingInterval = setInterval(pollReconciliation, 5000);
+    logger.info('Reconciliation polling started.');
+  }
+}
+
+export function closeDatabase() {
+  if (db && db.open) {
+    db.close();
+  }
+}
+
+export function stopPolling() {
+	if (_pollingInterval) {
+		clearInterval(_pollingInterval)
+	}
 }
 
 export function getDatabase(): Database.Database {
@@ -56,8 +70,14 @@ export async function getAuditLog(query: {
   startDate?: string;
   endDate?: string;
 }) {
-  const { page, limit, sortBy, sortOrder, actionType, target, startDate, endDate } = query;
+  const { page, limit, sortBy: querySortBy, sortOrder: querySortOrder, actionType, target, startDate, endDate } = query;
   const offset = (page - 1) * limit;
+
+  const ALLOWED_SORT_COLUMNS = ['timestamp', 'actor', 'action_type', 'target', 'outcome'];
+  const ALLOWED_SORT_ORDERS = ['asc', 'desc'];
+
+  const sortBy = ALLOWED_SORT_COLUMNS.includes(querySortBy) ? querySortBy : 'timestamp';
+  const sortOrder = ALLOWED_SORT_ORDERS.includes(querySortOrder) ? querySortOrder : 'desc';
 
   let whereClause = '';
   const params: any[] = [];
