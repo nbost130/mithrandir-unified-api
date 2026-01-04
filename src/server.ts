@@ -7,6 +7,10 @@ import Fastify from 'fastify';
 import { getConfig } from './config/validation.js';
 import { createDashboardDataHelpers } from './dashboard/helpers.js';
 import { createApiClient } from './lib/apiClient.js';
+import { commandRoutes } from './modules/commands/commands.controller.js';
+import { reconciliationRoutes } from './modules/reconciliation/reconciliation.controller.js';
+import { initializeReconciliation } from './modules/reconciliation/reconciliation.service.js';
+import { serviceRoutes } from './modules/services/services.controller.js';
 
 import type {
   ActivityItem,
@@ -68,6 +72,11 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
 
+  // Register routes
+  reconciliationRoutes(fastify);
+  commandRoutes(fastify);
+  serviceRoutes(fastify);
+
   // Request ID generation - add unique ID to each request
   fastify.decorateRequest('id', '');
   fastify.addHook('onRequest', async (request, _reply) => {
@@ -104,12 +113,13 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
     );
   });
 
-  // Rate limiting removed - not needed for internal Tailscale service
-
   // Configuration and Resilient API Client Setup
   const config = getConfig();
   const apiClient = options?.apiClient || createApiClient(config, fastify.log);
   const { fetchAllJobs, computeDashboardStats } = createDashboardDataHelpers(apiClient, fastify.log);
+
+  // Initialize and start the reconciliation service
+  initializeReconciliation(process.env.RECONCILIATION_DB_PATH || './reconciliation.db', apiClient, fastify.log);
 
   /**
    * Generic error handler for proxied requests.

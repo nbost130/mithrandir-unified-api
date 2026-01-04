@@ -10,6 +10,8 @@ Enhanced TypeScript-based unified API gateway for Mithrandir system management w
 - 📊 **Production Monitoring** - Structured logging, request tracking, and performance metrics
 - ✅ **Comprehensive Testing** - Full test coverage for all API endpoints
 
+> **Issue Tracking:** GitHub Issues is the source of truth for roadmap + bug tracking. For offline agents, see [`docs/github-issues.md`](./docs/github-issues.md) and refresh it with `python3 scripts/update_github_issues_snapshot.py` whenever you start workflow-init/PRD planning or notice major issue churn.
+
 ## Tech Stack
 
 - **Runtime**: Bun (development & production) / Node.js (testing)
