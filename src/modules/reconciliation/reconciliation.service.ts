@@ -48,9 +48,9 @@ export function closeDatabase() {
 }
 
 export function stopPolling() {
-	if (_pollingInterval) {
-		clearInterval(_pollingInterval)
-	}
+  if (_pollingInterval) {
+    clearInterval(_pollingInterval);
+  }
 }
 
 export function getDatabase(): Database.Database {
@@ -100,8 +100,8 @@ export async function getAuditLog(query: {
   }
 
   const where = whereClause ? `WHERE ${whereClause}` : '';
-  const totalResult = db.prepare(`SELECT count(*) as count FROM command_audit ${where}`).get(...params);
-  const total = totalResult ? (totalResult as any).count : 0;
+  const totalResult = db.prepare<unknown[], { count: number }>(`SELECT count(*) as count FROM command_audit ${where}`).get(...params);
+  const total = totalResult?.count ?? 0;
 
   const data = db
     .prepare(`SELECT * FROM command_audit ${where} ORDER BY ${sortBy} ${sortOrder} LIMIT ? OFFSET ?`)
@@ -121,7 +121,10 @@ export async function getAuditLog(query: {
 async function pollReconciliation() {
   logger.info('Polling for reconciliation...');
   try {
+    const startTime = Date.now();
     const response = await apiClient.get('/jobs');
+    const latency_ms = Date.now() - startTime;
+
     const jobs = response.data.data || [];
     const counts = {
       total: jobs.length,
@@ -130,14 +133,18 @@ async function pollReconciliation() {
       pending: jobs.filter((j: any) => j.status === 'pending').length,
     };
 
+    // Generate checksum of job data for change detection
+    const crypto = require('node:crypto');
+    const checksum = crypto.createHash('md5').update(JSON.stringify(jobs)).digest('hex');
+
     const event: DiscrepancyEvent = {
       id: randomUUID(),
       timestamp: new Date().toISOString(),
       service: 'transcription-palantir',
       status: 'verified',
       counts_json: JSON.stringify(counts),
-      checksum: '', // Calculate checksum
-      latency_ms: 0, // Calculate latency
+      checksum,
+      latency_ms,
     };
 
     // Insert into DB

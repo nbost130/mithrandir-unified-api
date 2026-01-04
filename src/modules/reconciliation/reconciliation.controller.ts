@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import SsePlugin from 'fastify-sse-v2';
-import { addSseClient, broadcast, removeSseClient } from '../../lib/sse';
+import { addSseClient, broadcast, removeSseClient, getClientCount } from '../../lib/sse';
 import { getAuditLog } from './reconciliation.service';
 
 /**
@@ -11,6 +11,17 @@ import { getAuditLog } from './reconciliation.service';
  * Registers the reconciliation routes.
  * @param {FastifyInstance} fastify - The Fastify instance.
  */
+interface AuditLogQuerystring {
+  page: number;
+  limit: number;
+  sortBy: string;
+  sortOrder: string;
+  actionType?: string;
+  target?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 export function reconciliationRoutes(fastify: FastifyInstance) {
   fastify.register(SsePlugin);
 
@@ -18,7 +29,7 @@ export function reconciliationRoutes(fastify: FastifyInstance) {
     reply.sse(
       (async function* source() {
         addSseClient(reply);
-        fastify.log.info(`Client connected to SSE stream. Total clients: 1`);
+        fastify.log.info(`Client connected to SSE stream. Total clients: ${getClientCount()}`);
 
         const heartbeatInterval = setInterval(() => {
           reply.sse({ event: 'heartbeat', data: new Date().toISOString() });
@@ -33,13 +44,15 @@ export function reconciliationRoutes(fastify: FastifyInstance) {
         } finally {
           removeSseClient(reply);
           clearInterval(heartbeatInterval);
-          fastify.log.info(`Client disconnected from SSE stream. Total clients: 0`);
+          fastify.log.info(`Client disconnected from SSE stream. Total clients: ${getClientCount()}`);
         }
       })()
     );
   });
 
-  fastify.get(
+  fastify.get<{
+    Querystring: AuditLogQuerystring;
+  }>(
     '/reconciliation/audit',
     {
       schema: {
@@ -60,7 +73,7 @@ export function reconciliationRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       try {
-        const result = await getAuditLog(request.query as any);
+        const result = await getAuditLog(request.query);
         return reply.send(result);
       } catch (error) {
         request.log.error(error, 'Error fetching audit log');

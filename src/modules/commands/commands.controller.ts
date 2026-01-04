@@ -1,6 +1,6 @@
 // src/modules/commands/commands.controller.ts
 
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { broadcast } from '../../lib/sse';
 import { runCommand } from './commands.service';
 
@@ -8,8 +8,16 @@ import { runCommand } from './commands.service';
  * @fileoverview REST/SSE endpoints for the commands module.
  */
 
+interface CommandRequestBody {
+  commandId: string;
+  command: string;
+  params?: any;
+}
+
 export function commandRoutes(fastify: FastifyInstance) {
-  fastify.post(
+  fastify.post<{
+    Body: CommandRequestBody;
+  }>(
     '/commands/run',
     {
       schema: {
@@ -24,9 +32,9 @@ export function commandRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (request, reply) => {
+    async (request: FastifyRequest<{ Body: CommandRequestBody }>, reply) => {
       try {
-        const { commandId, command, params } = request.body as any;
+        const { commandId, command, params } = request.body;
         runCommand(commandId, command, params);
         reply.status(202).send({ commandId, status: 'queued' });
       } catch (error) {

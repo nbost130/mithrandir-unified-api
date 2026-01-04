@@ -1,6 +1,7 @@
 // src/modules/services/services.service.ts
 
 import axios from 'axios';
+import { getConfig } from '../../config/validation';
 import type {
   RegisteredService,
   ServiceDetails,
@@ -17,12 +18,17 @@ import type {
  * or a configuration file.
  */
 export async function getRegisteredServices(): Promise<RegisteredService[]> {
+  // Get config to use environment-based URLs instead of hardcoded values
+  const config = getConfig();
+  const transcriptionApiUrl = config.TRANSCRIPTION_API_URL || 'http://localhost:9003/api/v1';
+  const transcriptionBaseUrl = transcriptionApiUrl.replace('/api/v1', '');
+
   return [
     {
       id: 'transcription-palantir',
       name: 'Transcription Palantir',
       type: 'api',
-      healthEndpoint: 'http://100.77.230.53:9003/health',
+      healthEndpoint: `${transcriptionBaseUrl}/health`,
       registeredAt: new Date().toISOString(),
       metadata: {
         description: 'Manages transcription jobs',
@@ -92,9 +98,7 @@ export async function getServicesHealth(): Promise<ServicesHealthResponse> {
   const registeredServices = await getRegisteredServices();
 
   // Check health of all services in parallel
-  const healthChecks = await Promise.all(
-    registeredServices.map((service) => checkServiceHealth(service))
-  );
+  const healthChecks = await Promise.all(registeredServices.map((service) => checkServiceHealth(service)));
 
   // Calculate summary statistics
   const total = healthChecks.length;
@@ -115,10 +119,10 @@ export async function getServicesHealth(): Promise<ServicesHealthResponse> {
 
 /**
  * Restart a service by its ID.
- * 
+ *
  * TODO: This is a mock implementation for Story 0.1.
  * Actual systemd integration will be implemented in Story 2.3-Backend.
- * 
+ *
  * @param serviceId - The ID of the service to restart
  * @throws Error if service ID is not found
  */
@@ -144,4 +148,3 @@ export async function restartService(serviceId: string): Promise<void> {
   // Simulate async operation
   await new Promise((resolve) => setTimeout(resolve, 100));
 }
-

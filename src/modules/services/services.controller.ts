@@ -2,8 +2,8 @@
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { ApiResponse } from '../../types';
-import type { ServicesHealthResponse } from './services.types';
 import { getRegisteredServices, getServicesHealth, restartService } from './services.service';
+import type { ServicesHealthResponse } from './services.types';
 
 /**
  * @fileoverview REST endpoints for the services module.
@@ -85,4 +85,3 @@ export function serviceRoutes(fastify: FastifyInstance) {
     }
   });
 }
-

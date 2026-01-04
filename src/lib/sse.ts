@@ -2,17 +2,18 @@
 
 import type { FastifyReply } from 'fastify';
 
-const clients: FastifyReply[] = [];
+const clients = new Set<FastifyReply>();
 
 export function addSseClient(client: FastifyReply) {
-  clients.push(client);
+  clients.add(client);
 }
 
 export function removeSseClient(client: FastifyReply) {
-  const index = clients.indexOf(client);
-  if (index !== -1) {
-    clients.splice(index, 1);
-  }
+  clients.delete(client);
+}
+
+export function getClientCount(): number {
+  return clients.size;
 }
 
 export function broadcast(event: string, data: any) {
