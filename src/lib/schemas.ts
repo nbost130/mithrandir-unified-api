@@ -38,7 +38,7 @@ export const ListJobsQuerySchema = z.object({
     .transform((val) => {
       if (!val) return 10;
       const num = parseInt(val, 10);
-      if (isNaN(num) || num < 1 || num > 100) {
+      if (Number.isNaN(num) || num < 1 || num > 100) {
         throw new Error('limit must be between 1 and 100');
       }
       return num;
@@ -52,7 +52,7 @@ export const DaysQuerySchema = z.object({
     .transform((val) => {
       if (!val) return 7;
       const num = parseInt(val, 10);
-      if (isNaN(num) || num < 1 || num > 365) {
+      if (Number.isNaN(num) || num < 1 || num > 365) {
         throw new Error('days must be between 1 and 365');
       }
       return num;

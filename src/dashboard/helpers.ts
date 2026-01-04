@@ -45,7 +45,10 @@ function shouldContinueFetching(
 }
 
 export function createDashboardDataHelpers(apiClient: AxiosInstance, logger: FastifyBaseLogger) {
-  async function fetchJobsPage(page: number, limit: number): Promise<{
+  async function fetchJobsPage(
+    page: number,
+    limit: number
+  ): Promise<{
     jobs: TranscriptionJob[];
     pagination?: PaginationInfo;
   }> {

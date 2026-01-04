@@ -78,3 +78,7 @@ export interface ApiResponse<T> {
   message?: string;
   timestamp: string;
 }
+
+// Re-export services types for convenience
+export type { ServicesHealthResponse, ServiceDetails, ServicesSummary } from './modules/services/services.types.js';
+
