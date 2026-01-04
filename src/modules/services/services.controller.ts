@@ -61,9 +61,23 @@ export function serviceRoutes(fastify: FastifyInstance) {
         timestamp: new Date().toISOString(),
       });
     } catch (error: any) {
-      // ...
-      return reply.code(500).send({ status: 'error', message: 'stub', code: 'STUB', timestamp: new Date().toISOString() });
+      request.log.error(error, 'Error restarting service');
+
+      if (error.message.includes('not found')) {
+        return reply.code(404).send({
+          status: 'error',
+          message: error.message,
+          code: 'SERVICE_NOT_FOUND',
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      return reply.code(500).send({
+        status: 'error',
+        message: 'Failed to restart service',
+        code: 'INTERNAL_SERVER_ERROR',
+        timestamp: new Date().toISOString(),
+      });
     }
   });
 }
-
