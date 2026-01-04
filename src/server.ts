@@ -7,9 +7,9 @@ import Fastify from 'fastify';
 import { getConfig } from './config/validation.js';
 import { createDashboardDataHelpers } from './dashboard/helpers.js';
 import { createApiClient } from './lib/apiClient.js';
-// import { commandRoutes } from './modules/commands/commands.controller.js';
-// import { reconciliationRoutes } from './modules/reconciliation/reconciliation.controller.js';
-// import { initializeReconciliation } from './modules/reconciliation/reconciliation.service.js';
+import { commandRoutes } from './modules/commands/commands.controller.js';
+import { reconciliationRoutes } from './modules/reconciliation/reconciliation.controller.js';
+import { initializeReconciliation } from './modules/reconciliation/reconciliation.service.js';
 import { serviceRoutes } from './modules/services/services.controller.js';
 
 import type {
@@ -73,8 +73,8 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   });
 
   // Register routes
-  // reconciliationRoutes(fastify);
-  // commandRoutes(fastify);
+  reconciliationRoutes(fastify);
+  commandRoutes(fastify);
   serviceRoutes(fastify);
 
   // Request ID generation - add unique ID to each request
@@ -119,7 +119,6 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const { fetchAllJobs, computeDashboardStats } = createDashboardDataHelpers(apiClient, fastify.log);
 
   // Initialize and start the reconciliation service
-  /*
   try {
     // Use environment variable for DB path to support different deployment environments
     const dbPath = process.env.RECONCILIATION_DB_PATH || './reconciliation.db';
@@ -127,7 +126,6 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   } catch (error) {
     fastify.log.error(error, 'Failed to initialize reconciliation service. Server will continue without it.');
   }
-  */
 
   /**
    * Generic error handler for proxied requests.
