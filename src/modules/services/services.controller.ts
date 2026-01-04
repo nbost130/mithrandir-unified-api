@@ -13,9 +13,20 @@ export function serviceRoutes(fastify: FastifyInstance) {
   // Get list of registered services
   fastify.get('/services/registered', async (request, reply) => {
     try {
-      const services = await getRegisteredServices();
+      // Inline implementation to test if logic works
+      const services = [
+        {
+          id: 'transcription-palantir',
+          name: 'Transcription Palantir',
+          type: 'api',
+          healthEndpoint: 'http://100.77.230.53:9003/health',
+          registeredAt: new Date().toISOString(),
+          metadata: {
+            description: 'Manages transcription jobs',
+          },
+        },
+      ];
       reply.send(services);
-      // reply.send([]);
     } catch (error) {
       request.log.error(error, 'Error getting registered services');
       reply.status(500).send({ message: 'Error getting registered services' });
