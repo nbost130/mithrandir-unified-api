@@ -10,7 +10,7 @@ import { createApiClient } from './lib/apiClient.js';
 // import { commandRoutes } from './modules/commands/commands.controller.js';
 // import { reconciliationRoutes } from './modules/reconciliation/reconciliation.controller.js';
 // import { initializeReconciliation } from './modules/reconciliation/reconciliation.service.js';
-// import { serviceRoutes } from './modules/services/services.controller.js';
+import { serviceRoutes } from './modules/services/services.controller.js';
 
 import type {
   ActivityItem,
@@ -75,7 +75,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   // Register routes
   // reconciliationRoutes(fastify);
   // commandRoutes(fastify);
-  // serviceRoutes(fastify);
+  serviceRoutes(fastify);
 
   // Request ID generation - add unique ID to each request
   fastify.decorateRequest('id', '');
