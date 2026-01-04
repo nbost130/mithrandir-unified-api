@@ -13,8 +13,9 @@ export function serviceRoutes(fastify: FastifyInstance) {
   // Get list of registered services
   fastify.get('/services/registered', async (request, reply) => {
     try {
-      // const services = await getRegisteredServices();
-      reply.send([]);
+      const services = await getRegisteredServices();
+      reply.send(services);
+      // reply.send([]);
     } catch (error) {
       request.log.error(error, 'Error getting registered services');
       reply.status(500).send({ message: 'Error getting registered services' });
