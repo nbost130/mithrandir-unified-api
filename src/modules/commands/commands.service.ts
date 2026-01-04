@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { getDatabase } from '../reconciliation/reconciliation.service';
-import { broadcastCommandUpdate } from './commands.controller';
+import { getDatabase } from '../reconciliation/reconciliation.service.js';
+import { broadcastCommandUpdate } from './commands.controller.js';
 
 /**
  * @fileoverview Business logic for the commands module.

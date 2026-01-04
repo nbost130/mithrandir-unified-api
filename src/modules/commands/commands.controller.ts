@@ -1,8 +1,8 @@
 // src/modules/commands/commands.controller.ts
 
 import type { FastifyInstance } from 'fastify';
-import { broadcast } from '../../lib/sse';
-import { runCommand } from './commands.service';
+import { addSseClient, broadcast, removeSseClient } from '../../lib/sse.js';
+import { runCommand } from './commands.service.js';
 
 /**
  * @fileoverview REST/SSE endpoints for the commands module.

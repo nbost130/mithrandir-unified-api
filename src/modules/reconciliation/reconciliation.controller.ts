@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import SsePlugin from 'fastify-sse-v2';
-import { addSseClient, broadcast, removeSseClient } from '../../lib/sse';
-import { getAuditLog } from './reconciliation.service';
+import { addSseClient, broadcast, removeSseClient } from '../../lib/sse.js';
+import { getAuditLog } from './reconciliation.service.js';
 
 /**
  * @fileoverview REST/SSE endpoints for the reconciliation module.

@@ -1,6 +1,6 @@
 // src/modules/services/services.service.ts
 
-// import axios from 'axios';
+import axios from 'axios';
 import type { RegisteredService, ServiceDetails, ServicesHealthResponse } from './services.types';
 
 /**
@@ -32,7 +32,6 @@ export async function getRegisteredServices(): Promise<RegisteredService[]> {
  * @param service - The registered service to check
  * @returns ServiceDetails with health status
  */
-/*
 export async function checkServiceHealth(service: RegisteredService): Promise<ServiceDetails> {
   const startTime = Date.now();
   const url = new URL(service.healthEndpoint);
@@ -80,13 +79,11 @@ export async function checkServiceHealth(service: RegisteredService): Promise<Se
     };
   }
 }
-*/
 
 /**
  * Get health status for all registered services.
  * @returns ServicesHealthResponse with all service health details and summary
  */
-/*
 export async function getServicesHealth(): Promise<ServicesHealthResponse> {
   const registeredServices = await getRegisteredServices();
 
@@ -109,7 +106,6 @@ export async function getServicesHealth(): Promise<ServicesHealthResponse> {
     },
   };
 }
-*/
 
 /**
  * Restart a service by its ID.
