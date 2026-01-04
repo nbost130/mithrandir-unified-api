@@ -37,21 +37,21 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const fastify = Fastify({
     logger: isProduction
       ? {
-          // Production: structured JSON logs
-          level: process.env.LOG_LEVEL || 'info',
-        }
+        // Production: structured JSON logs
+        level: process.env.LOG_LEVEL || 'info',
+      }
       : {
-          // Development: pretty-printed logs
-          level: process.env.LOG_LEVEL || 'info',
-          transport: {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'HH:MM:ss Z',
-              ignore: 'pid,hostname',
-            },
+        // Development: pretty-printed logs
+        level: process.env.LOG_LEVEL || 'info',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
           },
         },
+      },
   });
 
   // Security middleware
@@ -119,7 +119,13 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const { fetchAllJobs, computeDashboardStats } = createDashboardDataHelpers(apiClient, fastify.log);
 
   // Initialize and start the reconciliation service
-  initializeReconciliation(process.env.RECONCILIATION_DB_PATH || './reconciliation.db', apiClient, fastify.log);
+  try {
+    // Use environment variable for DB path to support different deployment environments
+    const dbPath = process.env.RECONCILIATION_DB_PATH || './reconciliation.db';
+    initializeReconciliation(dbPath, apiClient, fastify.log);
+  } catch (error) {
+    fastify.log.error(error, 'Failed to initialize reconciliation service. Server will continue without it.');
+  }
 
   /**
    * Generic error handler for proxied requests.
