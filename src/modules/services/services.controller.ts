@@ -2,7 +2,7 @@
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { ApiResponse } from '../../types';
-import { getRegisteredServices, getServicesHealth, restartService } from './services.service';
+import { getRegisteredServices, getServicesHealth, restartService } from './services.service.js';
 import type { ServicesHealthResponse } from './services.types';
 
 /**
