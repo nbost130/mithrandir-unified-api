@@ -100,8 +100,8 @@ export async function getAuditLog(query: {
   }
 
   const where = whereClause ? `WHERE ${whereClause}` : '';
-  const totalResult = db.prepare(`SELECT count(*) as count FROM command_audit ${where}`).get(...params);
-  const total = totalResult ? (totalResult as any).count : 0;
+  const totalResult = db.prepare<{ count: number }>(`SELECT count(*) as count FROM command_audit ${where}`).get(...params);
+  const total = totalResult?.count ?? 0;
 
   const data = db
     .prepare(`SELECT * FROM command_audit ${where} ORDER BY ${sortBy} ${sortOrder} LIMIT ? OFFSET ?`)
