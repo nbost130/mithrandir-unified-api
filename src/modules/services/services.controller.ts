@@ -26,13 +26,13 @@ export function serviceRoutes(fastify: FastifyInstance) {
     Reply: ApiResponse<ServicesHealthResponse> | import('../../types').APIError;
   }>('/api/services/health', async (request, reply) => {
     try {
-      // const healthData = await getServicesHealth();
+      const healthData = await getServicesHealth();
 
       // Return 200 even if some services are unhealthy
       // The frontend will handle displaying unhealthy states
       return reply.code(200).send({
         status: 'success',
-        data: { services: [], summary: { total: 0, healthy: 0, unhealthy: 0, healthPercentage: 0 } },
+        data: healthData,
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
@@ -54,10 +54,10 @@ export function serviceRoutes(fastify: FastifyInstance) {
     const { id } = request.params;
 
     try {
-      // const result = await restartService(id);
+      await restartService(id);
       return reply.code(200).send({
         status: 'success',
-        data: { message: 'Service restart initiated', jobId: 'stub' },
+        data: { message: 'Service restart initiated', jobId: 'pending' },
         timestamp: new Date().toISOString(),
       });
     } catch (error: any) {
