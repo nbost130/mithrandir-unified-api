@@ -122,7 +122,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   try {
     // Use environment variable for DB path to support different deployment environments
     const dbPath = process.env.RECONCILIATION_DB_PATH || './reconciliation.db';
-    initializeReconciliation(dbPath, apiClient, fastify.log);
+    await initializeReconciliation(dbPath, apiClient, fastify.log);
   } catch (error) {
     fastify.log.error(error, 'Failed to initialize reconciliation service. Server will continue without it.');
   }

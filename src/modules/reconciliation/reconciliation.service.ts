@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { AxiosInstance } from 'axios';
-import Database from 'better-sqlite3';
+import type { Database as DatabaseType } from 'better-sqlite3';
 import type { FastifyLoggerInstance } from 'fastify';
 import { broadcast } from '../../lib/sse';
 import {
@@ -10,7 +10,7 @@ import {
 } from './schemas/reconciliation.schema';
 import type { DiscrepancyEvent } from './types/reconciliation.types';
 
-let db: Database.Database;
+let db: DatabaseType;
 let _pollingInterval: NodeJS.Timeout;
 let apiClient: AxiosInstance;
 let logger: FastifyLoggerInstance;
@@ -18,26 +18,35 @@ let logger: FastifyLoggerInstance;
 /**
  * Initializes the reconciliation database and starts the polling service.
  * @param dbPath - The path to the SQLite database file.
- * @param client - The API client for making requests.
- * @param log - The logger instance.
+ * @param client - The Axios instance for making API requests.
+ * @param log - The Fastify logger instance.
  */
-export function initializeReconciliation(
-  dbPath: string = process.env.NODE_ENV === 'test' ? ':memory:' : './reconciliation.db',
+export async function initializeReconciliation(
+  dbPath: string,
   client: AxiosInstance,
   log: FastifyLoggerInstance
 ) {
-  db = new Database(dbPath);
-  db.exec(discrepancyEventTable);
-  db.exec(commandAuditTable);
-  db.exec(commandAuditAppendOnlyTrigger);
-  logger = log;
-  logger.info('Database initialized.');
-  apiClient = client;
+  try {
+    const { default: Database } = await import('better-sqlite3');
+    db = new Database(dbPath);
+    db.pragma('journal_mode = WAL');
+    logger = log;
+    apiClient = client;
 
-  // Start polling
-  if (process.env.NODE_ENV !== 'test') {
-    _pollingInterval = setInterval(pollReconciliation, 5000);
-    logger.info('Reconciliation polling started.');
+    // Initialize tables
+    db.exec(commandAuditTable);
+    db.exec(discrepancyEventTable);
+    db.exec(commandAuditAppendOnlyTrigger);
+
+    logger.info(`Reconciliation service initialized with DB at ${dbPath}`);
+
+    // Start polling
+    if (process.env.NODE_ENV !== 'test') {
+      _pollingInterval = setInterval(pollReconciliation, 5000);
+      logger.info('Reconciliation polling started.');
+    }
+  } catch (error) {
+    throw new Error(`Failed to load better-sqlite3 or initialize DB: ${error}`);
   }
 }
 
@@ -49,11 +58,11 @@ export function closeDatabase() {
 
 export function stopPolling() {
   if (_pollingInterval) {
-    clearInterval(_pollingInterval)
+    clearInterval(_pollingInterval);
   }
 }
 
-export function getDatabase(): Database.Database {
+export function getDatabase(): DatabaseType {
   if (!db) {
     throw new Error('Database not initialized. Call initializeDatabase() first.');
   }
@@ -100,7 +109,9 @@ export async function getAuditLog(query: {
   }
 
   const where = whereClause ? `WHERE ${whereClause}` : '';
-  const totalResult = db.prepare(`SELECT count(*) as count FROM command_audit ${where}`).get(...(params as any[])) as { count: number } | undefined;
+  const totalResult = db.prepare(`SELECT count(*) as count FROM command_audit ${where}`).get(...(params as any[])) as
+    | { count: number }
+    | undefined;
   const total = totalResult?.count ?? 0;
 
   const data = db
