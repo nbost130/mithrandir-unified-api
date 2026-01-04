@@ -48,9 +48,9 @@ export function closeDatabase() {
 }
 
 export function stopPolling() {
-	if (_pollingInterval) {
-		clearInterval(_pollingInterval)
-	}
+  if (_pollingInterval) {
+    clearInterval(_pollingInterval)
+  }
 }
 
 export function getDatabase(): Database.Database {
@@ -100,7 +100,7 @@ export async function getAuditLog(query: {
   }
 
   const where = whereClause ? `WHERE ${whereClause}` : '';
-  const totalResult = db.prepare<{ count: number }>(`SELECT count(*) as count FROM command_audit ${where}`).get(...params);
+  const totalResult = db.prepare(`SELECT count(*) as count FROM command_audit ${where}`).get(...(params as any[])) as { count: number } | undefined;
   const total = totalResult?.count ?? 0;
 
   const data = db
