@@ -2,13 +2,13 @@ import { randomUUID } from 'node:crypto';
 import type { AxiosInstance } from 'axios';
 import type { Database as DatabaseType } from 'better-sqlite3';
 import type { FastifyLoggerInstance } from 'fastify';
-import { broadcast } from '../../lib/sse';
+import { broadcast } from '../../lib/sse.js';
 import {
   commandAuditAppendOnlyTrigger,
   commandAuditTable,
   discrepancyEventTable,
-} from './schemas/reconciliation.schema';
-import type { DiscrepancyEvent } from './types/reconciliation.types';
+} from './schemas/reconciliation.schema.js';
+import type { DiscrepancyEvent } from './types/reconciliation.types.js';
 
 let db: DatabaseType;
 let _pollingInterval: NodeJS.Timeout;
@@ -21,11 +21,7 @@ let logger: FastifyLoggerInstance;
  * @param client - The Axios instance for making API requests.
  * @param log - The Fastify logger instance.
  */
-export async function initializeReconciliation(
-  dbPath: string,
-  client: AxiosInstance,
-  log: FastifyLoggerInstance
-) {
+export async function initializeReconciliation(dbPath: string, client: AxiosInstance, log: FastifyLoggerInstance) {
   try {
     const { default: Database } = await import('better-sqlite3');
     db = new Database(dbPath);
