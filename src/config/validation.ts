@@ -51,7 +51,8 @@ function isValidUrl(urlString: string): boolean {
  * Validates required environment variables are present.
  */
 function validateRequiredVars(errors: string[]): void {
-  const requiredVars = ['TRANSCRIPTION_API_URL'] as const;
+  // TRANSCRIPTION_API_URL is optional with a default fallback
+  const requiredVars: string[] = [];
   const missingVars = requiredVars.filter((varName) => !process.env[varName]);
 
   if (missingVars.length > 0) {
