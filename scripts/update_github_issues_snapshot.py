@@ -14,9 +14,18 @@ DEFAULT_REPO = "nbost130/mithrandir-unified-api"
 DEFAULT_OUTPUT = Path("docs/github-issues.md")
 
 def fetch_issues(repo: str) -> list[dict]:
+    issues = []
     url = f"https://api.github.com/repos/{repo}/issues?state=all&per_page=100"
-    with urllib.request.urlopen(url, timeout=15) as resp:  # noqa: S310
-        return json.load(resp)
+    while url:
+        with urllib.request.urlopen(url, timeout=15) as resp:  # noqa: S310
+            issues.extend(json.load(resp))
+            link_header = resp.headers.get("Link")
+            url = None
+            if link_header:
+                match = re.search('<([^>]+)>;\\s*rel="next"', link_header)
+                if match:
+                    url = match.group(1)
+    return issues
 
 def summarize(text: str, limit: int = 140) -> str:
     summary = " ".join((text or "").strip().split())
