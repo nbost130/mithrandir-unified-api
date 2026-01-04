@@ -1,11 +1,7 @@
 // src/modules/services/services.service.ts
 
-import axios from 'axios';
-import type {
-  RegisteredService,
-  ServiceDetails,
-  ServicesHealthResponse,
-} from './services.types';
+// import axios from 'axios';
+import type { RegisteredService, ServiceDetails, ServicesHealthResponse } from './services.types';
 
 /**
  * @fileoverview Business logic for the services module.
@@ -36,6 +32,7 @@ export async function getRegisteredServices(): Promise<RegisteredService[]> {
  * @param service - The registered service to check
  * @returns ServiceDetails with health status
  */
+/*
 export async function checkServiceHealth(service: RegisteredService): Promise<ServiceDetails> {
   const startTime = Date.now();
   const url = new URL(service.healthEndpoint);
@@ -83,18 +80,18 @@ export async function checkServiceHealth(service: RegisteredService): Promise<Se
     };
   }
 }
+*/
 
 /**
  * Get health status for all registered services.
  * @returns ServicesHealthResponse with all service health details and summary
  */
+/*
 export async function getServicesHealth(): Promise<ServicesHealthResponse> {
   const registeredServices = await getRegisteredServices();
 
   // Check health of all services in parallel
-  const healthChecks = await Promise.all(
-    registeredServices.map((service) => checkServiceHealth(service))
-  );
+  const healthChecks = await Promise.all(registeredServices.map((service) => checkServiceHealth(service)));
 
   // Calculate summary statistics
   const total = healthChecks.length;
@@ -112,13 +109,14 @@ export async function getServicesHealth(): Promise<ServicesHealthResponse> {
     },
   };
 }
+*/
 
 /**
  * Restart a service by its ID.
- * 
+ *
  * TODO: This is a mock implementation for Story 0.1.
  * Actual systemd integration will be implemented in Story 2.3-Backend.
- * 
+ *
  * @param serviceId - The ID of the service to restart
  * @throws Error if service ID is not found
  */
@@ -144,4 +142,3 @@ export async function restartService(serviceId: string): Promise<void> {
   // Simulate async operation
   await new Promise((resolve) => setTimeout(resolve, 100));
 }
-
