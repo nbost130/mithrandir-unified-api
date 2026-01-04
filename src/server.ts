@@ -119,7 +119,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   const { fetchAllJobs, computeDashboardStats } = createDashboardDataHelpers(apiClient, fastify.log);
 
   // Initialize and start the reconciliation service
-  initializeReconciliation('./reconciliation.db', apiClient, fastify.log);
+  initializeReconciliation(process.env.RECONCILIATION_DB_PATH || './reconciliation.db', apiClient, fastify.log);
 
   /**
    * Generic error handler for proxied requests.
