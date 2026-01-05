@@ -11,6 +11,14 @@ import { promisify } from 'node:util';
 
 const execAsync = promisify(exec);
 
+// Configuration constants
+const HEALTH_CHECK_POLL_INTERVAL_MS = 500; // Poll every 500ms
+const HEALTH_CHECK_MAX_ATTEMPTS = 10; // Max 5 seconds (500ms * 10)
+const HEALTH_CHECK_TIMEOUT_MS = 5000; // Overall timeout
+const JOURNAL_LOG_LINES_DEFAULT = 50;
+const DASHBOARD_RESTART_DELAY_MS = 500;
+const COUNTDOWN_INTERVAL_MS = 1000;
+
 // Whitelist of allowed services to prevent command injection
 const ALLOWED_SERVICES: Record<string, string> = {
   'transcription-palantir': 'transcription-palantir.service',
@@ -119,15 +127,54 @@ export async function startService(serviceId: string): Promise<void> {
 /**
  * Retrieves the last N lines from the systemd journal for a service.
  */
-export async function getJournalLogs(serviceId: string, lines = 50): Promise<string[]> {
+export async function getJournalLogs(serviceId: string, lines = JOURNAL_LOG_LINES_DEFAULT): Promise<string[]> {
   const serviceName = validateServiceId(serviceId);
 
   try {
     const { stdout } = await execAsync(`journalctl -u ${serviceName} -n ${lines} --no-pager --output=short`);
     return stdout.trim().split('\n').filter(Boolean);
-  } catch {
-    return ['Failed to retrieve journal logs'];
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`Failed to retrieve journal logs for ${serviceName}: ${errorMessage}`);
+    return [`Failed to retrieve journal logs: ${errorMessage}`];
   }
+}
+
+/**
+ * Polls for a service to reach a healthy (running) state.
+ * Replaces fixed delay with active polling for more reliable health checks.
+ */
+async function pollForHealthyState(serviceId: string, serviceName: string): Promise<ServiceState> {
+  const startTime = Date.now();
+  let attempts = 0;
+
+  while (attempts < HEALTH_CHECK_MAX_ATTEMPTS) {
+    const state = await getServiceState(serviceId);
+
+    if (state.status === 'running') {
+      console.log(`Service ${serviceName} is healthy after ${attempts + 1} attempts (${Date.now() - startTime}ms)`);
+      return state;
+    }
+
+    if (state.status === 'failed') {
+      console.warn(`Service ${serviceName} entered failed state during health check`);
+      return state;
+    }
+
+    // Check if we've exceeded overall timeout
+    if (Date.now() - startTime > HEALTH_CHECK_TIMEOUT_MS) {
+      console.warn(`Health check timeout for ${serviceName} after ${Date.now() - startTime}ms`);
+      return state;
+    }
+
+    attempts++;
+    await new Promise((resolve) => setTimeout(resolve, HEALTH_CHECK_POLL_INTERVAL_MS));
+  }
+
+  // Max attempts reached, return current state
+  const finalState = await getServiceState(serviceId);
+  console.warn(`Health check max attempts reached for ${serviceName}, final status: ${finalState.status}`);
+  return finalState;
 }
 
 /**
@@ -168,11 +215,8 @@ export async function* restartServiceWithProgress(serviceId: string): AsyncGener
       message: `Performing health check for ${serviceName}...`,
     };
 
-    // Wait a moment for the service to stabilize
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Capture after state
-    const afterState = await getServiceState(serviceId);
+    // Poll for service to become healthy instead of fixed delay
+    const afterState = await pollForHealthyState(serviceId, serviceName);
 
     if (afterState.status === 'running') {
       yield {
@@ -184,7 +228,7 @@ export async function* restartServiceWithProgress(serviceId: string): AsyncGener
         afterState,
       };
     } else {
-      const journalLogs = await getJournalLogs(serviceId, 50);
+      const journalLogs = await getJournalLogs(serviceId);
       yield {
         phase: 'error',
         service: serviceId,
@@ -197,7 +241,7 @@ export async function* restartServiceWithProgress(serviceId: string): AsyncGener
       };
     }
   } catch (error) {
-    const journalLogs = await getJournalLogs(serviceId, 50);
+    const journalLogs = await getJournalLogs(serviceId);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     yield {
@@ -226,7 +270,7 @@ export async function* restartDashboardWithDelay(delaySeconds = 5): AsyncGenerat
       timestamp: new Date().toISOString(),
       message: `Dashboard restarting in ${countdown}s...`,
     };
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, COUNTDOWN_INTERVAL_MS));
   }
 
   // Trigger the restart - this will terminate the current process
@@ -241,7 +285,7 @@ export async function* restartDashboardWithDelay(delaySeconds = 5): AsyncGenerat
     // Give time for the SSE response to be sent
     setTimeout(async () => {
       await execAsync('systemctl restart mithrandir-admin.service');
-    }, 500);
+    }, DASHBOARD_RESTART_DELAY_MS);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     yield {
