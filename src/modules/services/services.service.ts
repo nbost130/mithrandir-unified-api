@@ -108,13 +108,11 @@ export async function getServicesHealth(): Promise<ServicesHealthResponse> {
 }
 
 /**
- * Restart a service by its ID.
- *
- * TODO: This is a mock implementation for Story 0.1.
- * Actual systemd integration will be implemented in Story 2.3-Backend.
+ * Restart a service by its ID using systemd.
+ * Implements Story 2.3-Backend: Service Restart with systemd integration.
  *
  * @param serviceId - The ID of the service to restart
- * @throws Error if service ID is not found
+ * @throws Error if service ID is not found or not allowed
  */
 export async function restartService(serviceId: string): Promise<void> {
   const registeredServices = await getRegisteredServices();
@@ -124,17 +122,34 @@ export async function restartService(serviceId: string): Promise<void> {
     throw new Error(`Service not found: ${serviceId}`);
   }
 
-  // TODO: Story 2.3-Backend - Replace with actual systemd integration
-  // This should:
-  // 1. Execute systemctl restart <service>
-  // 2. Stream SSE events for each phase
-  // 3. Run post-restart health check
-  // 4. Retrieve systemd journal logs on failure
-  // 5. Record before/after state snapshots
+  // For simple restart without progress streaming, use systemctl directly
+  const { validateServiceId } = await import('./systemd.js');
+  const serviceName = validateServiceId(serviceId);
 
-  console.log(`[MOCK] Restart requested for service: ${serviceId}`);
-  console.log(`[MOCK] Would execute: systemctl restart ${serviceId}.service`);
+  const { exec } = await import('node:child_process');
+  const { promisify } = await import('node:util');
+  const execAsync = promisify(exec);
 
-  // Simulate async operation
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await execAsync(`systemctl restart ${serviceName}`);
+}
+
+/**
+ * Get the current state of a service.
+ * @param serviceId - The ID of the service
+ * @returns The current service state
+ */
+export async function getServiceStatus(serviceId: string) {
+  const { getServiceState } = await import('./systemd.js');
+  return getServiceState(serviceId);
+}
+
+/**
+ * Get journal logs for a service.
+ * @param serviceId - The ID of the service
+ * @param lines - Number of lines to retrieve (default: 50)
+ * @returns Array of log lines
+ */
+export async function getServiceLogs(serviceId: string, lines = 50): Promise<string[]> {
+  const { getJournalLogs } = await import('./systemd.js');
+  return getJournalLogs(serviceId, lines);
 }
