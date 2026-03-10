@@ -254,16 +254,16 @@ describe('Tirith MCP Protocol', () => {
     expect(result.tools).toHaveLength(10);
 
     const toolNames = result.tools.map((t) => t.name);
-    expect(toolNames).toContain('tirith/system_health');
-    expect(toolNames).toContain('tirith/service_status');
-    expect(toolNames).toContain('tirith/process_list');
-    expect(toolNames).toContain('tirith/journal_query');
-    expect(toolNames).toContain('tirith/docker_status');
-    expect(toolNames).toContain('tirith/port_check');
-    expect(toolNames).toContain('tirith/cron_health');
-    expect(toolNames).toContain('tirith/network_status');
-    expect(toolNames).toContain('tirith/redis_info');
-    expect(toolNames).toContain('tirith/estate_diff');
+    expect(toolNames).toContain('tirith_system_health');
+    expect(toolNames).toContain('tirith_service_status');
+    expect(toolNames).toContain('tirith_process_list');
+    expect(toolNames).toContain('tirith_journal_query');
+    expect(toolNames).toContain('tirith_docker_status');
+    expect(toolNames).toContain('tirith_port_check');
+    expect(toolNames).toContain('tirith_cron_health');
+    expect(toolNames).toContain('tirith_network_status');
+    expect(toolNames).toContain('tirith_redis_info');
+    expect(toolNames).toContain('tirith_estate_diff');
 
     // Every tool should have a meaningful description
     for (const tool of result.tools) {
@@ -300,13 +300,13 @@ describe('Tirith MCP Protocol', () => {
 
   // ── Tool calls ────────────────────────────────────────────────────
 
-  it('should call tirith/system_health and return health data', async () => {
+  it('should call tirith_system_health and return health data', async () => {
     const data = (await mcpRequest(baseUrl, {
       jsonrpc: '2.0',
       id: 4,
       method: 'tools/call',
       params: {
-        name: 'tirith/system_health',
+        name: 'tirith_system_health',
         arguments: {},
       },
     })) as Record<string, unknown>;
@@ -330,13 +330,13 @@ describe('Tirith MCP Protocol', () => {
     expect(healthData.summary).toBe('All systems nominal');
   });
 
-  it('should call tirith/service_status with parameters', async () => {
+  it('should call tirith_service_status with parameters', async () => {
     const data = (await mcpRequest(baseUrl, {
       jsonrpc: '2.0',
       id: 5,
       method: 'tools/call',
       params: {
-        name: 'tirith/service_status',
+        name: 'tirith_service_status',
         arguments: { service: 'all' },
       },
     })) as Record<string, unknown>;
@@ -352,13 +352,13 @@ describe('Tirith MCP Protocol', () => {
     expect(serviceData.summary).toBeDefined();
   });
 
-  it('should call tirith/network_status tool', async () => {
+  it('should call tirith_network_status tool', async () => {
     const data = (await mcpRequest(baseUrl, {
       jsonrpc: '2.0',
       id: 6,
       method: 'tools/call',
       params: {
-        name: 'tirith/network_status',
+        name: 'tirith_network_status',
         arguments: {},
       },
     })) as Record<string, unknown>;
@@ -381,7 +381,7 @@ describe('Tirith MCP Protocol', () => {
       id: 7,
       method: 'tools/call',
       params: {
-        name: 'tirith/nonexistent_tool',
+        name: 'tirith_nonexistent_tool',
         arguments: {},
       },
     })) as Record<string, unknown>;

@@ -1,4 +1,4 @@
-// src/modules/tirith/mcp-plugin.ts
+// src/modules/tirith_mcp-plugin.ts
 /**
  * @fileoverview MCP (Model Context Protocol) plugin for Tirith monitoring.
  * Creates an McpServer with all 10 tools and 3 resources, mounted at /mcp.
@@ -42,7 +42,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   // ── Tools ──────────────────────────────────────────────────────────
 
   mcpServer.tool(
-    'tirith/system_health',
+    'tirith_system_health',
     'Quick overview of Mithrandir system vitals: CPU, memory, disk, load, uptime',
     async () => {
       const result = await handleSystemHealth();
@@ -51,7 +51,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   );
 
   mcpServer.tool(
-    'tirith/service_status',
+    'tirith_service_status',
     'Check status of a systemd or Docker service',
     {
       service: z.string().describe('Service name or "all"'),
@@ -64,7 +64,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   );
 
   mcpServer.tool(
-    'tirith/process_list',
+    'tirith_process_list',
     'List running processes with resource usage',
     {
       sortBy: z.enum(['cpu', 'memory']).optional().default('cpu').describe('Sort field: cpu or memory'),
@@ -82,7 +82,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   );
 
   mcpServer.tool(
-    'tirith/journal_query',
+    'tirith_journal_query',
     'Query systemd journal logs for a unit',
     {
       unit: z.string().describe('Systemd unit name (e.g. "ithildin")'),
@@ -106,7 +106,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   );
 
   mcpServer.tool(
-    'tirith/docker_status',
+    'tirith_docker_status',
     'List Docker containers and their status',
     {
       filter: z.string().optional().describe('Filter by container name substring'),
@@ -118,7 +118,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   );
 
   mcpServer.tool(
-    'tirith/port_check',
+    'tirith_port_check',
     'Check if specific ports are listening',
     {
       ports: z
@@ -132,13 +132,13 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
     }
   );
 
-  mcpServer.tool('tirith/cron_health', 'Check health of cron jobs defined in estate manifest', async () => {
+  mcpServer.tool('tirith_cron_health', 'Check health of cron jobs defined in estate manifest', async () => {
     const result = await handleCronHealth();
     return jsonContent(result);
   });
 
   mcpServer.tool(
-    'tirith/network_status',
+    'tirith_network_status',
     'Check network interfaces, DNS resolution, and Tailscale connectivity',
     async () => {
       const result = await handleNetworkStatus();
@@ -147,7 +147,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   );
 
   mcpServer.tool(
-    'tirith/redis_info',
+    'tirith_redis_info',
     'Get Redis server info and optionally scan keys',
     {
       keyPattern: z.string().optional().describe('Glob pattern for key scan (e.g. "ithildin:*")'),
@@ -160,7 +160,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
   );
 
   mcpServer.tool(
-    'tirith/estate_diff',
+    'tirith_estate_diff',
     'Compare running state against estate manifest and report drift',
     {
       section: z

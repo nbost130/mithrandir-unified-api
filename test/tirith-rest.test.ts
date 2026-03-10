@@ -118,7 +118,12 @@ vi.mock('../src/modules/tirith/metrics-store', () => ({
   createMetricsStore: vi.fn().mockReturnValue({
     record: vi.fn(),
     getLatest: vi.fn().mockResolvedValue(null),
+    storeSnapshot: vi.fn(),
+    getCurrentSnapshot: vi.fn().mockResolvedValue(null),
+    setCurrentSnapshot: vi.fn(),
     getHistory: vi.fn().mockResolvedValue([]),
+    trimHistory: vi.fn(),
+    disconnect: vi.fn(),
   }),
 }));
 
