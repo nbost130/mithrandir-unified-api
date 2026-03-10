@@ -232,7 +232,7 @@ describe('Tirith MCP Protocol', () => {
     expect(result).toBeDefined();
 
     const serverInfo = result.serverInfo as Record<string, unknown>;
-    expect(serverInfo.name).toBe('tirith');
+    expect(serverInfo.name).toBe('mithrandir-monitoring');
     expect(serverInfo.version).toBe('1.0.0');
   });
 

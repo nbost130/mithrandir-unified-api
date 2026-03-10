@@ -33,8 +33,9 @@ function jsonContent(data: unknown) {
 
 export async function tirithMcpPlugin(fastify: FastifyInstance) {
   const mcpServer = new McpServer({
-    name: 'tirith',
+    name: 'mithrandir-monitoring',
     version: '1.0.0',
+    description: 'Mithrandir server observability — system health, services, Docker, network, logs, Redis, and estate drift detection. Use these tools to check on the server or diagnose issues.',
   });
 
   const store = createMetricsStore();
