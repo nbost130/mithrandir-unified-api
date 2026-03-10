@@ -1,0 +1,193 @@
+version: "1.0.0"
+host: mithrandir
+description: "Complete declared state of Mithrandir server infrastructure"
+updated: "2026-03-09"
+
+network:
+  tailscale_ip: "100.77.230.53"
+  lan_ip: "192.168.86.49"
+
+services:
+  systemd:
+    - name: ithildin
+      scope: user
+      description: "PAI Telegram/Matrix gateway"
+      severity: critical
+      expected_state: active
+      port: 3003
+      health_check:
+        type: command
+        target: "systemctl --user is-active ithildin"
+        timeout_ms: 5000
+      restart_command: "systemctl --user restart ithildin"
+      depends_on: []
+      group: pai-core
+      tags: [telegram, matrix, gateway]
+
+    - name: transcription-palantir
+      scope: user
+      description: "Whisper AI speech-to-text service"
+      severity: critical
+      expected_state: active
+      port: 9003
+      health_check:
+        type: http
+        target: "http://localhost:9003/api/v1/health"
+        expected_status: 200
+        timeout_ms: 10000
+      restart_command: "systemctl --user restart transcription-palantir"
+      depends_on: []
+      group: pai-core
+      tags: [whisper, stt, voice]
+
+    - name: mithrandir-unified-api
+      scope: user
+      description: "Unified API server"
+      severity: critical
+      expected_state: active
+      port: 8080
+      health_check:
+        type: http
+        target: "http://localhost:8080/health"
+        expected_status: 200
+        timeout_ms: 5000
+      restart_command: "systemctl --user restart mithrandir-unified-api"
+      depends_on: []
+      group: pai-core
+      tags: [api, management]
+
+    - name: mithrandir-admin
+      scope: user
+      description: "React admin dashboard"
+      severity: warning
+      expected_state: active
+      port: 3000
+      restart_command: "systemctl --user restart mithrandir-admin"
+      depends_on: [mithrandir-unified-api]
+      group: pai-core
+      tags: [dashboard, react]
+
+    - name: n8n
+      scope: system
+      description: "Workflow automation platform"
+      severity: warning
+      expected_state: active
+      port: 5678
+      health_check:
+        type: http
+        target: "http://localhost:5678/healthz"
+        expected_status: 200
+        timeout_ms: 5000
+      restart_command: "sudo systemctl restart n8n"
+      depends_on: []
+      group: automation
+      tags: [workflow, automation]
+
+    - name: ssh
+      scope: system
+      description: "OpenSSH server"
+      severity: critical
+      expected_state: active
+      port: 22
+      health_check:
+        type: tcp
+        target: "localhost:22"
+        timeout_ms: 3000
+      restart_command: "sudo systemctl restart sshd"
+      depends_on: []
+      group: infrastructure
+      tags: [ssh, remote]
+
+    - name: redis
+      scope: system
+      description: "In-memory data store"
+      severity: critical
+      expected_state: active
+      port: 6379
+      health_check:
+        type: command
+        target: "redis-cli ping"
+        timeout_ms: 3000
+      restart_command: "sudo systemctl restart redis"
+      depends_on: []
+      group: infrastructure
+      tags: [redis, cache]
+
+  docker:
+    - name: synapse
+      image: "matrixdotorg/synapse:latest"
+      description: "Matrix homeserver"
+      severity: critical
+      expected_state: running
+      ports: ["8008:8008"]
+      restart_command: "docker restart synapse"
+      depends_on: []
+      group: communication
+      tags: [matrix, homeserver]
+
+    - name: prometheus
+      image: "prom/prometheus:latest"
+      description: "Metrics collection"
+      severity: warning
+      expected_state: running
+      ports: ["9090:9090"]
+      compose_file: "/home/nbost/Projects/monitoring/docker-compose.yml"
+      compose_project: monitoring
+      restart_command: "cd /home/nbost/Projects/monitoring && docker compose restart prometheus"
+      depends_on: []
+      group: monitoring
+      tags: [metrics, prometheus]
+
+    - name: grafana
+      image: "grafana/grafana:latest"
+      description: "Metrics dashboards"
+      severity: warning
+      expected_state: running
+      ports: ["3002:3000"]
+      compose_file: "/home/nbost/Projects/monitoring/docker-compose.yml"
+      compose_project: monitoring
+      restart_command: "cd /home/nbost/Projects/monitoring && docker compose restart grafana"
+      depends_on: [prometheus]
+      group: monitoring
+      tags: [grafana, dashboards]
+
+    - name: uptime-kuma
+      image: "louislam/uptime-kuma:latest"
+      description: "Uptime monitoring"
+      severity: warning
+      expected_state: running
+      ports: ["3001:3001"]
+      restart_command: "docker restart uptime-kuma"
+      depends_on: []
+      group: monitoring
+      tags: [uptime, monitoring]
+
+  cron: []
+
+  endpoints:
+    - name: unified-api-health
+      url: "http://localhost:8080/health"
+      expected_status: 200
+      severity: critical
+      check_interval_s: 60
+      timeout_ms: 5000
+      group: pai-core
+      depends_on: [mithrandir-unified-api]
+
+    - name: palantir-health
+      url: "http://localhost:9003/api/v1/health"
+      expected_status: 200
+      severity: critical
+      check_interval_s: 60
+      timeout_ms: 10000
+      group: pai-core
+      depends_on: [transcription-palantir]
+
+    - name: synapse-health
+      url: "http://localhost:8008/_matrix/client/versions"
+      expected_status: 200
+      severity: critical
+      check_interval_s: 120
+      timeout_ms: 5000
+      group: communication
+      depends_on: [synapse]

@@ -11,6 +11,7 @@ import { commandRoutes } from './modules/commands/commands.controller.js';
 import { reconciliationRoutes } from './modules/reconciliation/reconciliation.controller.js';
 import { initializeReconciliation } from './modules/reconciliation/reconciliation.service.js';
 import { serviceRoutes } from './modules/services/services.controller.js';
+import { registerTirithModule } from './modules/tirith/index.js';
 
 import type {
   ActivityItem,
@@ -76,6 +77,7 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   reconciliationRoutes(fastify);
   commandRoutes(fastify);
   serviceRoutes(fastify);
+  await registerTirithModule(fastify);
 
   // Request ID generation - add unique ID to each request
   fastify.decorateRequest('id', '');
