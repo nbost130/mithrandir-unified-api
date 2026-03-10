@@ -12,6 +12,22 @@ vi.mock('../src/config/validation', () => ({
   }),
 }));
 
+// Mock restartService to avoid systemctl dependency in test environment
+vi.mock('../src/modules/services/services.service', async () => {
+  const actual = await vi.importActual<typeof import('../src/modules/services/services.service')>(
+    '../src/modules/services/services.service'
+  );
+  const knownIds = ['transcription-palantir'];
+  return {
+    ...actual,
+    restartService: vi.fn().mockImplementation(async (serviceId: string) => {
+      if (!knownIds.includes(serviceId)) {
+        throw new Error(`Service not found: ${serviceId}`);
+      }
+    }),
+  };
+});
+
 // Import createServer AFTER mocks
 import { createServer } from '../src/server';
 
