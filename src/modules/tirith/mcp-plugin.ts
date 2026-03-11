@@ -1,8 +1,8 @@
-// src/modules/tirith_mcp-plugin.ts
+// src/modules/tirith/mcp-plugin.ts
 /**
  * @fileoverview MCP (Model Context Protocol) plugin for Tirith monitoring.
  * Creates an McpServer with all 10 tools and 3 resources, mounted at /mcp.
- * Each request gets a fresh stateless transport — no session persistence.
+ * Each request gets a fresh McpServer + stateless transport — no session persistence.
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -31,7 +31,12 @@ function jsonContent(data: unknown) {
   return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
 }
 
-export async function tirithMcpPlugin(fastify: FastifyInstance) {
+/**
+ * Register all Tirith tools and resources on an McpServer instance.
+ * Extracted into a factory so we can create a fresh server per request
+ * (required for stateless Streamable HTTP — McpServer.connect() is one-shot).
+ */
+function createTirithMcpServer() {
   const mcpServer = new McpServer({
     name: 'mithrandir-monitoring',
     version: '1.0.0',
@@ -217,9 +222,18 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
     };
   });
 
+  return { mcpServer, store };
+}
+
+export async function tirithMcpPlugin(fastify: FastifyInstance) {
   // ── Fastify mount ──────────────────────────────────────────────────
+  // Create a fresh McpServer per request for stateless Streamable HTTP.
+  // McpServer.connect() is one-shot — reusing across requests causes
+  // "Already connected to a transport" errors.
 
   fastify.all('/mcp', async (request, reply) => {
+    const { mcpServer, store } = createTirithMcpServer();
+
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined, // stateless — no session persistence
     });
@@ -227,6 +241,10 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
     await mcpServer.connect(transport);
 
     await transport.handleRequest(request.raw, reply.raw, request.body as Record<string, unknown> | undefined);
+
+    // Clean up: close transport + server after handling
+    await mcpServer.close();
+    await store.disconnect();
 
     // Prevent Fastify from sending its own response — transport already wrote to reply.raw
     reply.hijack();
