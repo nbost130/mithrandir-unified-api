@@ -37,3 +37,4 @@ temp/
 reconciliation.db*
 deployment_logs*.txt
 .aider*
+*.bak
