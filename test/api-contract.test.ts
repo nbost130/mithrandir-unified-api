@@ -1,14 +1,13 @@
-import axios from "axios";
-import { describe, expect, test } from "vitest";
-import { TranscriptionJobSchema } from "../src/lib/schemas";
+import axios from 'axios';
+import { describe, expect, test } from 'vitest';
+import { TranscriptionJobSchema } from '../src/lib/schemas';
 
-describe("API Contract Tests", () => {
+describe('API Contract Tests', () => {
   // Use the URL from env or default to local Palantir instance
   // Note: Palantir runs on 9003 in prod, 3001 in dev usually
-  const PALANTIR_URL =
-    process.env.TRANSCRIPTION_API_URL || "http://localhost:3001/api/v1";
+  const PALANTIR_URL = process.env.TRANSCRIPTION_API_URL || 'http://localhost:3001/api/v1';
 
-  test("GET /jobs returns valid TranscriptionJob objects", async () => {
+  test('GET /jobs returns valid TranscriptionJob objects', async () => {
     try {
       const response = await axios.get(`${PALANTIR_URL}/jobs?limit=1`);
 
@@ -16,9 +15,7 @@ describe("API Contract Tests", () => {
 
       // If response isn't the expected API format (e.g. wrong service on the port), skip
       if (response.data.success === undefined) {
-        console.warn(
-          `Skipping contract test: ${PALANTIR_URL} did not return expected API format`,
-        );
+        console.warn(`Skipping contract test: ${PALANTIR_URL} did not return expected API format`);
         return;
       }
 
@@ -29,18 +26,16 @@ describe("API Contract Tests", () => {
         // Validate against our Zod schema
         const result = TranscriptionJobSchema.safeParse(job);
         if (!result.success) {
-          console.error("Schema validation failed:", result.error);
+          console.error('Schema validation failed:', result.error);
         }
         expect(result.success).toBe(true);
       } else {
-        console.warn("No jobs found to validate schema against");
+        console.warn('No jobs found to validate schema against');
       }
     } catch (error: any) {
-      const transientCodes = ["ECONNREFUSED", "EPERM"];
+      const transientCodes = ['ECONNREFUSED', 'EPERM'];
       if (transientCodes.includes(error.code)) {
-        console.warn(
-          `Skipping contract test: Palantir service not reachable at ${PALANTIR_URL}`,
-        );
+        console.warn(`Skipping contract test: Palantir service not reachable at ${PALANTIR_URL}`);
         return;
       }
       throw error;
