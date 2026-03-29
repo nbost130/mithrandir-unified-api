@@ -100,7 +100,7 @@ export async function getServiceState(serviceId: string): Promise<ServiceState> 
       uptime,
       activeState,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       status: 'unknown',
       activeState: 'error',

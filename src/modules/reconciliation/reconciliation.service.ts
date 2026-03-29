@@ -47,7 +47,7 @@ export async function initializeReconciliation(dbPath: string, client: AxiosInst
 }
 
 export function closeDatabase() {
-  if (db && db.open) {
+  if (db?.open) {
     db.close();
   }
 }

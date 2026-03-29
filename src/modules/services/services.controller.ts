@@ -1,6 +1,6 @@
 // src/modules/services/services.controller.ts
 
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import type { ApiResponse } from '../../types.js';
 import {
   getRegisteredServices,

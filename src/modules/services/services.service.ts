@@ -50,7 +50,7 @@ export async function checkServiceHealth(service: RegisteredService): Promise<Se
       identifier: service.id,
       status: isHealthy ? 'healthy' : 'unhealthy',
       url: url.hostname,
-      port: Number.parseInt(url.port) || 80,
+      port: Number.parseInt(url.port, 10) || 80,
       uptime: response.data?.uptime,
       version: response.data?.version,
       details: {
@@ -69,7 +69,7 @@ export async function checkServiceHealth(service: RegisteredService): Promise<Se
       identifier: service.id,
       status: 'unhealthy',
       url: url.hostname,
-      port: Number.parseInt(url.port) || 80,
+      port: Number.parseInt(url.port, 10) || 80,
       error: errorMessage,
       details: {
         latency,

@@ -1,8 +1,8 @@
 // src/modules/commands/commands.controller.ts
 
-import type { FastifyInstance } from 'fastify';
-import { addSseClient, broadcast, removeSseClient } from '../../lib/sse.js';
-import { runCommand } from './commands.service.js';
+import type { FastifyInstance } from "fastify";
+import { broadcast } from "../../lib/sse.js";
+import { runCommand } from "./commands.service.js";
 
 /**
  * @fileoverview REST/SSE endpoints for the commands module.
@@ -10,16 +10,16 @@ import { runCommand } from './commands.service.js';
 
 export function commandRoutes(fastify: FastifyInstance) {
   fastify.post(
-    '/commands/run',
+    "/commands/run",
     {
       schema: {
         body: {
-          type: 'object',
-          required: ['commandId', 'command'],
+          type: "object",
+          required: ["commandId", "command"],
           properties: {
-            commandId: { type: 'string' },
-            command: { type: 'string' },
-            params: { type: 'object' },
+            commandId: { type: "string" },
+            command: { type: "string" },
+            params: { type: "object" },
           },
         },
       },
@@ -28,15 +28,15 @@ export function commandRoutes(fastify: FastifyInstance) {
       try {
         const { commandId, command, params } = request.body as any;
         runCommand(commandId, command, params);
-        reply.status(202).send({ commandId, status: 'queued' });
+        reply.status(202).send({ commandId, status: "queued" });
       } catch (error) {
-        request.log.error(error, 'Error running command');
-        reply.status(500).send({ message: 'Error running command' });
+        request.log.error(error, "Error running command");
+        reply.status(500).send({ message: "Error running command" });
       }
-    }
+    },
   );
 }
 
 export function broadcastCommandUpdate(data: any) {
-  broadcast('command.status', data);
+  broadcast("command.status", data);
 }
