@@ -237,6 +237,7 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
 
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined, // stateless — no session persistence
+      enableJsonResponse: true, // single complete JSON body; avoids SSE stream-close race on teardown
     });
 
     await mcpServer.connect(transport);
