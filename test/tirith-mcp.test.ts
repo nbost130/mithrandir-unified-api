@@ -238,7 +238,7 @@ describe('Tirith MCP Protocol', () => {
 
   // ── Tools listing ─────────────────────────────────────────────────
 
-  it('should list all 10 tools with descriptions', async () => {
+  it('should list all 11 tools with descriptions', async () => {
     // Stateless transport — tools/list works without prior initialize
     const data = (await mcpRequest(baseUrl, {
       jsonrpc: '2.0',
@@ -251,7 +251,7 @@ describe('Tirith MCP Protocol', () => {
     expect(data.id).toBe(2);
 
     const result = data.result as { tools: Array<{ name: string; description: string }> };
-    expect(result.tools).toHaveLength(10);
+    expect(result.tools).toHaveLength(11);
 
     const toolNames = result.tools.map((t) => t.name);
     expect(toolNames).toContain('tirith_system_health');
@@ -264,6 +264,7 @@ describe('Tirith MCP Protocol', () => {
     expect(toolNames).toContain('tirith_network_status');
     expect(toolNames).toContain('tirith_redis_info');
     expect(toolNames).toContain('tirith_estate_diff');
+    expect(toolNames).toContain('tirith_transport_health');
 
     // Every tool should have a meaningful description
     for (const tool of result.tools) {

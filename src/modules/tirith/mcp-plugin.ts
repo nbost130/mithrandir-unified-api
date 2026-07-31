@@ -1,7 +1,7 @@
 // src/modules/tirith/mcp-plugin.ts
 /**
  * @fileoverview MCP (Model Context Protocol) plugin for Tirith monitoring.
- * Creates an McpServer with all 10 tools and 3 resources, mounted at /mcp.
+ * Creates an McpServer with all 11 tools and 3 resources, mounted at /mcp.
  * Each request gets a fresh McpServer + stateless transport — no session persistence.
  */
 
@@ -26,6 +26,7 @@ import { handleRedisInfo } from './tools/redis-info.js';
 import { handleServiceStatus } from './tools/service-status.js';
 // Tool handlers
 import { handleSystemHealth } from './tools/system-health.js';
+import { handleTransportHealth } from './tools/transport-health.js';
 
 function jsonContent(data: unknown) {
   return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
@@ -167,6 +168,31 @@ function createTirithMcpServer() {
   );
 
   mcpServer.tool(
+    'tirith_transport_health',
+    'Diagnose the Ithildin gateway\'s chat transports (Matrix, WhatsApp, Telegram). Probes the Matrix homeserver and parses recent gateway logs to report whether each channel is actually connected — catches the "process is up and port is listening, but chat is silently dead" failure mode that the port/service/health checks miss.',
+    {
+      unit: z.string().optional().default('ithildin').describe('Gateway systemd unit to inspect (default "ithildin")'),
+      homeserverUrl: z
+        .string()
+        .optional()
+        .describe('Matrix homeserver base URL to probe (default "http://localhost:8008")'),
+      lookbackMinutes: z
+        .number()
+        .optional()
+        .default(120)
+        .describe('How far back to scan the journal for transport events'),
+    },
+    async (params) => {
+      const result = await handleTransportHealth({
+        unit: params.unit,
+        homeserverUrl: params.homeserverUrl,
+        lookbackMinutes: params.lookbackMinutes,
+      });
+      return jsonContent(result);
+    }
+  );
+
+  mcpServer.tool(
     'tirith_estate_diff',
     'Compare running state against estate manifest and report drift',
     {
@@ -252,5 +278,5 @@ export async function tirithMcpPlugin(fastify: FastifyInstance) {
     reply.hijack();
   });
 
-  fastify.log.info('Tirith MCP server registered at /mcp (10 tools, 3 resources)');
+  fastify.log.info('Tirith MCP server registered at /mcp (11 tools, 3 resources)');
 }
