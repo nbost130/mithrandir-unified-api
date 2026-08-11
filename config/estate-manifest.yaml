@@ -270,8 +270,12 @@ services:
     # and nginx answers yes while returning 502 from a dead upstream. It has
     # been proxying to 127.0.0.1:3000 with nothing bound there since at least
     # 2026-08-11 08:00. A status check is the only thing that catches this.
+    # Must NOT use localhost: shire-network line 203 has a separate
+    # `server_name 127.0.0.1 localhost` block that answers 200, so a localhost
+    # probe passes while every real client gets 502. Use the hostname clients
+    # actually send, which routes to the default_server.
     - name: nginx-default-site
-      url: "http://localhost:80/"
+      url: "http://mithrandir/"
       expected_status: 200
       severity: warning
       check_interval_s: 300
