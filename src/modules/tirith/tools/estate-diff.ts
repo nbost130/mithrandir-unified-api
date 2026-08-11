@@ -19,7 +19,27 @@ interface EstateDiffResult {
   skippedSections: string[];
 }
 
-type DimensionName = 'system' | 'services' | 'docker' | 'ports' | 'cron' | 'network' | 'redis';
+type DimensionName = 'system' | 'services' | 'docker' | 'ports' | 'cron' | 'network' | 'redis' | 'endpoints';
+
+/** Fetch one manifest endpoint and compare its status to the declared expectation. */
+async function checkEndpoint(ep: {
+  name: string;
+  url: string;
+  expected_status?: number;
+  timeout_ms?: number;
+}): Promise<{ ok: boolean; actual: string }> {
+  const expected = ep.expected_status ?? 200;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ep.timeout_ms ?? 5000);
+  try {
+    const res = await fetch(ep.url, { signal: controller.signal, redirect: 'manual' });
+    return { ok: res.status === expected, actual: `HTTP ${res.status} (expected ${expected})` };
+  } catch (err) {
+    return { ok: false, actual: `unreachable: ${err instanceof Error ? err.message : String(err)}` };
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function worstSeverity(...severities: Severity[]): Severity {
   if (severities.includes('critical')) return 'critical';
@@ -49,7 +69,16 @@ export async function handleEstateDiff(input: { section?: string }): Promise<Est
     // Manifest may not exist; we continue with reduced checks
   }
 
-  const allDimensions: DimensionName[] = ['system', 'services', 'docker', 'ports', 'cron', 'network', 'redis'];
+  const allDimensions: DimensionName[] = [
+    'system',
+    'services',
+    'docker',
+    'ports',
+    'cron',
+    'network',
+    'redis',
+    'endpoints',
+  ];
 
   const targetDimensions =
     input.section && input.section !== 'all' ? allDimensions.filter((d) => d === input.section) : allDimensions;
@@ -236,6 +265,27 @@ export async function handleEstateDiff(input: { section?: string }): Promise<Est
             actual: result.summary,
             severity: result.overallSeverity,
             recommendation: 'Check Redis memory fragmentation and slow log',
+          });
+        }
+      },
+    },
+    {
+      // The manifest has declared endpoints since 2026-03 and nothing ever read
+      // them. A port check only proves something is listening — nginx answered
+      // on :80 for days while serving 502 from a dead upstream.
+      dimension: 'endpoints',
+      fn: async () => {
+        const endpoints = (await loadManifest()).services.endpoints ?? [];
+        const results = await Promise.all(endpoints.map(async (ep) => ({ ep, res: await checkEndpoint(ep) })));
+        for (const { ep, res } of results) {
+          if (res.ok) continue;
+          driftItems.push({
+            dimension: 'endpoints',
+            entity: ep.name,
+            expected: `HTTP ${ep.expected_status ?? 200} from ${ep.url}`,
+            actual: res.actual,
+            severity: (ep.severity as Severity) ?? 'warning',
+            recommendation: `Check the service behind ${ep.url}`,
           });
         }
       },
