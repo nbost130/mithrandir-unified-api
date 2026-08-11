@@ -4,7 +4,7 @@
  * Uses execFile (array args, no shell) and validates against KNOWN_SERVICES.
  */
 
-import { isUserService, runCommand, validateServiceName } from './registry.js';
+import { isUserService, runCommand, unitName, userSystemctlEnv, validateServiceName } from './registry.js';
 
 export interface ServiceState {
   name: string;
@@ -43,11 +43,14 @@ const SYSTEMCTL_PROPERTIES = [
 export async function getServiceState(name: string): Promise<ServiceState> {
   validateServiceName(name);
 
-  const args = isUserService(name)
-    ? ['--user', 'show', `${name}.service`, `--property=${SYSTEMCTL_PROPERTIES}`, '--no-pager']
-    : ['show', `${name}.service`, `--property=${SYSTEMCTL_PROPERTIES}`, '--no-pager'];
+  const unit = unitName(name);
+  const scoped = isUserService(name);
 
-  const result = await runCommand('systemctl', args);
+  const args = scoped
+    ? ['--user', 'show', `${unit}.service`, `--property=${SYSTEMCTL_PROPERTIES}`, '--no-pager']
+    : ['show', `${unit}.service`, `--property=${SYSTEMCTL_PROPERTIES}`, '--no-pager'];
+
+  const result = await runCommand('systemctl', args, scoped ? { env: userSystemctlEnv() } : undefined);
 
   // A failed probe is NOT a service state. Without this guard an unreachable
   // systemd (missing XDG_RUNTIME_DIR / DBUS_SESSION_BUS_ADDRESS for --user, a
@@ -56,9 +59,10 @@ export async function getServiceState(name: string): Promise<ServiceState> {
   // from a real answer, and graded 'critical' by the caller. Throw instead, so
   // checkSingleService()'s catch reports severity:'unknown' with the real error.
   if (result.exitCode !== 0 && !result.stdout.trim()) {
-    const scope = isUserService(name) ? '--user ' : '';
     const detail = result.stderr.trim() || 'no output on stdout or stderr';
-    throw new Error(`systemctl ${scope}show ${name}.service failed (exit ${result.exitCode}): ${detail}`);
+    throw new Error(
+      `systemctl ${scoped ? '--user ' : ''}show ${unit}.service failed (exit ${result.exitCode}): ${detail}`
+    );
   }
 
   const props = parseProperties(result.stdout);
@@ -120,28 +124,13 @@ export async function getJournalEntries(
 ): Promise<JournalEntry[]> {
   validateServiceName(unit);
 
-  const args = ['--output=json', '--no-pager', `-u`, `${unit}.service`];
+  const scoped = isUserService(unit);
+  const args = buildJournalArgs(unit, scoped, opts);
 
-  if (isUserService(unit)) {
-    args.push('--user');
-  }
-
-  if (opts.since) {
-    args.push(`--since=${opts.since}`);
-  }
-
-  if (opts.priority !== undefined) {
-    args.push(`-p`, String(opts.priority));
-  }
-
-  if (opts.search) {
-    args.push(`--grep=${opts.search}`);
-  }
-
-  const limit = opts.limit ?? 100;
-  args.push(`-n`, String(limit));
-
-  const result = await runCommand('journalctl', args, { timeout: 10000 });
+  const result = await runCommand('journalctl', args, {
+    timeout: 10000,
+    ...(scoped ? { env: userSystemctlEnv() } : {}),
+  });
 
   if (result.exitCode !== 0 || !result.stdout.trim()) {
     return [];
@@ -168,6 +157,21 @@ export async function getJournalEntries(
 }
 
 // --- Helpers ---
+
+/** Build the journalctl argument list for a unit and its filters. */
+function buildJournalArgs(
+  unit: string,
+  scoped: boolean,
+  opts: { since?: string; limit?: number; priority?: number; search?: string }
+): string[] {
+  const args = ['--output=json', '--no-pager', '-u', `${unitName(unit)}.service`];
+  if (scoped) args.push('--user');
+  if (opts.since) args.push(`--since=${opts.since}`);
+  if (opts.priority !== undefined) args.push('-p', String(opts.priority));
+  if (opts.search) args.push(`--grep=${opts.search}`);
+  args.push('-n', String(opts.limit ?? 100));
+  return args;
+}
 
 function parseProperties(stdout: string): Record<string, string> {
   const props: Record<string, string> = {};

@@ -29,13 +29,57 @@ export const KNOWN_SERVICES = new Set([
 export type KnownService = typeof KNOWN_SERVICES extends Set<infer T> ? T : never;
 
 /** User-scoped systemd services (use --user flag). */
+/**
+ * User-scoped systemd services (use --user flag).
+ *
+ * Verified on the host 2026-08-11 with `systemctl [--user] show <unit> -p LoadState`:
+ *   ithildin               system=masked     user=loaded    -> user
+ *   transcription-palantir system=not-found  user=loaded    -> user
+ *   mithrandir-admin       both loaded, user active         -> user
+ *   obsidian-sync          system=not-found  user=loaded    -> user
+ *   syncthing              system=not-found  user=loaded    -> user (currently inactive)
+ *   redis                  user: homebrew.redis.service     -> user, see UNIT_OVERRIDES
+ *   mithrandir-unified-api system=loaded     user=not-found -> SYSTEM (was wrongly listed here)
+ */
 export const USER_SERVICES = new Set([
   'ithildin',
   'transcription-palantir',
-  'mithrandir-unified-api',
   'mithrandir-admin',
   'obsidian-sync',
+  'syncthing',
+  'redis',
 ] as const);
+
+/**
+ * Display name -> actual systemd unit basename, where they differ.
+ * Redis is installed via linuxbrew, which generates `homebrew.redis.service`;
+ * querying `redis.service` returned a truthful LoadState=not-found and was
+ * reported as a dead service for months.
+ */
+export const UNIT_OVERRIDES: Record<string, string> = {
+  redis: 'homebrew.redis',
+};
+
+/** The systemd unit basename for a service's display name. */
+export function unitName(name: string): string {
+  return UNIT_OVERRIDES[name] ?? name;
+}
+
+/**
+ * Environment needed to reach the per-user systemd manager.
+ *
+ * This API runs as a SYSTEM unit (User=nbost, but no login session), so its
+ * environment carries neither XDG_RUNTIME_DIR nor DBUS_SESSION_BUS_ADDRESS.
+ * Without them `systemctl --user` fails with "Failed to connect to user scope
+ * bus via local transport", producing empty output — which is what made four
+ * healthy services report as `unknown` and grade critical.
+ */
+export function userSystemctlEnv(): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    XDG_RUNTIME_DIR: process.env.XDG_RUNTIME_DIR ?? `/run/user/${process.getuid?.() ?? 1000}`,
+  };
+}
 
 /**
  * Validates a service name against the known services set.
@@ -59,7 +103,11 @@ export function isUserService(name: string): boolean {
  * Execute a command with array arguments (no shell interpolation).
  * Enforces timeout, logs every invocation with command, args, duration, and exit code.
  */
-export async function runCommand(cmd: string, args: string[], options?: { timeout?: number }): Promise<CommandResult> {
+export async function runCommand(
+  cmd: string,
+  args: string[],
+  options?: { timeout?: number; env?: NodeJS.ProcessEnv }
+): Promise<CommandResult> {
   const timeout = Math.min(options?.timeout ?? DEFAULT_TIMEOUT_MS, MAX_TIMEOUT_MS);
   const startTime = Date.now();
 
@@ -67,6 +115,7 @@ export async function runCommand(cmd: string, args: string[], options?: { timeou
     const { stdout, stderr } = await execFile(cmd, args, {
       timeout,
       maxBuffer: 1024 * 1024, // 1MB
+      ...(options?.env ? { env: options.env } : {}),
     });
 
     const duration = Date.now() - startTime;
