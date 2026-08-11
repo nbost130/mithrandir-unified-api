@@ -228,7 +228,9 @@ services:
       severity: warning
     - name: docker-prune
       schedule: "0 * * * *"
-      command: "/usr/bin/docker container prune --force --filter \"until=1h\" >> /home/nbost/docker-prune.log 2>&1"
+      # Must match the crontab line byte-for-byte; cron-health compares the
+      # whole command string. This is one line chaining four prunes.
+      command: '/usr/bin/docker container prune --force --filter "until=1h" >> /home/nbost/docker-prune.log 2>&1; /usr/bin/docker image prune --force >> /home/nbost/docker-prune.log 2>&1; /usr/bin/docker volume ls --format "{{.Name}}" | /usr/bin/grep "^wp_" | /usr/bin/xargs -r /usr/bin/docker volume rm >> /home/nbost/docker-prune.log 2>&1; /usr/bin/docker builder prune --force --filter "until=168h" >> /home/nbost/docker-prune.log 2>&1'
       severity: warning
     - name: disk-pressure-check
       schedule: "7,37 * * * *"
