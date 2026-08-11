@@ -62,7 +62,11 @@ export async function handleDockerStatus(input: { filter?: string }): Promise<Do
       };
     });
 
-    const runningNames = new Set(containers.map((c) => c.name));
+    // Diff the manifest against every observed container, NOT the filtered
+    // view. Filtering is a display concern; scoping the diff to it made every
+    // other declared container look missing, so `docker <name>` always reported
+    // critical with phantom missing entries.
+    const runningNames = new Set(rawContainers.map((c) => c.name));
     const missingFromManifest = manifest.services.docker
       .filter((d) => d.expected_state === 'running' && !runningNames.has(d.name))
       .map((d) => d.name);

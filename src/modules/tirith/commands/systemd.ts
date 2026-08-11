@@ -49,7 +49,27 @@ export async function getServiceState(name: string): Promise<ServiceState> {
 
   const result = await runCommand('systemctl', args);
 
+  // A failed probe is NOT a service state. Without this guard an unreachable
+  // systemd (missing XDG_RUNTIME_DIR / DBUS_SESSION_BUS_ADDRESS for --user, a
+  // killed process, systemctl absent) yields empty stdout, which parses to an
+  // empty prop bag and renders as activeState:'unknown' — indistinguishable
+  // from a real answer, and graded 'critical' by the caller. Throw instead, so
+  // checkSingleService()'s catch reports severity:'unknown' with the real error.
+  if (result.exitCode !== 0 && !result.stdout.trim()) {
+    const scope = isUserService(name) ? '--user ' : '';
+    const detail = result.stderr.trim() || 'no output on stdout or stderr';
+    throw new Error(`systemctl ${scope}show ${name}.service failed (exit ${result.exitCode}): ${detail}`);
+  }
+
   const props = parseProperties(result.stdout);
+
+  // systemctl exits 0 for an unknown unit but still reports LoadState=not-found,
+  // so a missing LoadState means the output was unusable rather than negative.
+  if (!props.LoadState) {
+    throw new Error(
+      `systemctl returned no LoadState for ${name}.service — probe produced unusable output, state is not known`
+    );
+  }
 
   return propsToServiceState(name, props);
 }

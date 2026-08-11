@@ -24,31 +24,40 @@ export interface ContainerInfo {
 export async function getContainers(): Promise<ContainerInfo[]> {
   const result = await runCommand('docker', ['ps', '-a', '--format', '{{json .}}', '--no-trunc'], { timeout: 10000 });
 
+  // Returning [] on failure made handleDockerStatus()'s isDockerUnavailable
+  // branch dead code — it can only fire on a throw, and nothing ever threw.
+  // A dead daemon looked identical to a host with no containers.
   if (result.exitCode !== 0 || !result.stdout.trim()) {
-    return [];
+    throw new Error(
+      `docker ps failed (exit ${result.exitCode}): ${result.stderr.trim() || 'no output'} — container list is unknown, not empty`
+    );
   }
 
-  const containers: ContainerInfo[] = [];
-  for (const line of result.stdout.trim().split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const obj = JSON.parse(line) as Record<string, string>;
-      containers.push({
-        id: obj.ID || '',
-        name: obj.Names || '',
-        image: obj.Image || '',
-        state: obj.State || '',
-        status: obj.Status || '',
-        ports: obj.Ports || '',
-        createdAt: obj.CreatedAt || '',
-        networks: obj.Networks || '',
-      });
-    } catch {
-      // Skip malformed lines
-    }
-  }
+  return result.stdout
+    .trim()
+    .split('\n')
+    .map(parseContainerLine)
+    .filter((c): c is ContainerInfo => c !== null);
+}
 
-  return containers;
+/** Parse one `docker ps --format {{json .}}` line. Returns null for unusable lines. */
+function parseContainerLine(line: string): ContainerInfo | null {
+  if (!line.trim()) return null;
+  try {
+    const obj = JSON.parse(line) as Record<string, string>;
+    return {
+      id: obj.ID || '',
+      name: obj.Names || '',
+      image: obj.Image || '',
+      state: obj.State || '',
+      status: obj.Status || '',
+      ports: obj.Ports || '',
+      createdAt: obj.CreatedAt || '',
+      networks: obj.Networks || '',
+    };
+  } catch {
+    return null;
+  }
 }
 
 /**

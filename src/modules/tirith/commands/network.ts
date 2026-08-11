@@ -87,8 +87,12 @@ export async function getTailscaleStatus(): Promise<TailscaleStatus | null> {
 export async function getPortListeners(): Promise<PortListener[]> {
   const result = await runCommand('ss', ['-tlnp'], { timeout: 5000 });
 
+  // Returning [] made every manifest port look closed — one probe failure
+  // became N false criticals. handlePortCheck()'s catch reports the real error.
   if (result.exitCode !== 0 || !result.stdout.trim()) {
-    return [];
+    throw new Error(
+      `ss -tlnp failed (exit ${result.exitCode}): ${result.stderr.trim() || 'no output'} — listening ports are unknown, not empty`
+    );
   }
 
   const lines = result.stdout.trim().split('\n');

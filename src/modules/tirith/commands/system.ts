@@ -159,15 +159,13 @@ function computeCpuUsage(cpus: os.CpuInfo[]): number {
 async function getDiskUsage(): Promise<SystemHealth['disk']> {
   const result = await runCommand('df', ['-h', '/'], { timeout: 5000 });
 
+  // Returning usagePercent:0 here was a false NEGATIVE: 0% grades as 'ok', so a
+  // broken df reported a healthy disk. handleSystemHealth()'s catch already
+  // reports severity:'unknown' with the real error — let it.
   if (result.exitCode !== 0 || !result.stdout.trim()) {
-    return {
-      filesystem: 'unknown',
-      totalFormatted: '0',
-      usedFormatted: '0',
-      availableFormatted: '0',
-      usagePercent: 0,
-      mountPoint: '/',
-    };
+    throw new Error(
+      `df -h / failed (exit ${result.exitCode}): ${result.stderr.trim() || 'no output'} — disk usage is unknown, not 0%`
+    );
   }
 
   const lines = result.stdout.trim().split('\n');
