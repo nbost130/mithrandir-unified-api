@@ -69,20 +69,6 @@ services:
       group: pai-core
       tags: [dashboard, react]
 
-    - name: obsidian-sync
-      scope: user
-      description: "Obsidian vault continuous sync daemon"
-      severity: warning
-      expected_state: active
-      health_check:
-        type: command
-        target: "systemctl --user is-active obsidian-sync"
-        timeout_ms: 5000
-      restart_command: "systemctl --user restart obsidian-sync"
-      depends_on: []
-      group: pai-core
-      tags: [obsidian, sync, vault]
-
     - name: n8n
       scope: system
       description: "Workflow automation platform"
