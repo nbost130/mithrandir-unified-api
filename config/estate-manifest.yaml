@@ -61,11 +61,27 @@ services:
       description: "React admin dashboard"
       severity: warning
       expected_state: active
-      port: 3000
+      # Vite binds 3334 (and 3335); it has never bound 3000. The stale 3000
+      # entry was the only "port not listening" critical in the estate check.
+      port: 3334
       restart_command: "systemctl --user restart mithrandir-admin"
       depends_on: [mithrandir-unified-api]
       group: pai-core
       tags: [dashboard, react]
+
+    - name: obsidian-sync
+      scope: user
+      description: "Obsidian vault continuous sync daemon"
+      severity: warning
+      expected_state: active
+      health_check:
+        type: command
+        target: "systemctl --user is-active obsidian-sync"
+        timeout_ms: 5000
+      restart_command: "systemctl --user restart obsidian-sync"
+      depends_on: []
+      group: pai-core
+      tags: [obsidian, sync, vault]
 
     - name: n8n
       scope: system
@@ -176,7 +192,62 @@ services:
       group: monitoring
       tags: [uptime, monitoring]
 
-  cron: []
+  # Declared from the live crontab on 2026-08-11. An empty list here meant
+  # cron-health flagged every real job as "not in manifest" — 13 warnings that
+  # could never be anything else.
+  cron:
+    - name: mithrandir-changelog-scan
+      schedule: "0 */6 * * *"
+      command: "/home/nbost/bin/mithrandir-changelog scan /home/nbost/Projects >/dev/null 2>&1"
+      severity: warning
+    - name: lancedb-vault-index
+      schedule: "*/5 * * * *"
+      command: "/home/nbost/lancedb/vault_update_and_index.sh"
+      severity: warning
+    - name: lancedb-memory-index
+      schedule: "*/5 * * * *"
+      command: "/home/nbost/lancedb/memory_update_and_index.sh"
+      severity: warning
+    - name: weekly-review-ping
+      schedule: "0 16 * * 5"
+      command: "/home/nbost/bin/weekly-review-ping"
+      severity: warning
+    - name: obsidian-sync-vault
+      schedule: "*/10 * * * *"
+      command: "/usr/local/bin/bun /home/nbost/Scripts/mithrandir-obsidian-sync.ts >> /tmp/mithrandir-sync.log 2>&1"
+      severity: critical
+    - name: obsidian-sync-relationships
+      schedule: "0 8,18 * * *"
+      command: "/usr/local/bin/bun /home/nbost/Scripts/relationships-obsidian-sync.ts >> /tmp/relationships-sync.log 2>&1"
+      severity: warning
+    - name: ithildin-estate-db-backup
+      schedule: "0 */6 * * *"
+      command: "/home/nbost/.ithildin/backup-estate-db.sh >> /home/nbost/.ithildin/backups/backup.log 2>&1"
+      severity: critical
+    - name: obsidian-sync-healthcheck
+      schedule: "*/30 * * * *"
+      command: "/home/nbost/bin/check-obsidian-sync-health >> /tmp/obsidian-sync-health.log 2>&1"
+      severity: warning
+    - name: lancedb-compact
+      schedule: "0 3 * * 0"
+      command: "/home/nbost/lancedb/compact_all.sh"
+      severity: warning
+    - name: logrotate
+      schedule: "0 2 * * *"
+      command: "logrotate --state /home/nbost/.config/logrotate.status /home/nbost/.config/logrotate.conf"
+      severity: warning
+    - name: backup-retention-prune
+      schedule: "0 4 * * *"
+      command: "find /home/nbost/.ithildin/backups/ -name '*.sqlite' -mtime +30 -delete"
+      severity: warning
+    - name: docker-prune
+      schedule: "0 * * * *"
+      command: "/usr/bin/docker container prune --force --filter \"until=1h\" >> /home/nbost/docker-prune.log 2>&1"
+      severity: warning
+    - name: disk-pressure-check
+      schedule: "7,37 * * * *"
+      command: "/home/nbost/bin/check-disk-pressure >> /tmp/disk-pressure-health.log 2>&1"
+      severity: warning
 
   endpoints:
     - name: unified-api-health

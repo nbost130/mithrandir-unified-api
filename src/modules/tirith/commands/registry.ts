@@ -19,6 +19,7 @@ export const KNOWN_SERVICES = new Set([
   'transcription-palantir',
   'mithrandir-unified-api',
   'mithrandir-admin',
+  'obsidian-sync',
   'n8n',
   'ssh',
   'syncthing',
@@ -33,6 +34,7 @@ export const USER_SERVICES = new Set([
   'transcription-palantir',
   'mithrandir-unified-api',
   'mithrandir-admin',
+  'obsidian-sync',
 ] as const);
 
 /**
