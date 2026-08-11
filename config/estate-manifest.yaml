@@ -264,3 +264,17 @@ services:
       timeout_ms: 5000
       group: communication
       depends_on: [synapse]
+
+    # nginx default_server (home.shire / mithrandir.shire / catch-all). Port 80
+    # was watched by nothing: the port check only asks "is anything listening",
+    # and nginx answers yes while returning 502 from a dead upstream. It has
+    # been proxying to 127.0.0.1:3000 with nothing bound there since at least
+    # 2026-08-11 08:00. A status check is the only thing that catches this.
+    - name: nginx-default-site
+      url: "http://localhost:80/"
+      expected_status: 200
+      severity: warning
+      check_interval_s: 300
+      timeout_ms: 5000
+      group: infrastructure
+      depends_on: []

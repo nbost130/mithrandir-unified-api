@@ -132,7 +132,18 @@ export async function getJournalEntries(
     ...(scoped ? { env: userSystemctlEnv() } : {}),
   });
 
-  if (result.exitCode !== 0 || !result.stdout.trim()) {
+  // A failed query and a genuinely empty journal both used to return [], so
+  // "were there any OOM kills?" answered a reassuring zero even when the
+  // command never ran. Only an empty result from a SUCCESSFUL query is zero.
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `journalctl -u ${unitName(unit)}.service failed (exit ${result.exitCode}): ${
+        result.stderr.trim() || 'no output'
+      } — journal is unreadable, not empty`
+    );
+  }
+
+  if (!result.stdout.trim()) {
     return [];
   }
 
