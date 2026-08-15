@@ -19,6 +19,7 @@ import { handleCronHealth } from './tools/cron-health.js';
 import { handleDockerStatus } from './tools/docker-status.js';
 import { handleEstateDiff } from './tools/estate-diff.js';
 import { handleJournalQuery } from './tools/journal-query.js';
+import { handleMemoryHealth } from './tools/memory-health.js';
 import { handleNetworkStatus } from './tools/network-status.js';
 import { handlePortCheck } from './tools/port-check.js';
 import { handleProcessList } from './tools/process-list.js';
@@ -144,6 +145,15 @@ function createTirithMcpServer() {
     const result = await handleCronHealth();
     return jsonContent(result);
   });
+
+  mcpServer.tool(
+    'tirith_memory_health',
+    'Check PAI semantic memory (LanceDB) end to end: Mac mirror freshness, indexer runs, Ollama embeddings, search daemon, and whether current content is actually reaching the index',
+    async () => {
+      const result = await handleMemoryHealth();
+      return jsonContent(result);
+    }
+  );
 
   mcpServer.tool(
     'tirith_network_status',

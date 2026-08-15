@@ -12,6 +12,7 @@ import { handleCronHealth } from './tools/cron-health.js';
 import { handleDockerStatus } from './tools/docker-status.js';
 import { handleEstateDiff } from './tools/estate-diff.js';
 import { handleJournalQuery } from './tools/journal-query.js';
+import { handleMemoryHealth } from './tools/memory-health.js';
 import { handleNetworkStatus } from './tools/network-status.js';
 import { handlePortCheck } from './tools/port-check.js';
 import { handleProcessList } from './tools/process-list.js';
@@ -50,6 +51,19 @@ export function tirithRoutes(fastify: FastifyInstance) {
     } catch (err) {
       request.log.error(err, 'Tirith: system health check failed');
       const e = error('Failed to get system health', 'HEALTH_CHECK_FAILED');
+      return reply.code(e.statusCode).send(e.body);
+    }
+  });
+
+  // ── Semantic Memory Health ───────────────────────────────────────
+
+  fastify.get('/api/tirith/memory', async (request, reply) => {
+    try {
+      const result = await handleMemoryHealth();
+      return reply.code(200).send(success(result));
+    } catch (err) {
+      request.log.error(err, 'Tirith: memory health check failed');
+      const e = error('Failed to get semantic memory health', 'MEMORY_HEALTH_FAILED');
       return reply.code(e.statusCode).send(e.body);
     }
   });
