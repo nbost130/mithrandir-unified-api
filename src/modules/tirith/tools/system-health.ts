@@ -1,7 +1,14 @@
-import { getSystemHealth } from '../commands/system.js';
+import { getSystemHealth, type SystemHealth } from '../commands/system.js';
 import type { HealthSnapshot, MetricWithContext, Severity } from '../types.js';
 
-/** CPU is a 1-second delta sample (see computeCpuUsage); only a pegged box is actionable. */
+/**
+ * CPU is a 500 ms delta sample (see computeCpuUsage). Utilisation alone is
+ * never graded critical: two Whisper workers read 98–100% on this box while
+ * 5-min load sits at ~1.25/core (measured 2026-09-06), i.e. saturated and
+ * healthy. A CPU that is pegged AND queueing shows up as load, which does
+ * grade critical. CPU_CRIT is therefore the "saturated" line — informational,
+ * capped to 'warning' by gradeSystemHealth.
+ */
 const CPU_WARN = 95;
 const CPU_CRIT = 99;
 /** Percent of RAM not available (MemAvailable-based). 85% used = 4.5 GB headroom on 30 GB. */
@@ -36,72 +43,90 @@ function makeMetric(value: number, unit: string, warnThreshold: number, critThre
   return { value, unit, warningThreshold: warnThreshold, criticalThreshold: critThreshold, severity, assessment };
 }
 
+/** CPU saturation is informational: a pegged CPU with normal load per core is a busy box doing its job. */
+function capAtWarning(metric: MetricWithContext): MetricWithContext {
+  if (metric.severity !== 'critical') return metric;
+  return {
+    ...metric,
+    severity: 'warning',
+    assessment: `${metric.value}${metric.unit} saturated — informational; contention is graded by 5-min load per core`,
+  };
+}
+
+/**
+ * Pure grading of a system snapshot. Exported so the thresholds can be tested
+ * without reading /proc.
+ *
+ * Thresholds are set ABOVE what this box does on purpose. Two Whisper
+ * transcriptions run ~3.5 cores each on 8 cores (load ~10–12, CPU 98–100%
+ * on the delta sample) for 10+ minutes at a time; the old 70% CPU / 1.5
+ * load-per-core (1-min) thresholds graded that as 'warning' and paged on
+ * every job (2026-09-06: 41 flaps in 24 h), and CPU 99 as critical paged on
+ * every concurrent pair. What IS actionable here: memory pressure (the
+ * 2026-09-04 OOM), a full disk, and runaway load that outlasts the
+ * 5-minute average.
+ */
+export function gradeSystemHealth(health: SystemHealth): HealthSnapshot {
+  const cpuMetric = capAtWarning(makeMetric(health.cpu.usagePercent, '%', CPU_WARN, CPU_CRIT));
+  const memMetric = makeMetric(health.memory.usagePercent, '%', MEM_WARN, MEM_CRIT);
+  const diskMetric = makeMetric(health.disk.usagePercent, '%', DISK_WARN, DISK_CRIT);
+
+  const loadPerCore =
+    health.loadAvg.cpuCores > 0 ? health.loadAvg.avg5m / health.loadAvg.cpuCores : health.loadAvg.avg5m;
+  const loadSeverity = assessSeverity(loadPerCore, LOAD_PER_CORE_WARN, LOAD_PER_CORE_CRIT);
+  const loadAssessment =
+    loadSeverity === 'ok'
+      ? `5-min load ${health.loadAvg.avg5m} across ${health.loadAvg.cpuCores} cores — normal`
+      : `5-min load ${health.loadAvg.avg5m} across ${health.loadAvg.cpuCores} cores (${loadPerCore.toFixed(2)}/core, warn ${LOAD_PER_CORE_WARN}, crit ${LOAD_PER_CORE_CRIT}) — elevated`;
+
+  const overallSeverity = worstSeverity(cpuMetric.severity, memMetric.severity, diskMetric.severity, loadSeverity);
+
+  // Name the offending metric(s) so the alert says what to look at.
+  const offenders = [
+    cpuMetric.severity !== 'ok' ? `CPU ${health.cpu.usagePercent}%` : null,
+    memMetric.severity !== 'ok' ? `memory ${health.memory.usagePercent}% used` : null,
+    diskMetric.severity !== 'ok' ? `disk ${health.disk.usagePercent}% full` : null,
+    loadSeverity !== 'ok' ? `load ${loadPerCore.toFixed(2)}/core (5m)` : null,
+  ].filter((x): x is string => x !== null);
+  const summary =
+    overallSeverity === 'ok'
+      ? 'All system metrics within normal range'
+      : `System health ${overallSeverity}: ${offenders.join(', ')}`;
+
+  return {
+    timestamp: new Date().toISOString(),
+    overallSeverity,
+    summary,
+    cpu: cpuMetric,
+    memory: {
+      ...memMetric,
+      totalBytes: health.memory.totalBytes,
+      availableBytes: health.memory.freeBytes,
+    },
+    disk: {
+      ...diskMetric,
+      totalFormatted: health.disk.totalFormatted,
+      availableFormatted: health.disk.availableFormatted,
+    },
+    loadAverage: {
+      avg1m: health.loadAvg.avg1m,
+      avg5m: health.loadAvg.avg5m,
+      avg15m: health.loadAvg.avg15m,
+      cpuCores: health.loadAvg.cpuCores,
+      severity: loadSeverity,
+      assessment: loadAssessment,
+    },
+    uptime: {
+      seconds: health.uptime.seconds,
+      formatted: health.uptime.formatted,
+      bootTime: health.uptime.bootTime,
+    },
+  };
+}
+
 export async function handleSystemHealth(): Promise<HealthSnapshot> {
   try {
-    const health = await getSystemHealth();
-
-    // Thresholds are set ABOVE what this box does on purpose. Two Whisper
-    // transcriptions run ~3.3 cores each on 8 cores (load ~12, CPU ~80%) for
-    // 10+ minutes at a time; the old 70% CPU / 1.5 load-per-core (1-min)
-    // thresholds graded that as 'warning' and paged on every job
-    // (2026-09-06: 41 flaps in 24 h). What IS actionable here: memory
-    // pressure (the 2026-09-04 OOM), a full disk, and runaway load that
-    // outlasts the 5-minute average.
-    const cpuMetric = makeMetric(health.cpu.usagePercent, '%', CPU_WARN, CPU_CRIT);
-    const memMetric = makeMetric(health.memory.usagePercent, '%', MEM_WARN, MEM_CRIT);
-    const diskMetric = makeMetric(health.disk.usagePercent, '%', DISK_WARN, DISK_CRIT);
-
-    const loadPerCore =
-      health.loadAvg.cpuCores > 0 ? health.loadAvg.avg5m / health.loadAvg.cpuCores : health.loadAvg.avg5m;
-    const loadSeverity = assessSeverity(loadPerCore, LOAD_PER_CORE_WARN, LOAD_PER_CORE_CRIT);
-    const loadAssessment =
-      loadSeverity === 'ok'
-        ? `5-min load ${health.loadAvg.avg5m} across ${health.loadAvg.cpuCores} cores — normal`
-        : `5-min load ${health.loadAvg.avg5m} across ${health.loadAvg.cpuCores} cores (${loadPerCore.toFixed(2)}/core, warn ${LOAD_PER_CORE_WARN}, crit ${LOAD_PER_CORE_CRIT}) — elevated`;
-
-    const overallSeverity = worstSeverity(cpuMetric.severity, memMetric.severity, diskMetric.severity, loadSeverity);
-
-    // Name the offending metric(s) so the alert says what to look at.
-    const offenders = [
-      cpuMetric.severity !== 'ok' ? `CPU ${health.cpu.usagePercent}%` : null,
-      memMetric.severity !== 'ok' ? `memory ${health.memory.usagePercent}% used` : null,
-      diskMetric.severity !== 'ok' ? `disk ${health.disk.usagePercent}% full` : null,
-      loadSeverity !== 'ok' ? `load ${loadPerCore.toFixed(2)}/core (5m)` : null,
-    ].filter((x): x is string => x !== null);
-    const summary =
-      overallSeverity === 'ok'
-        ? 'All system metrics within normal range'
-        : `System health ${overallSeverity}: ${offenders.join(', ')}`;
-
-    return {
-      timestamp: new Date().toISOString(),
-      overallSeverity,
-      summary,
-      cpu: cpuMetric,
-      memory: {
-        ...memMetric,
-        totalBytes: health.memory.totalBytes,
-        availableBytes: health.memory.freeBytes,
-      },
-      disk: {
-        ...diskMetric,
-        totalFormatted: health.disk.totalFormatted,
-        availableFormatted: health.disk.availableFormatted,
-      },
-      loadAverage: {
-        avg1m: health.loadAvg.avg1m,
-        avg5m: health.loadAvg.avg5m,
-        avg15m: health.loadAvg.avg15m,
-        cpuCores: health.loadAvg.cpuCores,
-        severity: loadSeverity,
-        assessment: loadAssessment,
-      },
-      uptime: {
-        seconds: health.uptime.seconds,
-        formatted: health.uptime.formatted,
-        bootTime: health.uptime.bootTime,
-      },
-    };
+    return gradeSystemHealth(await getSystemHealth());
   } catch (err) {
     return {
       timestamp: new Date().toISOString(),
