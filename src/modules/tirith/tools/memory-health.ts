@@ -73,9 +73,24 @@ async function walkMarkdown(dir: string): Promise<{ count: number; newestMs: num
   return { count, newestMs };
 }
 
+/**
+ * The mirror walk touches ~18k files and costs ~20 s per call, which is most
+ * of this endpoint's latency and most of why Uptime Kuma used to time out on
+ * it. The mirror's newest-mtime only needs to be right to within minutes.
+ */
+const MIRROR_CACHE_MS = 5 * 60_000;
+let mirrorCache: { at: number; value: { count: number; newestMs: number } } | null = null;
+
+async function walkMarkdownCached(dir: string): Promise<{ count: number; newestMs: number }> {
+  if (mirrorCache && Date.now() - mirrorCache.at < MIRROR_CACHE_MS) return mirrorCache.value;
+  const value = await walkMarkdown(dir);
+  mirrorCache = { at: Date.now(), value };
+  return value;
+}
+
 async function checkMirror(): Promise<MemoryCheck> {
   try {
-    const { count, newestMs } = await walkMarkdown(MIRROR_DIR);
+    const { count, newestMs } = await walkMarkdownCached(MIRROR_DIR);
     if (count === 0) {
       return {
         name: 'mirror',
@@ -173,16 +188,51 @@ async function checkEmbeddings(): Promise<MemoryCheck> {
   }
 }
 
-async function search(query: string, limit: number): Promise<Array<{ path?: string }>> {
+/**
+ * Search timeouts: first attempt, pause, second attempt. The daemon stalls
+ * for 20 s+ a few times a day while the 5-minute LanceDB index run writes
+ * (measured 2026-09-06: 2 stalls in 55 minutes, every other sample fine).
+ * One stalled query is not a broken memory system; two in a row, 5 s apart,
+ * is. Budget: 15 + 5 + 25 = 45 s, under Kuma's 60 s monitor timeout.
+ */
+const SEARCH_FIRST_TIMEOUT_MS = 15_000;
+const SEARCH_RETRY_DELAY_MS = 5_000;
+const SEARCH_RETRY_TIMEOUT_MS = 25_000;
+
+async function searchOnce(query: string, limit: number, timeoutMs: number): Promise<Array<{ path?: string }>> {
   const res = await fetch(`${DAEMON_URL}/search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query, limit, scope: null }),
-    signal: AbortSignal.timeout(20_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!res.ok) throw new Error(`search returned HTTP ${res.status}`);
   const body = (await res.json()) as { results?: Array<{ path?: string }> };
   return body.results ?? [];
+}
+
+/** Run `attempt` once; on failure wait `delayMs` and run `retry` once. Exported for tests. */
+export async function withOneRetry<T>(attempt: () => Promise<T>, retry: () => Promise<T>, delayMs: number): Promise<T> {
+  try {
+    return await attempt();
+  } catch (firstErr) {
+    await new Promise((r) => setTimeout(r, delayMs));
+    try {
+      return await retry();
+    } catch (secondErr) {
+      const first = (firstErr as Error).message;
+      const second = (secondErr as Error).message;
+      throw new Error(first === second ? `${second} (twice, ${delayMs / 1000}s apart)` : `${second} (first: ${first})`);
+    }
+  }
+}
+
+async function search(query: string, limit: number): Promise<Array<{ path?: string }>> {
+  return withOneRetry(
+    () => searchOnce(query, limit, SEARCH_FIRST_TIMEOUT_MS),
+    () => searchOnce(query, limit, SEARCH_RETRY_TIMEOUT_MS),
+    SEARCH_RETRY_DELAY_MS
+  );
 }
 
 async function checkDaemon(): Promise<MemoryCheck> {
