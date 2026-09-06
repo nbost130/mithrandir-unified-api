@@ -62,6 +62,9 @@ export async function getSystemHealth(): Promise<SystemHealth> {
   const [diskInfo, loadAvg] = await Promise.all([getDiskUsage(), getLoadAverage()]);
 
   const cpus = os.cpus();
+  // os.cpus().times are cumulative since boot, so a single read is the
+  // lifetime average (after 39 days it barely moves). Sample twice and diff.
+  const cpuUsagePercent = await sampleCpuUsage(cpus);
   const totalMem = os.totalmem();
   const freeMem = os.freemem();
   const usedMem = totalMem - freeMem;
@@ -69,7 +72,7 @@ export async function getSystemHealth(): Promise<SystemHealth> {
 
   return {
     cpu: {
-      usagePercent: computeCpuUsage(cpus),
+      usagePercent: cpuUsagePercent,
       cores: cpus.length,
       model: cpus[0]?.model ?? 'unknown',
     },
@@ -143,6 +146,30 @@ function parsePsLine(line: string | undefined): ProcessEntry | null {
 }
 
 // --- Helpers ---
+
+const CPU_SAMPLE_MS = 500;
+
+function cpuTotals(cpus: os.CpuInfo[]): { idle: number; total: number } {
+  let idle = 0;
+  let total = 0;
+  for (const cpu of cpus) {
+    const { user, nice, sys, idle: i, irq } = cpu.times;
+    idle += i;
+    total += user + nice + sys + i + irq;
+  }
+  return { idle, total };
+}
+
+/** CPU busy % over a short window (delta of two readings), 0..100. */
+async function sampleCpuUsage(first: os.CpuInfo[]): Promise<number> {
+  const a = cpuTotals(first);
+  await new Promise((r) => setTimeout(r, CPU_SAMPLE_MS));
+  const b = cpuTotals(os.cpus());
+  const dTotal = b.total - a.total;
+  const dIdle = b.idle - a.idle;
+  if (dTotal <= 0) return computeCpuUsage(first);
+  return Math.round(((dTotal - dIdle) / dTotal) * 10000) / 100;
+}
 
 function computeCpuUsage(cpus: os.CpuInfo[]): number {
   let totalIdle = 0;
