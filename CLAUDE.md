@@ -28,6 +28,20 @@ Mithrandir Unified API is a TypeScript-based unified API that provides:
 - **Location:** `mithrandir:~/mithrandir-unified-api`
 - **Environment:** Production (`.env` on server)
 - **Port:** 8080 (default)
+- **Unit:** `/etc/systemd/system/mithrandir-unified-api.service` (system unit, `User=nbost`, `Restart=always`, 10 s)
+
+**The `deploy.yml` workflow has failed on every push since it was written** (`tailscale: failed to evaluate SSH policy`): the tailnet ACL has no `ssh` rule allowing `tag:ci` → `nbost@mithrandir`, and even past that the `sudo systemctl restart` needs a passwordless sudoers entry. Both are admin-console / root changes. Until they land, deploy by hand:
+
+```bash
+ssh mithrandir 'cd ~/mithrandir-unified-api && git pull --ff-only origin main && ~/.bun/bin/bun install --frozen-lockfile && ~/.bun/bin/bun run build'
+# then either of:
+ssh mithrandir 'sudo systemctl restart mithrandir-unified-api'      # needs a human at sudo
+ssh mithrandir 'kill -TERM $(systemctl show -p MainPID --value mithrandir-unified-api)'  # no sudo: systemd restarts it in 10 s
+# verify
+ssh mithrandir 'systemctl show mithrandir-unified-api -p MainPID -p ActiveEnterTimestamp; curl -s localhost:8080/health'
+```
+
+`kill -TERM` works because the process runs as `nbost`. It relies on `SIGTERM` actually exiting, which is what `src/lib/shutdown.ts` guarantees (10 s deadline); before that fix a SIGTERM left the process alive with the listener closed.
 
 ### Project Structure
 
