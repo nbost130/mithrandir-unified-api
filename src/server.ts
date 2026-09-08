@@ -7,10 +7,15 @@ import Fastify from 'fastify';
 import { getConfig } from './config/validation.js';
 import { createDashboardDataHelpers } from './dashboard/helpers.js';
 import { createApiClient } from './lib/apiClient.js';
+import { installSignalHandlers } from './lib/shutdown.js';
 import { commandRoutes } from './modules/commands/commands.controller.js';
 import { morningRoutes } from './modules/morning/morning.controller.js';
 import { reconciliationRoutes } from './modules/reconciliation/reconciliation.controller.js';
-import { initializeReconciliation } from './modules/reconciliation/reconciliation.service.js';
+import {
+  closeDatabase,
+  initializeReconciliation,
+  stopPolling,
+} from './modules/reconciliation/reconciliation.service.js';
 import { serviceRoutes } from './modules/services/services.controller.js';
 import { registerTirithModule } from './modules/tirith/index.js';
 
@@ -37,6 +42,10 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
   // Configure logger based on environment
   const isProduction = process.env.NODE_ENV === 'production';
   const fastify = Fastify({
+    // Without this, close() waits for every keep-alive connection (Kuma polls
+    // every 60 s) and SIGTERM never finishes. 2026-09-08: the process sat for
+    // minutes with the listener closed, port 8080 dark, still polling.
+    forceCloseConnections: true,
     logger: isProduction
       ? {
           // Production: structured JSON logs
@@ -493,20 +502,13 @@ export async function createServer(options?: { systemService?: any; apiClient?: 
     return reply.code(500).send(errorResponse);
   });
 
-  // Graceful shutdown
-  const gracefulShutdown = async (signal: string) => {
-    fastify.log.info(`Received ${signal}, shutting down gracefully`);
-    try {
-      await fastify.close();
-      process.exit(0);
-    } catch (error) {
-      fastify.log.error({ error }, 'Error during shutdown');
-      process.exit(1);
-    }
-  };
-
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  // Graceful shutdown: stop the bare-setInterval poller (it would keep the
+  // loop alive), close the listener, and exit within the deadline regardless.
+  installSignalHandlers(fastify.log, async () => {
+    stopPolling();
+    await fastify.close();
+    closeDatabase();
+  });
 
   return fastify;
 }
