@@ -30,7 +30,7 @@
     "@fastify/swagger-ui": "^2.1.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@types/opossum": "^8.1.9",
-    "axios": "^1.13.2",
+    "axios": "^1.20.0",
     "axios-retry": "^4.5.0",
     "better-sqlite3": "^12.5.0",
     "bullmq": "^5.64.1",
@@ -52,7 +52,7 @@
     "openapi-typescript": "^7.10.1",
     "tsx": "^4.6.0",
     "typescript": "^5.3.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.11"
   },
   "keywords": [
     "mithrandir",
@@ -62,5 +62,8 @@
     "homelab"
   ],
   "author": "Mithrandir System",
-  "license": "MIT"
+  "license": "MIT",
+  "overrides": {
+    "proxy-addr": "2.0.8"
+  }
 }
